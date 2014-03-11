@@ -1,0 +1,15 @@
+<div class="col-md-12" ng-controller="DashboardCtrl">
+    <h1>{{ dashName }} Dashboard</h1>
+    <div class="col-sm-7 col-md-7 col-lg-7">
+        <div class="well">
+            <p ng-repeat="setting in dashSettings"><input placeholder="{{ setting }}"></p>
+        </div>
+    </div>
+    <div class="col-sm-5 col-md-5 col-lg-5">
+        <div class="well">
+            <h2>Orders</h2>
+        </div>
+    </div>
+
+
+</div>
