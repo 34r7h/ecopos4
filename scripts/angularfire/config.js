@@ -13,4 +13,4 @@ angular.module('ecoposApp')
   .constant('loginProviders', 'facebook,twitter,password')
 
   // your Firebase URL goes here
-  .constant('FBURL', 'https://ecopos.firebaseio.com');
+  .constant('FBURL', 'https://opentest.firebaseio.com');
