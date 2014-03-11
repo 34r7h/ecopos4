@@ -26,8 +26,5 @@
     "angularfire": "~0.6.0",
     "firebase-simple-login": "~1.0.2",
     "angular-ui-router": "latest"
-  },
-  "resolutions": {
-    "angular": "1.2.15-build.2399+sha.ca4ddfa"
   }
 }
