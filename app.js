@@ -27,6 +27,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 					console.log(1);
 
 
+
 					return 1;
 				}
 			},
@@ -46,6 +47,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			controller: 'LoginController',
 			onEnter: function(){
 				console.log("Entering Login State");
+
 			},
 			onExit: function(){
 				console.log("Leaving Login State");
@@ -75,6 +77,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 						$scope.dashSettings = ['name', 'address', 'contact', 'shopping', 'payment'];
 						$scope.orders = syncData('productz');
 						$scope.navigation = ['Edit', 'Cancel', 'Save'];
+
 
 					}
 				},
@@ -153,7 +156,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 					templateUrl:'views/shops/store/store.html',
 					controller:function($scope,syncData){
 						$scope.shopName = "Purchase Order";
-						$scope.products = syncData('"produceList"');
+						$scope.products = syncData('"produceList"', 20);
 						$scope.navigation = ['Search','Categories','Suppliers'];
 
 					}
