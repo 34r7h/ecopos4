@@ -5,8 +5,11 @@
     <div style="clear:both"></div>
 
     <div class="col-sm-3 well"><h3>{{ shopName + " Navigation" }}</h3>{{ navigation }}</div>
-    <div ng-repeat="product in products">
-        <div class="col-sm-9 well">{{ product }}</div>
+
+    <div class="col-sm-9">
+        <div ng-repeat="product in products">
+            <div class="well">{{ product }}</div>
+        </div>
     </div>
 
 </div>

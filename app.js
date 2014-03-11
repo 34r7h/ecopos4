@@ -156,7 +156,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 					templateUrl:'views/shops/store/store.html',
 					controller:function($scope,syncData){
 						$scope.shopName = "Purchase Order";
-						$scope.products = syncData('"produceList"', 20);
+						$scope.products = syncData('"produceList"/groceryList', 20);
 						$scope.navigation = ['Search','Categories','Suppliers'];
 
 					}
