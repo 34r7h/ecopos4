@@ -8,7 +8,6 @@ angular.module('ecoposApp')
         //    $log.debug('simpleLogin:login:'+JSON.stringify(user));
         });
 
-        // TODO: we need to fire the
         $scope.$on('$simpleLogin:profile:loaded', function(event, user){
             $scope.user = user;
         });
