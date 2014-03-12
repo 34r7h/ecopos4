@@ -1,6 +1,6 @@
 <!-- wait for auth to resolve (avoid flashing login page before redirect -->
 <div class="row">
-    <div class="col-sm-12">
+    <div class="col-sm-12" ng-hide="profileMode">
 
         <!-- examples for fun and profit -->
         <!--<div ng-show-auth="login">{{auth.user|json}}</div>-->
@@ -17,7 +17,7 @@
         
         <p>&nbsp;</p>
         <form role="form">
-            <fielset>
+            <fieldset>
                 <legend>Email/Password</legend>
 
                 <div class="row">
@@ -43,12 +43,46 @@
                         <button class="btn btn-default" ng-show="createMode" ng-click="createMode = false">Cancel</button>
                     </div>
                 </div>
-            </fielset>
+            </fieldset>
         </form>
         
 
         <br />
         <div ng-show="err" class="alert alert-danger"><strong>{{err}}</strong></div>
 
+    </div>
+
+    <div class="col-sm-12" ng-show="profileMode">
+        <fieldset>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Please confirm your username to continue...</p>
+
+                    <div class="form-group">
+                        <label>uid</label>
+                        {{ user.uid }}
+                    </div>
+                    <div class="form-group">
+                        <label>email</label>
+                        {{ email }}
+                    </div>
+                    <div class="form-group">
+                        <label>display name</label>
+                        {{ displayName }}
+                    </div>
+
+                    <div class="form-group">
+                        <label>username</label>
+                        <input class="form-control" type="text" ng-model="username" />
+                    </div>
+
+                    <button class="btn btn-success" ng-click="createProfile()">Set Username</button>
+                    <button class="btn btn-default" ng-click="cancelProfile()">Cancel</button>
+                </div>
+            </div>
+        </fieldset>
+
+        <br />
+        <div ng-show="err" class="alert alert-danger"><strong>{{err}}</strong></div>
     </div>
 </div>

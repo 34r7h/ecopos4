@@ -1,59 +1,55 @@
+
+
 angular.module('ecoposApp')
-  .controller('MainCtrl', function ($scope, syncData) {
+  .controller('MainCtrl', function ($rootScope, $scope, $log) {
+        $scope.user = null;
+
+        $scope.$on('$firebaseSimpleLogin:login', function(event, user){
+        //    $log.debug('simpleLogin:login:'+JSON.stringify(user));
+        });
+
+        $scope.$on('$simpleLogin:profile:loaded', function(event, user){
+            $scope.user = user;
+        });
+
+        $scope.$on('$firebaseSimpleLogin:logout', function(event){
+            $log.debug('simpleLogin:logout:');
+            $scope.user = null;
+        });
+
+        $scope.$on('$firebaseSimpleLogin:error', function(event, error){
+            $log.error('simpleLogin:error:'+error);
+        });
 
 
-		/*
-		$scope.messagez = syncData('messagez');
+//        syncData('user/spiralsense').$bind($scope, 'user');
 
-		syncData('userz/supplierx').$bind($scope, 'userz');
+        /*
+        $scope.userz = syncData('userz/supplierx');
 
-
-		$scope.messagez.$set(
-		 {
-		 "mes-unique0000": {
-		 subject: "Title or reason of the season",
-		 users: ['plong0', 'irthism'], // a user can take themselves out of a conversation or add others
-		 conversation: {
-		 timestamp: ['plong0', "a brownlike message"],
-		 timestamp1: ['irthism', "another reefer message"],
-		 timestamp2: ['plong0', "last message"]
-		 }
-		 },
-		 "mes-unique1111": {
-		 subject: "Title or reason of the season",
-		 users: ['plong0', 'irthism'], // a user can take themselves out of a conversation or add others
-		 conversation: {
-		 timestamp: ['plong0', "a brownlike message"],
-		 timestamp1: ['irthism', "another reefer message"],
-		 timestamp2: ['plong0', "last message"]
-		 }
-
-		 },
-		 "mes-unique2222": {
-		 subject: "Swing or Planetary of the Galaxy",
-		 users: ['plong0', 'irthism'],
-		 conversation: {
-		 timestamp: ['plong0', "a message"],
-		 timestamp1: ['irthism', "another message"],
-		 timestamp2: ['plong0', "last message"]
-		 }
-		 },
-		 "mes-unique3333": {
-		 subject: "neverbeginning story",
-		 users: ['plong0', 'irthism'],
-		 conversation: {
-		 timestamp: ['plong0', "a fabuloous message"],
-		 timestamp1: ['irthism', "another grande message"],
-		 timestamp2: ['plong0', "last message"]
-		 }
-		 }
-		 }
-
-		);
-
-		 */
+        syncData('userz/supplierx').$bind($scope, 'userz');
 
 
+
+        $scope.userz.$add({
+            name: 'Average Supplier',
+            address: {
+                number: 3100,
+                street: 'Boardwalk',
+                streetType: 'Blvd',
+                city: 'Lund',
+                province: 'BC',
+                postal: 'V1K6V0'
+            },
+            contact: {
+                phone: 6049335609,
+                email: 'supplier@worksforlaughs.com'
+            }
+
+
+        });
+
+        */
 		$scope.awesomeThings = [
 			'HTML5 Boilerplate',
 			'AngularJS',

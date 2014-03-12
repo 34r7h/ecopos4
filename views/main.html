@@ -6,12 +6,12 @@
       <li><a ui-sref="main.tools.views">Tools</a></li>
 
     <li ng-cloak ng-show-auth="login" ng-controller="LoginController"><a href="#" ng-click="logout()">Log Out</a></li>
-    <li ng-cloak ng-show-auth="['logout','error']"><a ui-sref="login">Log In</a></li>
+    <li ng-cloak ng-show-auth="['logout','error']"><a ui-sref="main.login">Log In</a></li>
   </ul>
   <h3 class="text-muted">ecopos</h3>
     <input ng-model="widget">{{ widget }}{{ userz }}
 
-
+    <p>What user:{{ user.$id }}:{{ user }}:</p>
 </div>
 
   <h3>♥</h3>
