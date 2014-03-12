@@ -25,9 +25,6 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			resolve:{
 				test:function(){
 					console.log(1);
-
-
-
 					return 1;
 				}
 			},
@@ -40,8 +37,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 				console.log("Leaving Main State");
 			}
 		})
-		.state('login', {
-			url:'/login',
+		.state('main.login', {
+			url:'login',
 			authRequired:false,
 			templateUrl: 'views/login.html',
 			controller: 'LoginController',
@@ -224,7 +221,9 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
 });
 
-angular.module('ecoposApp').run(function($rootScope) {
+angular.module('ecoposApp').run(function($rootScope, simpleLogin) {
+    // if there is a user authenticated with firebase, this will trigger the rest of the login sequence for them
+    simpleLogin.activateCurrent();
 
     $rootScope.safeApply = function(fn) {
         var phase = $rootScope.$$phase;
