@@ -1,18 +1,37 @@
 
 
 angular.module('ecoposApp')
-  .controller('LoginController', function($scope, simpleLogin, $location) {
+  .controller('LoginController', function($scope, simpleLogin, profileManager, $location) {
     $scope.pass = null;
     $scope.err = null;
     $scope.email = null;
     $scope.confirm = null;
     $scope.createMode = false;
+    $scope.profileMode = false;
     $scope.user = null;
+    $scope.username = null;
+    $scope.displayName = null;
 
     $scope.login = function(service) {
       simpleLogin.login(service, function(err, user) {
+          if(user){
+              profileManager.loadProfile(user.uid).then(function(success){
+              }, function(err){
+                  // no profile, setup the form to create it
+                  if(user.provider === 'facebook'){
+                      $scope.username = user.username;
+                      $scope.email = user.emails[0].value?user.emails[0].value:null;
+                      $scope.displayName = user.displayName;
+                  }
+                  else if(user.provider === 'twitter'){
+                      $scope.username = user.username;
+                      $scope.email = user.email;
+                      $scope.displayName = user.displayName;
+                  }
+                  $scope.profileMode = true; // trigger the ng-show
+              });
+          }
 	      $scope.user = user;
-	      console.log(user);
         $scope.err = err? err + '' : null;
       });
     };
@@ -27,6 +46,22 @@ angular.module('ecoposApp')
       }
       else {
         simpleLogin.loginPassword($scope.email, $scope.pass, function(err, user) {
+            if(!err){
+                if(user){
+                    // user authenticated, try to load the profile
+                    profileManager.loadProfile(user.uid).then(function(success){
+                    }, function(err){
+                        // no profile, setup the form to create it
+                        $scope.username = user.email.split('@', 2)[0];
+                        $scope.email = user.email;
+                        $scope.displayName = $scope.username;
+                        $scope.profileMode = true; // trigger the ng-show
+                    });
+                }
+            }
+
+            $scope.user = user;
+
           $scope.err = err? err + '' : null;
           if( !err && cb ) {
             cb(user);
@@ -59,15 +94,31 @@ angular.module('ecoposApp')
           }
           else {
 	          $scope.user = user;
-	          console.log(user);
-            // must be logged in before I can write to my profile
-            $scope.login(function() {
-              simpleLogin.createProfile(user.uid, user.email);
-              $location.path('account');
-            });
           }
         });
       }
+    };
+
+    $scope.cancelProfile = function(){
+        if($scope.user.provider === 'password'){
+            simpleLogin.removeAccount($scope.email, $scope.pass);
+        }
+        else{
+            $scope.email = null;
+        }
+        $scope.err = null;
+        $scope.username = null;
+        $scope.displayName = null;
+        $scope.pass = null;
+        $scope.profileMode = false;
+    };
+
+    $scope.createProfile = function(){
+        profileManager.createProfile($scope.user.uid, $scope.username, $scope.email, $scope.displayName).then(function(success){
+
+        }, function(err){
+            $scope.err = err;
+        });
     };
 
   });

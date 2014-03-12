@@ -28,7 +28,8 @@
     "firebase-simple-login": "~1.0.2",
     "angular-ui-router": "latest",
 	  "angular-route":"latest",
-	  "json3": "latest"
+	  "json3": "latest",
+      "angular-md5": "latest"
   },
   "resolutions": {
     "angular": "~1.2"
