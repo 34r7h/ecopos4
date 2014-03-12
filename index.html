@@ -7,7 +7,7 @@
     <meta charset="utf-8">
     <!-- App LESS -->
     <link href="app.less" type="text/css" rel="stylesheet/less">
-
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
 
 </head>
 <body>
@@ -30,8 +30,12 @@
 
   <!-- bower:js -->
 <script src="bower_components/less.js/dist/less-1.6.2.js"></script>
-  <script src="bower_components/angular/angular.js"></script>
-  <script src="bower_components/json3/lib/json3.js"></script>
+    <script src="bower_components/underscore/underscore.js"></script>
+
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-google-maps/dist/angular-google-maps.js"></script>
+
+    <script src="bower_components/json3/lib/json3.js"></script>
   <script src="bower_components/angular-resource/angular-resource.js"></script>
   <script src="bower_components/angular-cookies/angular-cookies.js"></script>
   <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
@@ -44,7 +48,6 @@
     <script src="bower_components/observe-js/src/observe.js"></script>
     <script src="bower_components/angular-gestures/gestures.js"></script>
     <script src="bower_components/angular-md5/angular-md5.js"></script>
-
 
 
 
@@ -67,6 +70,10 @@
   <script src="views/admin/dashboard/orders/orders.js"></script>
   <script src="views/admin/dashboard/dashboard.js"></script>
   <script src="views/tools/tool/tool.js"></script>
+  <script src="views/tools/tool/calendar/calendar.js"></script>
+  <script src="views/tools/tool/maps/maps.js"></script>
+  <script src="views/tools/tool/infos/infos.js"></script>
+  <script src="views/tools/tool/messages/messages.js"></script>
   <!-- Add New Component JS Above -->
 
 

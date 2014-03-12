@@ -1,0 +1,32 @@
+<div>
+    <h4>New Messages</h4>
+    <div ng-repeat="message in user.plong0.messages.unseen">
+        <span>
+            <h5 ng-click="checked.$index=!checked.$index">{{ $parent.messages[message].users }}{{ $parent.messages[message].subject }}
+                <span ng-hide="checked.$index" > &#9658;</span>
+                <span ng-show="checked.$index" > &#9660;</span>
+            </h5>
+
+        </span>
+        <div ng-repeat="(key,message) in $parent.messages[message].conversation" ng-show="checked.$index">
+
+            <p>At {{ key }}, {{ message[0] }} says, {{ message[1] }}</p>
+
+        </div>
+        <span ng-show="checked.$index"><input placeholder="Continue conversation"><button ng-click="sendMsg()">Send</button></span>
+    </div>
+    <h4>Old Messages</h4>
+    <div ng-repeat="message in user.plong0.messages.seen">
+        <h5 ng-click="checked.$index=!checked.$index">{{ $parent.messages[message].subject }}
+            <span ng-hide="checked.$index" > &#9658;</span>
+            <span ng-show="checked.$index" > &#9660;</span>
+        </h5>
+        <div ng-repeat="(key,message) in $parent.messages[message].conversation" ng-show="checked.$index">
+
+            <p>At {{ key }}, {{ message[0] }} said, {{ message[1] }}</p>
+
+        </div>
+        <span ng-show="checked.$index"><input placeholder="Continue conversation"><button ng-click="sendMsg()">Send</button></span>
+    </div>
+
+</div>

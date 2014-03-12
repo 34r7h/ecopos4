@@ -29,6 +29,7 @@
     "angular-ui-router": "latest",
 	  "angular-route":"latest",
 	  "json3": "latest",
+	  "angular-google-maps":"latest",
       "angular-md5": "latest"
   },
   "resolutions": {

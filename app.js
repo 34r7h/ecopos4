@@ -8,7 +8,8 @@ angular.module('ecoposApp', [
 	'angularfire.firebase',
 	'angularfire.login',
 	'simpleLoginTools',
-	'angular-gestures'
+	'angular-gestures',
+	'google-maps'
 ]);
 
 angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, $uiViewScrollProvider, $anchorScrollProvider) {
@@ -25,6 +26,9 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			resolve:{
 				test:function(){
 					console.log(1);
+
+
+
 					return 1;
 				}
 			},
@@ -185,15 +189,16 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			url:'',
 			views:{
 				agenda: {
-					templateUrl:'views/tools/tool/tool.html',
+					template:'<calendar/>',
 					controller:function($scope,syncData){
 						$scope.toolName = "Agenda";
 						$scope.products = syncData('productz');
 						$scope.navigation = ['Search','Categories', 'Specials'];
+
 					}
 				},
 				delivery: {
-					templateUrl:'views/tools/tool/tool.html',
+					template:'<map/>',
 					controller:function($scope,syncData){
 						$scope.toolName = "Delivery";
 						$scope.products = syncData('inventory');
@@ -201,10 +206,20 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 					}
 				},
 				info: {
-					templateUrl:'views/tools/tool/tool.html',
+					template:'<infos/>',
 					controller:function($scope,syncData){
 						$scope.toolName = "Info";
-						$scope.products = syncData('"produceList"');
+						$scope.info = syncData('infoz/content');
+						$scope.navigation = ['Search','Categories','Suppliers'];
+
+					}
+				},
+				messages: {
+					template:'<messages/>',
+					controller:function($scope,syncData){
+						$scope.toolName = "Info";
+						$scope.user = syncData('user');
+						$scope.messages = syncData('messagez');
 						$scope.navigation = ['Search','Categories','Suppliers'];
 
 					}
@@ -222,9 +237,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 });
 
 angular.module('ecoposApp').run(function($rootScope, simpleLogin) {
-    // if there is a user authenticated with firebase, this will trigger the rest of the login sequence for them
-    simpleLogin.activateCurrent();
-
+	    // if there is a user authenticated with firebase, this will trigger the rest of the login sequence for them
+	simpleLogin.activateCurrent();
     $rootScope.safeApply = function(fn) {
         var phase = $rootScope.$$phase;
         if (phase === '$apply' || phase === '$digest') {
