@@ -33,7 +33,7 @@ Date.prototype.getMonthFormatted = function() {
 };
 
 
-angular.module("ecopos.tools").directive('ngHtml', function() {
+angular.module("ecoposApp").directive('ngHtml', function() {
 	return function(scope, element, attrs) {
 		scope.$watch(attrs.ngHtml, function(value) {
 			element[0].innerHTML = value;
@@ -162,7 +162,7 @@ var calendarLinkFunction = function (scope, element) {
 };
 
 
-angular.module("ecopos.tools").directive("calendar", function(){
+angular.module("ecoposApp").directive("calendar", function(){
 	return{
 		restrict: "E",
 		scope: {
