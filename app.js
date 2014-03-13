@@ -12,9 +12,9 @@ angular.module('ecoposApp', [
 	'google-maps'
 ]);
 
-angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, $uiViewScrollProvider, $anchorScrollProvider) {
+angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, $anchorScrollProvider) {
 
-	$uiViewScrollProvider.useAnchorScroll();
+
 	$anchorScrollProvider.disableAutoScrolling();
 
     $urlRouterProvider.otherwise('/');

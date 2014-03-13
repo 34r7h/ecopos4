@@ -8,7 +8,7 @@
 //This enables users to create any directory structure they desire.
 var createFolderGlobs = function(fileTypePatterns) {
   fileTypePatterns = Array.isArray(fileTypePatterns) ? fileTypePatterns : [fileTypePatterns];
-  var ignore = ['node_modules','bower_components','dist','temp'];
+  var ignore = ['node_modules','bower_components','dist','temp','www', 'hooks','merges','pg', 'platforms', 'plugins'];
   var fs = require('fs');
   return fs.readdirSync(process.cwd())
           .map(function(file){
@@ -90,11 +90,12 @@ module.exports = function (grunt) {
     copy: {
       main: {
         files: [
-          {src: ['img/**'], dest: 'dist/'},
-          {src: ['bower_components/font-awesome/fonts/**'], dest: 'dist/',filter:'isFile',expand:true}
-          //{src: ['bower_components/angular-ui-utils/ui-utils-ieshiv.min.js'], dest: 'dist/'},
-          //{src: ['bower_components/select2/*.png','bower_components/select2/*.gif'], dest:'dist/css/',flatten:true,expand:true},
-          //{src: ['bower_components/angular-mocks/angular-mocks.js'], dest: 'dist/'}
+          {src: ['img/**'], dest: 'www/'},
+	        {src: ['config.xml'], dest: 'www/'},
+          {src: ['bower_components/font-awesome/fonts/**'], dest: 'www/',filter:'isFile',expand:true}
+          //{src: ['bower_components/angular-ui-utils/ui-utils-ieshiv.min.js'], dest: 'www/'},
+          //{src: ['bower_components/select2/*.png','bower_components/select2/*.gif'], dest:'www/css/',flatten:true,expand:true},
+          //{src: ['bower_components/angular-mocks/angular-mocks.js'], dest: 'www/'}
         ]
       }
     },
@@ -113,17 +114,18 @@ module.exports = function (grunt) {
           remove: ['script[data-remove!="exclude"]','link'],
           append: [
             {selector:'body',html:'<script src="app.full.min.js"></script>'},
-            {selector:'head',html:'<link rel="stylesheet" href="app.full.min.css">'}
+            {selector:'head',html:'<link rel="stylesheet" href="app.full.min.css">'},
+	          {selector:'head',html:'<script src="https://maps.googleapis.com/maps/api/js?v=3.exp'+ ('&').toString + 'sensor=false"></script>'}
           ]
         },
         src:'index.html',
-        dest: 'dist/index.html'
+        dest: 'www/index.html'
       }
     },
     cssmin: {
       main: {
         src:['temp/app.css','<%= dom_munger.data.appcss %>'],
-        dest:'dist/app.full.min.css'
+        dest:'www/app.full.min.css'
       }
     },
     concat: {
@@ -145,7 +147,7 @@ module.exports = function (grunt) {
       main: {
 
         src: 'temp/app.full.js',
-        dest:'dist/app.full.min.js'
+        dest:'www/app.full.min.js'
       }
     },
     htmlmin: {
@@ -161,16 +163,16 @@ module.exports = function (grunt) {
           removeStyleLinkTypeAttributes: true
         },
         files: {
-          'dist/index.html': 'dist/index.html'
+          'www/index.html': 'www/index.html'
         }
       }
     },
     imagemin: {
       main:{
         files: [{
-          expand: true, cwd:'dist/',
+          expand: true, cwd:'www/',
           src:['**/{*.png,*.jpg}'],
-          dest: 'dist/'
+          dest: 'www/'
         }]
       }
     },
@@ -185,7 +187,7 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('build',['jshint','clean:before','less','dom_munger','ngtemplates','cssmin','concat','ngmin','uglify','copy','htmlmin','imagemin','clean:after']);
+  grunt.registerTask('build',['jshint','clean:before','less','dom_munger','ngtemplates','cssmin','concat','ngmin', 'uglify','copy','htmlmin','imagemin','clean:after']);
   grunt.registerTask('server', ['dom_munger:read','jshint','connect', 'watch']);
   grunt.registerTask('test',['dom_munger:read','jasmine']);
 

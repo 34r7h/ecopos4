@@ -7,7 +7,7 @@
     <meta charset="utf-8">
     <!-- App LESS -->
     <link href="app.less" type="text/css" rel="stylesheet/less">
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false" data-build="exclude"></script>
 
 </head>
 <body>
@@ -27,12 +27,18 @@
 
   <!-- Livereload script for development only (stripped during dist build) -->
   <script src="http://localhost:35729/livereload.js" data-build="exclude"></script>
-
+    <script src="phonegap.js"></script>
   <!-- bower:js -->
 <script src="bower_components/less.js/dist/less-1.6.2.js"></script>
     <script src="bower_components/underscore/underscore.js"></script>
 
+    <script src="bower_components/firebase/firebase-debug.js"></script>
+    <script src="bower_components/firebase-simple-login/firebase-simple-login-debug.js"></script>
+
     <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/ionic/release/js/ionic.js"></script>
+    <script src="bower_components/angularfire/angularfire.js"></script>
+    <script src="bower_components/ionic/release/js/ionic-angular.js"></script>
     <script src="bower_components/angular-google-maps/dist/angular-google-maps.js"></script>
 
     <script src="bower_components/json3/lib/json3.js"></script>
@@ -40,10 +46,7 @@
   <script src="bower_components/angular-cookies/angular-cookies.js"></script>
   <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
   <script src="bower_components/angular-route/angular-route.js"></script>
-  <script src="bower_components/firebase/firebase.js"></script>
   <script src="bower_components/angular-mocks/angular-mocks.js"></script>
-  <script src="bower_components/firebase-simple-login/firebase-simple-login.js"></script>
-  <script src="bower_components/angularfire/angularfire.js"></script>
   <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
     <script src="bower_components/observe-js/src/observe.js"></script>
     <script src="bower_components/angular-gestures/gestures.js"></script>

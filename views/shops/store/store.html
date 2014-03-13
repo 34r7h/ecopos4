@@ -1,10 +1,10 @@
 <div class="col-sm-12" ng-controller="StoreCtrl">
     <h1>{{ shopName }} Shopping Experience</h1>
-    <div class="col-sm-7 well"><cart/></div>
-    <div class="col-sm-5 well"><button><h2>Checkout</h2></button></div>
+    <div class="col-sm-7"><div class="well"><cart/></div></div>
+    <div class="col-sm-5"><div class="well"><button><h2>Checkout</h2></button></div></div>
     <div style="clear:both"></div>
 
-    <div class="col-sm-3 well"><h3>{{ shopName + " Navigation" }}</h3>{{ navigation }}</div>
+    <div class="col-sm-3"> <div class="well"><h3>{{ shopName + " Navigation" }}</h3>{{ navigation }}</div></div>
 
     <div class="col-sm-9">
         <div ng-repeat="product in products">
