@@ -1,0 +1,22 @@
+<div>
+    <div ng-repeat="info in info">
+        <div>
+            <div>
+                <h3>{{info.title}}</h3>
+            </div>
+            <div ng-repeat="part in info.parts">
+                <h4>{{part.heading}}</h4>
+                <span ng-repeat="media in part.media"><img ng-src="{{media}}"></span>
+                <div ng-repeat="words in part.words">{{words}}</div>
+                <i>{{part.footnote}}</i>
+            </div>
+            <div>
+                <span>{{info.author}}</span>, <span> {{info.published | date:'medium'}}</span>,<span> {{info.related}}</span>
+            </div>
+        </div>
+
+    </div>
+
+
+
+</div>
