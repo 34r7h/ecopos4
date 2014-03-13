@@ -1,7 +1,7 @@
 
 
 angular.module('ecoposApp')
-  .controller('MainCtrl', function ($rootScope, $scope, $log) {
+  .controller('MainCtrl', function ($rootScope, $scope, $log, $timeout) {
         $scope.user = null;
 
         $scope.$on('$firebaseSimpleLogin:login', function(event, user){
@@ -9,7 +9,8 @@ angular.module('ecoposApp')
         });
 
         $scope.$on('$simpleLogin:profile:loaded', function(event, user){
-            $scope.user = user;
+            //$scope.user = user;
+            user.$bind($scope, 'user');
         });
 
         $scope.$on('$firebaseSimpleLogin:logout', function(event){

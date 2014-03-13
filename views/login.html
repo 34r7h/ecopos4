@@ -1,6 +1,6 @@
 <!-- wait for auth to resolve (avoid flashing login page before redirect -->
 <div class="row">
-    <div class="col-sm-12" ng-hide="profileMode">
+    <div class="col-sm-12" ng-hide="profileMode || passwordMode">
 
         <!-- examples for fun and profit -->
         <!--<div ng-show-auth="login">{{auth.user|json}}</div>-->
@@ -39,6 +39,7 @@
 
                         <button class="btn btn-primary" ng-click="loginPassword()" ng-hide="createMode">Log In</button>
                         <button class="btn btn-default" ng-click="createMode = true" ng-hide="createMode">Register</button>
+                        <button class="btn btn-default" ng-click="passwordMode = true" ng-hide="createMode">Forgot Password</button>
                         <button class="btn btn-success" ng-show="createMode" ng-click="createAccount()">Create Account</button>
                         <button class="btn btn-default" ng-show="createMode" ng-click="createMode = false">Cancel</button>
                     </div>
@@ -50,6 +51,27 @@
         <br />
         <div ng-show="err" class="alert alert-danger"><strong>{{err}}</strong></div>
 
+    </div>
+
+    <div class="col-sm-12" ng-show="passwordMode">
+        <fieldset>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Please enter your email address to continue...</p>
+
+                    <div class="form-group">
+                        <label>email</label>
+                        <input class="form-control" type="text" ng-model="email" />
+                    </div>
+
+                    <button class="btn btn-primary" ng-click="recoverPassword()">Recover Password</button>
+                    <button class="btn btn-default" ng-click="passwordMode = false">Cancel</button>
+                </div>
+            </div>
+        </fieldset>
+
+        <br />
+        <div ng-show="err" class="alert alert-danger"><strong>{{err}}</strong></div>
     </div>
 
     <div class="col-sm-12" ng-show="profileMode">

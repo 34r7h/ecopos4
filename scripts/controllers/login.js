@@ -7,6 +7,7 @@ angular.module('ecoposApp')
     $scope.email = null;
     $scope.confirm = null;
     $scope.createMode = false;
+    $scope.passwordMode = false;
     $scope.profileMode = false;
     $scope.user = null;
     $scope.username = null;
@@ -72,6 +73,14 @@ angular.module('ecoposApp')
 
     $scope.logout = simpleLogin.logout;
 
+    $scope.recoverPassword = function(){
+        simpleLogin.forgotPassword($scope.email, function(err){
+            if(err){
+                $scope.err = err? err + '' : null;
+            }
+        });
+    };
+
     $scope.createAccount = function() {
       function assertValidLoginAttempt() {
         if( !$scope.email ) {
@@ -93,8 +102,19 @@ angular.module('ecoposApp')
             $scope.err = err? err + '' : null;
           }
           else {
-	          $scope.user = user;
+              if(user){
+                  // user authenticated, try to load the profile
+                  profileManager.loadProfile(user.uid).then(function(success){
+                  }, function(err){
+                      // no profile, setup the form to create it
+                      $scope.username = user.email.split('@', 2)[0];
+                      $scope.email = user.email;
+                      $scope.displayName = $scope.username;
+                      $scope.profileMode = true; // trigger the ng-show
+                  });
+              }
           }
+            $scope.user = user;
         });
       }
     };

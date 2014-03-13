@@ -24,13 +24,13 @@
     "font-awesome": "~4.0",
     "angular-gestures": "latest",
     "firebase": "~1.0.2",
-    "angularfire": "~0.6.0",
-    "firebase-simple-login": "~1.0.2",
+    "angularfire": "~0.7.0",
+    "firebase-simple-login": "~1.2.5",
     "angular-ui-router": "latest",
-	  "angular-route":"latest",
-	  "json3": "latest",
-	  "angular-google-maps":"latest",
-      "angular-md5": "latest"
+    "angular-route": "latest",
+    "json3": "latest",
+    "angular-google-maps": "latest",
+    "angular-md5": "latest"
   },
   "resolutions": {
     "angular": "~1.2"
