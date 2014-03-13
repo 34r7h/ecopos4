@@ -1,28 +1,32 @@
 
 
 angular.module('ecoposApp')
-  .controller('MainCtrl', function ($rootScope, $scope, $log) {
-        $scope.user = null;
+  .controller('MainCtrl', function ($rootScope, $scope, $log, $timeout, syncData) {
+        $scope.user = {};
+        var unbindUser = null;
 
         $scope.$on('$firebaseSimpleLogin:login', function(event, user){
         //    $log.debug('simpleLogin:login:'+JSON.stringify(user));
         });
 
         $scope.$on('$simpleLogin:profile:loaded', function(event, user){
-            $scope.user = user;
+            user.$bind($scope, 'user').then(function(unbind){
+                unbindUser = unbind;
+            });
         });
 
         $scope.$on('$firebaseSimpleLogin:logout', function(event){
             $log.debug('simpleLogin:logout:');
-            $scope.user = null;
+            if(typeof unbindUser === 'function'){
+                unbindUser();
+                $scope.user = {};
+            }
         });
 
         $scope.$on('$firebaseSimpleLogin:error', function(event, error){
             $log.error('simpleLogin:error:'+error);
         });
 
-
-//        syncData('user/spiralsense').$bind($scope, 'user');
 
         /*
         $scope.userz = syncData('userz/supplierx');

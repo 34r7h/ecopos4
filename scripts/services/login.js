@@ -22,6 +22,21 @@ angular.module('angularfire.login').factory('simpleLogin', function($rootScope, 
         auth.$logout();
       },
 
+
+        activateCurrent: function(){
+            // activates the currently logged in user
+            assertAuth();
+            auth.$getCurrentUser().then(function(user){
+                if(user){
+                    profileManager.loadProfile(user.uid).then(function(success){
+                        },
+                        function(err){
+                            auth.$logout();
+                        });
+                }
+            });
+        },
+
       /**
        * @param {string} provider
        * @param {Function} [callback]
@@ -38,21 +53,6 @@ angular.module('angularfire.login').factory('simpleLogin', function($rootScope, 
           }
         }, callback);
       },
-
-        activateCurrent: function(){
-            // activates the currently logged in user
-            assertAuth();
-            auth.$getCurrentUser().then(function(user){
-                if(user){
-                    profileManager.loadProfile(user.uid).then(function(success){
-                    },
-                    function(err){
-                        simpleLogin.logout();
-                    });
-                }
-            });
-        },
-
 
       /**
        * @param {string} email
@@ -76,7 +76,12 @@ angular.module('angularfire.login').factory('simpleLogin', function($rootScope, 
           }, callback);
       },
 
-        // TODO: we need a forgotPassword routine in here...
+      forgotPassword: function(email, cb) {
+          assertAuth();
+          if(typeof cb === 'undefined'){ cb = function(){}; }
+          auth.$sendPasswordResetEmail(email)
+              .then(function(){ cb(null); }, cb);
+      },
 
       changePassword: function(opts) {
         assertAuth();
@@ -95,7 +100,14 @@ angular.module('angularfire.login').factory('simpleLogin', function($rootScope, 
 
       createAccount: function(email, pass, callback) {
         assertAuth();
-        auth.$createUser(email, pass).then(function(user) { callback(null, user); }, callback);
+          profileManager.emailAvailable(email).then(function(){
+            auth.$createUser(email, pass).then(function(user) { callback(null, user); }, callback);
+          },
+          function(err){
+              if(callback){
+                  callback('email address in use.');
+              }
+          });
       },
 
       removeAccount: function(email, pass){
@@ -170,6 +182,10 @@ angular.module('angularfire.login').factory('simpleLogin', function($rootScope, 
         }
 
         return {
+            emailAvailable: function(email){
+                return reserveHash({UE: {key: email, value: 'checking...'}});
+            },
+
             createProfile: function(uid, username, email, displayName){
                 var defer = $q.defer();
                 // create the new profile, including hash-links
@@ -193,7 +209,6 @@ angular.module('angularfire.login').factory('simpleLogin', function($rootScope, 
                                     linkedAccount: linkAccounts
                                 }, function(err){
                                     if(!err){
-                                        $rootScope.$broadcast('$simpleLogin:profile:loaded', $firebase(userProfile));
                                         defer.resolve(true);
                                     }
                                     else{
@@ -229,7 +244,11 @@ angular.module('angularfire.login').factory('simpleLogin', function($rootScope, 
                 firebaseRef('hash/UP/'+uid).on('value', function(snap){
                         var username = snap.val();
                         if(username){
-                            $rootScope.$broadcast('$simpleLogin:profile:loaded', syncData('user/'+username));
+                            var userProfile = syncData('user/'+username);
+                            userProfile.$on('loaded', function(){
+                                userProfile.$off('loaded');
+                                $rootScope.$broadcast('$simpleLogin:profile:loaded', userProfile);
+                            });
                             defer.resolve(true);
                         }
                         else{
