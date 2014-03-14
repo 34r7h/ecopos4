@@ -81,6 +81,12 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 						$scope.orders = syncData('productz');
 						$scope.navigation = ['Edit', 'Cancel', 'Save'];
 
+						$scope.dashStuff = {
+							"first name": ['input' ],
+							"last name": ['input'],
+							"street number": ['input'],
+							"street name": ['']
+						}
 
 					}
 				},
