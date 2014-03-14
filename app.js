@@ -60,7 +60,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			abstract:true,
 			templateUrl:'views/admin/admin.html',
 			controller: function($scope){
-				$scope.test = 'customer';
+
 			},
 			onEnter: function(){
 				console.log("Entering Admin State");
@@ -77,7 +77,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 					templateUrl:'views/admin/dashboard/dashboard.html',
 					controller:function($scope,syncData){
 						$scope.dashName = 'Customer';
-						$scope.dashSettings = ['name', 'address', 'contact', 'shopping', 'payment'];
+						$scope.dashSettings = ['first name', 'last name', 'street','address', 'contact', 'shopping', 'payment'];
 						$scope.orders = syncData('productz');
 						$scope.navigation = ['Edit', 'Cancel', 'Save'];
 
