@@ -6,9 +6,11 @@
 //this method is used to create a set of inclusive patterns for all subdirectories
 //skipping node_modules, bower_components, dist, and any .dirs
 //This enables users to create any directory structure they desire.
+var gmapSource = '<script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>';
 var createFolderGlobs = function(fileTypePatterns) {
   fileTypePatterns = Array.isArray(fileTypePatterns) ? fileTypePatterns : [fileTypePatterns];
-  var ignore = ['node_modules','bower_components','dist','temp','www', 'hooks','merges','pg', 'platforms', 'plugins'];
+
+	var ignore = ['node_modules','bower_components','dist','temp','www', 'hooks','merges','pg', 'platforms', 'plugins'];
   var fs = require('fs');
   return fs.readdirSync(process.cwd())
           .map(function(file){
@@ -62,7 +64,7 @@ module.exports = function (grunt) {
     },
     clean: {
       before:{
-        src:['dist','temp']
+        src:['www','temp']
       },
       after: {
         src:['temp']
@@ -115,7 +117,7 @@ module.exports = function (grunt) {
           append: [
             {selector:'body',html:'<script src="app.full.min.js"></script>'},
             {selector:'head',html:'<link rel="stylesheet" href="app.full.min.css">'},
-	          {selector:'head',html:'<script src="https://maps.googleapis.com/maps/api/js?v=3.exp'+ ('&').toString + 'sensor=false"></script>'}
+	          {selector:'head',html:gmapSource}
           ]
         },
         src:'index.html',
@@ -137,7 +139,7 @@ module.exports = function (grunt) {
     ngmin: {
       main: {
         src:'temp/app.full.js',
-        dest: 'temp/app.full.js'
+        dest: 'www/app.full.min.js'
       }
     },
     uglify: {
@@ -187,7 +189,7 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('build',['jshint','clean:before','less','dom_munger','ngtemplates','cssmin','concat','ngmin', 'uglify','copy','htmlmin','imagemin','clean:after']);
+  grunt.registerTask('build',['jshint','clean:before','less','dom_munger','ngtemplates','cssmin','concat','ngmin','copy','htmlmin','imagemin','clean:after']);
   grunt.registerTask('server', ['dom_munger:read','jshint','connect', 'watch']);
   grunt.registerTask('test',['dom_munger:read','jasmine']);
 
