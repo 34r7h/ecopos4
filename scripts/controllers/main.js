@@ -1,17 +1,41 @@
 
 
 angular.module('ecoposApp')
-  .controller('MainCtrl', function ($rootScope, $scope, $log, $timeout, syncData) {
-        $scope.user = {};
+  .controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData) {
         var unbindUser = null;
 
         $scope.$on('$firebaseSimpleLogin:login', function(event, user){
         //    $log.debug('simpleLogin:login:'+JSON.stringify(user));
         });
 
+        $scope.$watch('activeRole', function(value){
+            if(value){
+                $state.go('main');
+            }
+        });
+
         $scope.$on('$simpleLogin:profile:loaded', function(event, user){
             user.$bind($scope, 'user').then(function(unbind){
                 unbindUser = unbind;
+
+                if(user.roles.admin){
+                    $scope.activeRole = 'admin';
+                }
+                else if(user.roles.manager){
+                    $scope.activeRole = 'manager';
+                }
+                else if(user.roles.employee){
+                    $scope.activeRole = 'employee';
+                }
+                else if(user.roles.supplier){
+                    $scope.activeRole = 'supplier';
+                }
+                else if(user.roles.customer){
+                    $scope.activeRole = 'customer';
+                }
+                else{
+                    $scope.activeRole = 'anonymous';
+                }
             });
         });
 
@@ -20,6 +44,7 @@ angular.module('ecoposApp')
             if(typeof unbindUser === 'function'){
                 unbindUser();
                 $scope.user = {};
+                $scope.activeRole = 'anonymous';
             }
         });
 

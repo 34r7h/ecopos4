@@ -203,10 +203,12 @@ angular.module('angularfire.login').factory('simpleLogin', function($rootScope, 
                                 var userProfile = firebaseRef('user/'+username);
                                 var linkAccounts = {};
                                 linkAccounts[uid] = true;
+                                var roles = {admin: false, customer: true, employee: false, manager: false, supplier: false};
                                 userProfile.set({
                                     email: email,
                                     displayName: displayName,
-                                    linkedAccount: linkAccounts
+                                    linkedAccount: linkAccounts,
+                                    roles: roles
                                 }, function(err){
                                     if(!err){
                                         defer.resolve(true);
