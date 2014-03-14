@@ -59,7 +59,9 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			url:'admin',
 			abstract:true,
 			templateUrl:'views/admin/admin.html',
-
+			controller: function($scope){
+				$scope.test = 'customer';
+			},
 			onEnter: function(){
 				console.log("Entering Admin State");
 			},
@@ -258,7 +260,7 @@ angular.module('ecoposApp')
 
 	// version of this seed app is compatible with angularFire 0.6
 	// see tags for other versions: https://github.com/firebase/angularFire-seed/tags
-	.constant('angularFireVersion', '0.6')
+	.constant('angularFireVersion', '0.7')
 
 	// where to redirect users if they need to authenticate (see module.routeSecurity)
 	.constant('loginRedirectPath', '/login')
