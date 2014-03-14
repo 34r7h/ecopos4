@@ -110,7 +110,17 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 						$scope.navigation = ['Search','Categories','Suppliers'];
 
 					}
-				}
+				},
+                admin: {
+                    templateUrl:'views/admin/dashboard/dashboard.html',
+                    controller:function($scope,syncData){
+                        $scope.dashName = "Admin";
+                        $scope.dashSettings = ['name', 'address', 'contact', 'shopping', 'payment', 'schedule'];
+                        $scope.products = syncData('"produceList"');
+                        $scope.navigation = ['Awesome', 'Search','Categories','Suppliers'];
+
+                    }
+                }
 			},
 			onEnter: function(){
 				console.log("Entering Admin Views");
