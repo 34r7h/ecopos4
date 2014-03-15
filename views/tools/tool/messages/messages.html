@@ -1,32 +1,56 @@
 <div>
-    <h4>New Messages</h4>
-    <div ng-repeat="message in user.plong0.messages.unseen">
-        <span>
-            <h5 ng-click="checked.$index=!checked.$index">{{ $parent.messages[message].users }}{{ $parent.messages[message].subject }}
-                <span ng-hide="checked.$index" > &#9658;</span>
-                <span ng-show="checked.$index" > &#9660;</span>
-            </h5>
 
-        </span>
-        <div ng-repeat="(key,message) in $parent.messages[message].conversation" ng-show="checked.$index">
+    <div>
+        <div ng-repeat="(messageID, message) in messages.unseen track by $index">
+            messageID: {{ messageID }}<br/>
+            subject: {{ message.subject }}<br/>
+            users: {{ message.users }}<br/>
 
-            <p>At {{ key }}, {{ message[0] }} says, {{ message[1] }}</p>
+            <div ng-repeat="(timestamp, contrib) in message.conversation">
+                 [{{ timestamp | date:'shortTime'  }}] {{ contrib.user }}: {{ contrib.text }}
+            </div>
 
+            <div class="form-group">
+                <label>Message:</label>
+                <textarea ng-model="text[$index]"></textarea>
+            </div>
+
+            <button ng-click="sendMessage(messageID, $index)">Send</button>
+            <hr/>
         </div>
-        <span ng-show="checked.$index"><input placeholder="Continue conversation"><button ng-click="sendMsg()">Send</button></span>
+
     </div>
-    <h4>Old Messages</h4>
-    <div ng-repeat="message in user.plong0.messages.seen">
-        <h5 ng-click="checked.$index=!checked.$index">{{ $parent.messages[message].subject }}
-            <span ng-hide="checked.$index" > &#9658;</span>
-            <span ng-show="checked.$index" > &#9660;</span>
-        </h5>
-        <div ng-repeat="(key,message) in $parent.messages[message].conversation" ng-show="checked.$index">
 
-            <p>At {{ key }}, {{ message[0] }} said, {{ message[1] }}</p>
+    <div>
+        <h4>Start Conversation</h4>
+        {{ users }}
+        <fieldset>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>To:</label>
+                        <select ng-model="sendTo" multiple="multiple">
+                            <option ng-repeat="username in users" value="{{ username }}">{{ username }}</option>
+                        </select>
+                    </div>
 
-        </div>
-        <span ng-show="checked.$index"><input placeholder="Continue conversation"><button ng-click="sendMsg()">Send</button></span>
+                    <div class="form-group">
+                        <label>Subject:</label>
+                        <input type="text" ng-model="subject" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Message:</label>
+                        <textarea ng-model="text.new"></textarea>
+                    </div>
+
+                    <button ng-click="startConversation()">Send</button>
+                </div>
+            </div>
+
+
+        </fieldset>
+
     </div>
 
 </div>
