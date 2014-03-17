@@ -26,7 +26,7 @@ angular.module('ecoposApp')
                   }
                   else if(user.provider === 'twitter'){
                       $scope.username = user.username;
-                      $scope.email = user.email;
+                      $scope.email = user.email; // no such luck from twitter
                       $scope.displayName = user.displayName;
                   }
                   $scope.profileMode = true; // trigger the ng-show
@@ -82,6 +82,7 @@ angular.module('ecoposApp')
     };
 
     $scope.createAccount = function() {
+        // this is for creating an email/password account
       function assertValidLoginAttempt() {
         if( !$scope.email ) {
           $scope.err = 'Please enter an email address';
@@ -120,6 +121,7 @@ angular.module('ecoposApp')
     };
 
     $scope.cancelProfile = function(){
+        simpleLogin.logout();
         if($scope.user.provider === 'password'){
             simpleLogin.removeAccount($scope.email, $scope.pass);
         }
@@ -134,6 +136,7 @@ angular.module('ecoposApp')
     };
 
     $scope.createProfile = function(){
+        // this is for creating the user profile (associates with auth account from email/password, facebook, twitter, etc)
         profileManager.createProfile($scope.user.uid, $scope.username, $scope.email, $scope.displayName).then(function(success){
 
         }, function(err){

@@ -190,52 +190,66 @@ angular.module('angularfire.login').factory('simpleLogin', function($rootScope, 
                 var defer = $q.defer();
                 // create the new profile, including hash-links
 
-                var hashCore = {UN:{key: username, value: email}, UE: {key: email, value: uid}};
-                // first check if the UN (username) and UE (email) hashes are available
-                reserveHash(hashCore).then(
-                    function(success){
-                        // username and email hash available and currently un-claimed
-                        // add the uid hash and claim them all!  hash <3!
-                        hashCore.UP = {key: uid, value: username};
-                        reserveHash(hashCore, true).then(
-                            function(success){
-                                // all hashes are claimed, build the user
-                                var userProfile = firebaseRef('user/'+username);
-                                var linkAccounts = {};
-                                linkAccounts[uid] = true;
-                                var roles = {admin: false, customer: true, employee: false, manager: false, supplier: false};
-                                userProfile.set({
-                                    email: email,
-                                    displayName: displayName,
-                                    linkedAccount: linkAccounts,
-                                    roles: roles
-                                }, function(err){
-                                    if(!err){
-                                        defer.resolve(true);
-                                    }
-                                    else{
-                                        defer.reject(err);
-                                    }
-                                });
-                            },
-                            function(err){
-                               defer.reject('Could not claim hash:'+err);
+                if(!uid){
+                    defer.reject('Sorry, you are not authenticated.');
+                }
+                else if(!username){
+                    defer.reject('Please enter a username.');
+                }
+                else if(!email){
+                    defer.reject('Please enter an email address.');
+                }
+                else if(!displayName){
+                    defer.reject('Please enter a display name.');
+                }
+                else{
+                    var hashCore = {UN:{key: username, value: email}, UE: {key: email, value: uid}};
+                    // first check if the UN (username) and UE (email) hashes are available
+                    reserveHash(hashCore).then(
+                        function(success){
+                            // username and email hash available and currently un-claimed
+                            // add the uid hash and claim them all!  hash <3!
+                            hashCore.UP = {key: uid, value: username};
+                            reserveHash(hashCore, true).then(
+                                function(success){
+                                    // all hashes are claimed, build the user
+                                    var userProfile = firebaseRef('user/'+username);
+                                    var linkAccounts = {};
+                                    linkAccounts[uid] = true;
+                                    var roles = {admin: false, customer: true, employee: false, manager: false, supplier: false};
+                                    userProfile.set({
+                                        email: email,
+                                        displayName: displayName,
+                                        linkedAccount: linkAccounts,
+                                        roles: roles
+                                    }, function(err){
+                                        if(!err){
+                                            defer.resolve(true);
+                                        }
+                                        else{
+                                            defer.reject(err);
+                                        }
+                                    });
+                                },
+                                function(err){
+                                    defer.reject('Could not claim hash:'+err);
+                                }
+                            );
+                        },
+                        function(err){
+                            switch(err){
+                                case 'UN':
+                                    defer.reject('username exists.');
+                                    break;
+                                case 'UE':
+                                    defer.reject('email address in use.');
+                                    break;
+                                default:
+                                    defer.reject(err);
                             }
-                        );
-                    },
-                    function(err){
-                        switch(err){
-                            case 'UN':
-                                defer.reject('username exists.');
-                                break;
-                            case 'UE':
-                                defer.reject('email address in use.');
-                                break;
-                            default:
-                                defer.reject(err);
                         }
-                    }
-                );
+                    );
+                }
 
                 return defer.promise;
 
