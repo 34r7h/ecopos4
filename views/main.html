@@ -16,7 +16,11 @@
         <span ng-repeat="(role, assigned) in user.roles" ng-if="assigned">
             <label>{{ role }}</label> <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.activeRole" />
         </span>
+
+        <messages></messages>
     </div>
+
+
 </div>
 
   <h3>♥</h3>

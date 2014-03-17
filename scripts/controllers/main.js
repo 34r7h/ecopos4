@@ -18,23 +18,23 @@ angular.module('ecoposApp')
             user.$bind($scope, 'user').then(function(unbind){
                 unbindUser = unbind;
 
-                if(user.roles.admin){
-                    $scope.activeRole = 'admin';
-                }
-                else if(user.roles.manager){
-                    $scope.activeRole = 'manager';
-                }
-                else if(user.roles.employee){
-                    $scope.activeRole = 'employee';
-                }
-                else if(user.roles.supplier){
-                    $scope.activeRole = 'supplier';
-                }
-                else if(user.roles.customer){
-                    $scope.activeRole = 'customer';
-                }
-                else{
-                    $scope.activeRole = 'anonymous';
+                $scope.activeRole = 'anonymous';
+                if(user.roles){
+                    if(user.roles.admin){
+                        $scope.activeRole = 'admin';
+                    }
+                    else if(user.roles.manager){
+                        $scope.activeRole = 'manager';
+                    }
+                    else if(user.roles.employee){
+                        $scope.activeRole = 'employee';
+                    }
+                    else if(user.roles.supplier){
+                        $scope.activeRole = 'supplier';
+                    }
+                    else if(user.roles.customer){
+                        $scope.activeRole = 'customer';
+                    }
                 }
             });
         });
