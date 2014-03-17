@@ -86,7 +86,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 							"last name": ['input'],
 							"street number": ['input'],
 							"street name": ['']
-						}
+						};
 
 					}
 				},
