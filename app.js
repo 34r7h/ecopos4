@@ -58,6 +58,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 		.state('main.admin',{
 			url:'admin',
 			abstract:true,
+      authRequired:true,
 			templateUrl:'views/admin/admin.html',
 			controller: function($scope){
 
@@ -72,6 +73,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 		})
 		.state('main.admin.views',{
 			url:'',
+      authRequired:true,
 			views:{
 				customer: {
 					templateUrl:'views/admin/dashboard/dashboard.html',
@@ -193,6 +195,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 		.state('main.tools',{
 		url:'tools',
 		abstract:true,
+    authRequired:true,
 		templateUrl:'views/tools/tools.html',
 
 		onEnter: function(){
@@ -205,6 +208,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 	})
 		.state('main.tools.views',{
 			url:'',
+      authRequired:true,
 			views:{
 				agenda: {
 					template:'<calendar/>',
@@ -279,7 +283,8 @@ angular.module('ecoposApp')
 	.constant('angularFireVersion', '0.7')
 
 	// where to redirect users if they need to authenticate (see module.routeSecurity)
-	.constant('loginRedirectPath', '/login')
+	//.constant('loginRedirectPath', '/login')
+    .constant('loginRedirectState', 'main.login')
 
 	// which login service we're using
 	.constant('loginProviders', 'facebook,twitter,password')
