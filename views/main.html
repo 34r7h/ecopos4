@@ -1,0 +1,34 @@
+<div class="header">
+  <ul class="nav nav-pills pull-right">
+    <li class="active"><a ng-href="#">Home</a></li>
+      <li><a ui-sref="main.admin.views">Admin</a></li>
+    <li><a ui-sref="main.shops.views">Shop</a></li>
+      <li><a ui-sref="main.tools.views">Tools</a></li>
+
+    <li ng-cloak ng-show-auth="login" ng-controller="LoginController"><a href="#" ng-click="logout()">Log Out</a></li>
+    <li ng-cloak ng-show-auth="['logout','error']"><a ui-sref="main.login">Log In</a></li>
+  </ul>
+  <h3 class="text-muted">ecopos</h3>
+    <input ng-model="widget">{{ widget }}{{ userz }}
+
+    <div ng-show="user.id">
+        Logged in as {{ user.id }} [{{ activeRole }}]<br/>
+        <span ng-repeat="(role, assigned) in user.bind.roles" ng-if="assigned">
+            <label>{{ role }}</label> <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.activeRole" />
+        </span>
+        <div>
+            <button ng-click="msgsChecked=!msgsChecked" ng-hide="msgsChecked">Show Messages</button>
+            <button ng-click="msgsChecked=!msgsChecked" ng-show="msgsChecked">Hide Messages</button>
+
+            <div ng-show="msgsChecked">
+                <messages></messages>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+  <h3>♥</h3>
+        <div ui-view autoscroll="false"></div>
+</div>
