@@ -2,6 +2,7 @@
 
 angular.module('ecoposApp')
 	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, firebaseRef) {
+        $scope.user = {};
 		var unbindUser = null;
 		var firstActiveRole = false;
 		
