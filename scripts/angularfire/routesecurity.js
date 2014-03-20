@@ -29,7 +29,7 @@
 			});
 
 			//self._rootScope.$on('$firebaseSimpleLogin:login', angular.bind(this, this._login));
-      self._rootScope.$on('$simpleLogin:profile:loaded', angular.bind(this, this._login));
+      self._rootScope.$on('ecopos:user:bound', angular.bind(this, this._login));
 			self._rootScope.$on('$firebaseSimpleLogin:logout', angular.bind(this, this._logout));
 			self._rootScope.$on('$firebaseSimpleLogin:error', angular.bind(this, this._logout));
 		},
