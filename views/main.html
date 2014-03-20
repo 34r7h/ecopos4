@@ -11,9 +11,9 @@
   <h3 class="text-muted">ecopos</h3>
     <input ng-model="widget">{{ widget }}{{ userz }}
 
-    <div ng-show="user.$id">
-        Logged in as {{ user.$id }} [{{ activeRole }}]<br/>
-        <span ng-repeat="(role, assigned) in user.roles" ng-if="assigned">
+    <div ng-show="user.id">
+        Logged in as {{ user.id }} [{{ activeRole }}]<br/>
+        <span ng-repeat="(role, assigned) in user.bind.roles" ng-if="assigned">
             <label>{{ role }}</label> <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.activeRole" />
         </span>
 

@@ -1,7 +1,6 @@
 <div>
-
     <div>
-        <div ng-repeat="(messageID, message) in messages.unseen track by $index">
+        <div ng-repeat="(messageID, message) in user.messages.unseen track by $index">
             messageID: {{ messageID }}<br/>
             subject: {{ message.subject }}<br/>
             users: {{ message.users }}<br/>
