@@ -9,7 +9,8 @@ angular.module('ecoposApp', [
 	'angularfire.login',
 	'simpleLoginTools',
 	'angular-gestures',
-	'google-maps'
+	'google-maps',
+	'ui.bootstrap'
 ]);
 
 angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, $anchorScrollProvider) {
