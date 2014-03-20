@@ -1,11 +1,13 @@
-angular.module('ecoposApp').directive('prefs', function() {
-	return {
-		restrict: 'E',
-		replace: true,
-		templateUrl: 'views/admin/settings/prefs/prefs.html',
-		link: function(scope, element, attrs, fn) {
-
-
-		}
-	};
-});
+angular.module("ecoposApp").directive("prefs", function(){
+		return {
+			restrict:"E",
+			scope:{element:"=", type:"=", name:"="},
+			link:function(scope, iElem, iAttrs) {
+				console.log(scope.element,scope.type);
+				var domElement = document.createElement(scope.element);
+				domElement.type = scope.type;
+				iElem.append(domElement);
+			}
+		};
+	}
+);

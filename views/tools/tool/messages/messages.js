@@ -47,6 +47,7 @@ angular.module('ecoposApp').directive('messages', function(system, syncData, $ti
 
                     if(message){
                         system.sendMessage(message, scope.user.$id, scope.text[index]);
+	                    scope.text[index] = null;
                     }
                 }
             };

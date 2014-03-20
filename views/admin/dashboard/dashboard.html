@@ -1,13 +1,15 @@
 <div class="col-md-12" ng-controller="DashboardCtrl">
     <h1>{{ dashName }} Dashboard</h1>
     <div class="col-sm-7 col-md-7 col-lg-7">
+
         <div class="well">
-            <p ng-repeat="setting in dashSettings"><textarea placeholder="{{ setting }}"></p>
+            <h2>Settings</h2>
+            <p ng-repeat="(key,settings) in dashStuff">{{ key }}:<prefs  type="settings[1]" element="settings[0]"></prefs></p>
         </div>
     </div>
     <div class="col-sm-5 col-md-5 col-lg-5">
         <div class="well">
-            <h2>Orders</h2>
+            <orders></orders>
         </div>
     </div>
 

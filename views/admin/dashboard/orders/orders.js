@@ -2,8 +2,8 @@ angular.module('ecoposApp').directive('orders', function() {
 	return {
 		restrict: 'E',
 		replace: true,
-		scope:true,
-		templateUrl: 'views/admin/orders/orders.html',
+
+		templateUrl: 'views/admin/dashboard/orders/orders.html',
 		link: function(scope, element, attrs, fn, syncData) {
 
 
