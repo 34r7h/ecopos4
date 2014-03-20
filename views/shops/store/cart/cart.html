@@ -1,20 +1,24 @@
 <div>
-    <div>
-        <h4>Cart Directive</h4>
-        <table ng-table="tableParams" class="table">
-            <tr ng-repeat="item in invoice.items">
-                <td data-title="\'\'"><img src="{{item.img}}"></td>
-                <td data-title="\'Qty\'"><input type="number" ng-model="item.qty" class="input-mini"></td>
-                <td data-title="\'Item\'">{{ item.name }}</td>
-                <td data-title="\'Price\'">${{ item.price }} / {{ item.unitType }}</td>
-                <td data-title="\'Item Total\'">{{item.qty * item.price | currency}}</td>
-                <td>[<a href ng-click="removeItem($index)">X</a>]</td>
-            </tr>
-            <tr>
-                <td></td>
-                <td>Order Total:</td><td>{{total() | currency}}</td>
-            </tr>
-        </table>
-    </div>
+    <h4>Cart Directive</h4>
 
+
+    <table ng-table="tableParams" class="table">
+
+        <tr ng-repeat="item in invoice.items">
+            <td data-title="''"><img src="{{item.img}}"></td>
+            <td data-title="'Qty'"><input type="number" ng-model="item.qty" class="input-mini"></td>
+            <td data-title="'Item'">{{ item.name }}</td>
+            <td data-title="'Price'">{{ item.price }} / {{ item.unitType }}</td>
+            <td data-title="'Item Total'">{{item.qty * item.price | currency}}</td>
+            <td>
+                [<a href ng-click="removeItem($index)">X</a>]
+            </td>
+        </tr>
+        <tr>
+
+            <td></td>
+            <td>Order Total:</td>
+            <td>{{total() | currency}}</td>
+        </tr>
+    </table>
 </div>

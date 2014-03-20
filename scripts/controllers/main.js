@@ -4,6 +4,7 @@ angular.module('ecoposApp')
 	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, firebaseRef) {
 		var unbindUser = null;
 		var firstActiveRole = false;
+		
 
 		$scope.$watch('activeRole', function(value){
 			if(value){
@@ -17,9 +18,12 @@ angular.module('ecoposApp')
 			}
 		});
 
+
+
 		$scope.$on('$simpleLogin:profile:loaded', function(event, user){
 			user.$bind($scope, 'user.bind').then(function(unbind){
 				unbindUser = unbind;
+
 
 				$scope.user.id = user.$id;
 
