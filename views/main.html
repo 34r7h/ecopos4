@@ -16,8 +16,14 @@
         <span ng-repeat="(role, assigned) in user.bind.roles" ng-if="assigned">
             <label>{{ role }}</label> <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.activeRole" />
         </span>
+        <div>
+            <button ng-click="msgsChecked=!msgsChecked" ng-hide="msgsChecked">Show Messages</button>
+            <button ng-click="msgsChecked=!msgsChecked" ng-show="msgsChecked">Hide Messages</button>
 
-        <messages></messages>
+            <div ng-show="msgsChecked">
+                <messages></messages>
+            </div>
+        </div>
     </div>
 
 

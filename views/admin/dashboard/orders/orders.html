@@ -1,10 +1,25 @@
 <div>
-    <h4>Report Directive</h4>
-    <table ng-table="tableParams" class="table">
-        <tr ng-repeat="(key, order) in orders">
-            <td data-title="'Order Number'">{{key}}</td>
-            <td data-title="'Total'">{{order.total}}</td>
-            <td data-title="'Status'">{{order.status}}</td>
+
+<table ng-table="tableParams" class="table">
+    <tr ng-repeat="orders in user.orders">
+        <td data-title="'Date'">{{$parent.order[orders].createdTime | date:'yyyy-MM-dd'}}</td>
+        <td data-title="'Items'" ><span ng-repeat="(key,item) in $parent.order[orders].products">{{key}}, {{item.qty}}{{item.units}} - {{item.cost | currency}}<br></span></td>
+        <td data-title="'Total'">{{$parent.order[orders].total | currency}}</td>
+    </tr>
+
+</table>
+
+
+<div>
+    <table>
+        <tr ng-repeat="order in user.orders">
+
+            <td data-title="'Date'">{{$parent.orders[order].createdTime | date:'yyyy-MM-dd'}}</td>
+            <td data-title="'Items'" ><span ng-repeat="(key,item) in $parent.order[orders].products">{{key}}, {{item.qty}}{{item.units}} - {{item.cost | currency}}<br></span></td>
+            <td data-title="'Total'">{{$parent.order[orders].total | currency}}</td>
         </tr>
+
     </table>
+</div>
+
 </div>

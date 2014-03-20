@@ -77,17 +77,25 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			views:{
 				customer: {
 					templateUrl:'views/admin/dashboard/dashboard.html',
-					controller:function($scope,syncData){
+					controller:function($scope, syncData){
+						//$scope.user = user;
+            /**
+						$scope.order = syncData('order');
 						$scope.dashName = 'Customer';
 						$scope.dashSettings = ['first name', 'last name', 'street','address', 'contact', 'shopping', 'payment'];
-						$scope.orders = syncData('productz');
+						console.log($scope.user.$id);
+						console.log($scope.order);
+*/
+
 						$scope.navigation = ['Edit', 'Cancel', 'Save'];
 
 						$scope.dashStuff = {
-							"first name": ['input' ],
-							"last name": ['input'],
-							"street number": ['input'],
-							"street name": ['']
+							"first name": ['input', 'text' ],
+							"last name": ['input', 'text'],
+							"street number": ['input', 'number'],
+							"street name": ['input', 'text'],
+							"sex": ['input', 'checkbox'],
+							"height": ['input', 'text']
 						};
 
 					}
@@ -128,6 +136,13 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
                         $scope.dashSettings = ['name', 'address', 'contact', 'shopping', 'payment', 'schedule'];
                         $scope.products = syncData('"produceList"');
                         $scope.navigation = ['Awesome', 'Search','Categories','Suppliers'];
+	                    $scope.dashStuff = {
+		                    "first name": ['input', 'text' ],
+		                    "last name": ['input', 'text'],
+		                    "street number": ['input', 'number'],
+		                    "street name": ['input', 'text'],
+		                    "sex": ['input', 'checkbox']
+	                    };
 
                     }
                 }
