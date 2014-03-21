@@ -1,7 +1,7 @@
 
 
 angular.module('ecoposApp')
-	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, firebaseRef) {
+	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, system, firebaseRef) {
         $scope.user = {};
 		var unbindUser = null;
 		var firstActiveRole = false;
@@ -34,6 +34,7 @@ angular.module('ecoposApp')
 				// continue loading any user data that doesn't affect how the state loads
 				loadUserMessages(user.$id);
 				loadUserOrders(user.$id);
+                loadUserEvents(user.$id);
 			});
 		});
 
@@ -70,6 +71,17 @@ angular.module('ecoposApp')
 				}
 			}
 		}
+
+        function loadUserEvents(userID){
+            $scope.user.events = {};
+            var eventBind = syncData('user/'+userID+'/events').$getRef();
+            eventBind.on('child_added', function(childSnapshot, prevChildName){
+                $scope.user.events[childSnapshot.name()] = syncData('event/'+childSnapshot.name());
+            });
+            eventBind.on('child_removed', function(oldChildSnapshot){
+                delete $scope.user.events[oldChildSnapshot.name()];
+            });
+        }
 
 		function loadUserMessages(userID){
 			$scope.user.messages = {seen: {}, unseen: {}};
@@ -109,37 +121,25 @@ angular.module('ecoposApp')
 			});
 		}
 
+        $scope.newEvent = {
+            title: '',
+            description: '',
+            users: [],
+            type: {calendar: true, todo: false},
+            date: new Date().getTime(),
+            noDate: false
+        };
 
-		/*
-		 $scope.userz = syncData('userz/supplierx');
-
-		 syncData('userz/supplierx').$bind($scope, 'userz');
-
-
-
-		 $scope.userz.$add({
-		 name: 'Average Supplier',
-		 address: {
-		 number: 3100,
-		 street: 'Boardwalk',
-		 streetType: 'Blvd',
-		 city: 'Lund',
-		 province: 'BC',
-		 postal: 'V1K6V0'
-		 },
-		 contact: {
-		 phone: 6049335609,
-		 email: 'supplier@worksforlaughs.com'
-		 }
-
-
-		 });
-
-		 */
-		$scope.awesomeThings = [
-			'HTML5 Boilerplate',
-			'AngularJS',
-			'Karma'
-		];
+        $scope.createEvent = function(){
+            var users = {};
+            if($scope.user && $scope.user.id){
+                users[$scope.user.id] = true;
+            }
+            angular.forEach($scope.newEvent.users, function(username, index){
+                users[username] = true;
+            });
+            // TODO: need some validation here (or in the system.createEvent as a promise)
+            system.createEvent($scope.newEvent.title, $scope.newEvent.description, users, $scope.newEvent.type, $scope.newEvent.noDate?0:$scope.newEvent.date);
+        };
 
 	});
