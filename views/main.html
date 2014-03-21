@@ -24,6 +24,52 @@
                 <messages></messages>
             </div>
         </div>
+
+        <div>
+            <h4>Events</h4>
+            {{ user.events }}
+            <fieldet>
+                <legend>New Event</legend>
+                <div>
+                    <label>Title</label>
+                    <input type="text" ng-model="newEvent.title" />
+                </div>
+
+                <div>
+                    <label>Description</label>
+                    <textarea ng-model="newEvent.description"></textarea>
+                </div>
+                <div>
+                    <label>Users</label>
+                    <!-- input type="text" ng-model="newEvent.users" /-->
+                    <select ng-model="newEvent.users" multiple="multiple">
+                        <option ng-repeat="username in users" value="{{ username }}">{{ username }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Type</label>
+
+                    <label>Calendar</label>
+                    <input type="checkbox" ng-model="newEvent.type.calendar" />
+
+                    <label>To-Do</label>
+                    <input type="checkbox" ng-model="newEvent.type.todo" />
+                </div>
+                <div>
+                    <label>Date</label><br/>
+                    <label>No Date</label>
+                    <input type="checkbox" ng-model="newEvent.noDate" />
+                    <div ng-hide="newEvent.noDate">
+                        date selector
+                    </div>
+                </div>
+
+                <button ng-click="createEvent()">Create Event</button>
+
+                {{ newEvent }}
+
+            </fieldet>
+        </div>
     </div>
 
 
