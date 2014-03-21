@@ -207,11 +207,15 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			}
 
 		})
+        .state('main.testdate',{
+            url:'date-test',
+            templateUrl:'bower_components/ui-bootstrap/src/datepicker/docs/demo.html'
+        })
 
 		.state('main.tools',{
 		url:'tools',
 		abstract:true,
-    authRequired:true,
+        authRequired:true,
 		templateUrl:'views/tools/tools.html',
 
 		onEnter: function(){
@@ -224,7 +228,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 	})
 		.state('main.tools.views',{
 			url:'',
-      authRequired:true,
+            authRequired:true,
 			views:{
 				agenda: {
 					template:'<calendar/>',
