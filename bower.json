@@ -31,7 +31,8 @@
     "angular-route": "latest",
     "json3": "latest",
     "angular-google-maps": "latest",
-    "angular-md5": "latest"
+    "angular-md5": "latest",
+    "angular-datepicker": "~1.0.3"
   },
   "resolutions": {
     "angular": "1.2.15-build.2399+sha.ca4ddfa"

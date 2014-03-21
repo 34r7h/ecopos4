@@ -10,7 +10,8 @@ angular.module('ecoposApp', [
 	'simpleLoginTools',
 	'angular-gestures',
 	'google-maps',
-	'ui.bootstrap'
+	'ui.bootstrap',
+    'datePicker'
 ]);
 
 angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, $anchorScrollProvider) {
@@ -207,10 +208,6 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			}
 
 		})
-        .state('main.testdate',{
-            url:'date-test',
-            templateUrl:'bower_components/ui-bootstrap/src/datepicker/docs/demo.html'
-        })
 
 		.state('main.tools',{
 		url:'tools',
