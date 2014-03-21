@@ -60,7 +60,7 @@
                     <label>No Date</label>
                     <input type="checkbox" ng-model="newEvent.noDate" />
                     <div ng-hide="newEvent.noDate">
-                        date selector
+                        <div date-picker="newEvent.date" view="month"></div>
                     </div>
                 </div>
 

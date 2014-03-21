@@ -130,7 +130,7 @@ angular.module('ecoposApp')
             description: '',
             users: [],
             type: {calendar: true, todo: false},
-            date: new Date().getTime(),
+            date: new Date(),
             noDate: false
         };
 
