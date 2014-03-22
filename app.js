@@ -175,10 +175,21 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			views:{
 				eco: {
 					templateUrl:'views/shops/store/store.html',
-					controller:function($scope,syncData){
+					controller:function($rootScope, $scope, cart, syncData,system){
 						$scope.shopName = "Ecossentials";
 						$scope.products = syncData('productz');
 						$scope.navigation = ['Search','Categories', 'Specials'];
+						$scope.inventory = syncData('productz');
+						$scope.qty = 1;
+						$scope.addItem = system.addItem;
+						$scope.addProduct = system.addProduct;
+						$scope.removeItem = system.removeItem;
+						$scope.total = system.total;
+
+						$scope.cart = cart.cart;
+						$scope.invoice = cart.invoice;
+						$scope.items = cart.invoice.items;
+
 					}
 				},
 				sun: {

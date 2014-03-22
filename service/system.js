@@ -1,5 +1,48 @@
-angular.module('ecoposApp').factory('system',function(syncData, $q, $timeout, $log) {
+angular.module('ecoposApp').factory('system',function(syncData, $q, $timeout, $log, cart) {
+
+
+
 	var system = {
+
+
+
+		// Shop API
+
+		addProduct: function(sku, qty,unitType,name,price,img) {
+			if(cart.invoice.items[sku]){
+				cart.invoice.items[sku].qty += qty;
+			} else {
+				cart.invoice.items[sku] = {
+					sku: sku,
+					qty: qty,
+					unitType: unitType,
+					name: name,
+					price: price,
+					img: img
+				};
+			}
+
+		},
+		addItem: function() {
+			cart.invoice.items.push({
+				qty: 1,
+				unitType:'',
+				name: '',
+				price: 0,
+				img: ''
+			});
+		},
+		removeItem: function(name) {
+			delete cart.invoice.items[name];
+		},
+		total: function() {
+			var total = 0;
+			angular.forEach(cart.invoice.items, function(item) {
+				total += item.qty * item.price;
+			});
+
+			return total;
+		},
 
         // gets a flattened user list with no duplicates
         getUsersFlat: function(){

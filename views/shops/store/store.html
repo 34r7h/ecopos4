@@ -7,9 +7,48 @@
     <div class="col-sm-3"> <div class="well"><h3>{{ shopName + " Navigation" }}</h3>{{ navigation }}</div></div>
 
     <div class="col-sm-9">
-        <div ng-repeat="product in products">
-            <div class="well">{{ product }}</div>
+        <div ng-repeat="(key,category) in inventory"> <h1 style="clear: both">{{ key | uppercase }}</h1>
+            <div ng-repeat="(item,product) in category">
+                <code>{{ item }}, {{ product }}</code>
+                <div class="col-sm-7">
+                    <h3>{{ item }}</h3>
+                    <img width="100%" ng-src="{{product.img}}">
+                    <p>Description: {{ product.description }}</p>
+                    <p>Tags: <span ng-repeat="tag in product.tags">{{ tag }}, </span></p>
+                </div>
+
+                <div class="col-sm-5">
+                    <h3>Available Variations: </h3>
+                    <div  ng-repeat="(key,variation) in product.variations">
+                        <b>{{ key }} @ {{ variation.price | currency }}/{{ $parent.product.unitType }}</b>
+                        <div>
+                            Qty: <input type="number" ng-model="qty"/>
+                            <button href ng-click="addProduct(
+                                variation.sku,
+                                qty,
+                                $parent.product.unitType,
+                                key,
+                                variation.price,
+                                $parent.product.img
+                            )" class="btn-success">add item</button>
+                        </div>
+                        <p>Variation Description:{{ variation.description }}</p>
+                        <h5>{{ variation.nutrition }}</h5>
+                    </div>
+
+                    <select>
+                        <option ng-repeat="(key,variation) in product.variations"><span  ng-model="variation.price" >{{key + ": "}} {{ variation.price }}</span></option>
+                    </select>
+
+
+                    <div ng-model="variation.price">{{variation.price}}</div>
+
+
+                </div>
+            </div>
+
         </div>
     </div>
 
 </div>
+
