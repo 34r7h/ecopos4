@@ -129,21 +129,29 @@ angular.module('ecoposApp')
             title: '',
             description: '',
             users: [],
-            type: {calendar: true, todo: false},
+            type: 'todo',
             date: new Date(),
-            noDate: false
+            dueDate: false
         };
 
         $scope.createEvent = function(){
             var users = {};
+            /**
             if($scope.user && $scope.user.id){
                 users[$scope.user.id] = true;
             }
+             */
             angular.forEach($scope.newEvent.users, function(username, index){
                 users[username] = true;
             });
+
+            var dateStamp = 0;
+            if($scope.newEvent.type === 'calendar' || ($scope.newEvent.type === 'todo' && $scope.newEvent.dueDate)){
+                dateStamp = $scope.newEvent.date.getTime();
+            }
+
             // TODO: need some validation here (or in the system.createEvent as a promise)
-            system.createEvent($scope.newEvent.title, $scope.newEvent.description, users, $scope.newEvent.type, $scope.newEvent.noDate?0:$scope.newEvent.date);
+            system.createEvent($scope.newEvent.title, $scope.newEvent.description, users, $scope.newEvent.type, dateStamp);
         };
 
 	});
