@@ -110,8 +110,9 @@ angular.module('ecoposApp')
         function removeCalendarEvent(eventID){
             if(calendarEvents[eventID]){
                 var oldDate = calendarEvents[eventID];
-                if($scope.user.calendar[oldDate.year] && $scope.user.calendar[oldDate.year][oldDate.month] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][event.$id]){
-                    delete $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][event.$id];
+                if($scope.user.calendar[oldDate.year] && $scope.user.calendar[oldDate.year][oldDate.month] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day]
+                    && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][eventID]){
+                    delete $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][eventID];
                 }
                 delete calendarEvents[eventID];
                 $rootScope.$broadcast('calendar:changed');
