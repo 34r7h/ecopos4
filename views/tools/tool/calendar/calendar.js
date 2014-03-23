@@ -63,6 +63,10 @@ var calendarLinkFunction = function (scope, element) {
 	scope.language = language;
 	scope.navigate = {};
 
+    scope.$on('calendar:changed', function(){
+        refreshCalendar();
+    });
+
 	// month between 1 and 12
 	var daysInMonth = function(month,year){
 		return new Date(year, month, 0).getDate();
@@ -86,7 +90,12 @@ var calendarLinkFunction = function (scope, element) {
 		if(contentObj != null && contentObj[year] != null &&
 			contentObj[year][month] != null &&
 			contentObj[year][month][date] != null){
-			return contentObj[year][month][date].join("<br/>");
+            var result = '';
+            angular.forEach(contentObj[year][month][date], function(event, index){
+                result += (result?'<br/>':'')+event;
+            });
+            return result;
+			//return contentObj[year][month][date].join("<br/>");
 		}
 		return "";
 	};
@@ -166,7 +175,7 @@ angular.module("ecoposApp").directive("calendar", function(){
 	return{
 		restrict: "E",
 		scope: {
-			content: '=calendarContent',
+			content: '=calcontent',
 			assignedMonth: '=calendarMonth',
 			assignedyear: '=calendarYear'
 		},
