@@ -239,12 +239,11 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
             authRequired:true,
 			views:{
 				agenda: {
-					template:'<calendar/>',
+					template:'<calendar calcontent="user.calendar" />',
 					controller:function($scope,syncData){
 						$scope.toolName = "Agenda";
 						$scope.products = syncData('productz');
 						$scope.navigation = ['Search','Categories', 'Specials'];
-
 					}
 				},
 				delivery: {
