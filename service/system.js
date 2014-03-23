@@ -32,8 +32,8 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $timeout, $l
 				img: ''
 			});
 		},
-		removeItem: function(name) {
-			delete cart.invoice.items[name];
+		removeItem: function(sku) {
+			delete cart.invoice.items[sku];
 		},
 		total: function() {
 			var total = 0;

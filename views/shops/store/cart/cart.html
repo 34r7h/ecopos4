@@ -4,14 +4,14 @@
 
     <table class="table">
 
-        <tr class="col-sm-12" ng-repeat="item in items">
+        <tr class="col-sm-12" ng-repeat="(sku, item) in items">
             <td class="col-sm-2" data-title="''"><img width="50px" height="auto" src="{{item.img}}"></td>
             <td class="col-sm-2" data-title="Qty"><input type="number" ng-model="item.qty" class="input-mini"></td>
             <td class="col-sm-4" data-title="'Item'">{{ item.name }}</td>
             <td class="col-sm-2" data-title="'Price'">{{ item.price }} / {{ item.unitType }}</td>
             <td class="col-sm-2" data-title="'Item Total'">{{item.qty * item.price | currency}}</td>
             <td>
-                [<a href ng-click="removeItem(item)">X</a>]
+                [<a href ng-click="removeItem(sku)">X</a>]
             </td>
         </tr>
         <tr class="col-sm-12" >
