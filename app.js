@@ -10,7 +10,8 @@ angular.module('ecoposApp', [
 	'simpleLoginTools',
 	'angular-gestures',
 	'google-maps',
-	'ui.bootstrap'
+	'ui.bootstrap',
+    'datePicker'
 ]);
 
 angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, $anchorScrollProvider) {
@@ -222,7 +223,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 		.state('main.tools',{
 		url:'tools',
 		abstract:true,
-    authRequired:true,
+        authRequired:true,
 		templateUrl:'views/tools/tools.html',
 
 		onEnter: function(){
@@ -235,15 +236,14 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 	})
 		.state('main.tools.views',{
 			url:'',
-      authRequired:true,
+            authRequired:true,
 			views:{
 				agenda: {
-					template:'<calendar/>',
+					template:'<calendar calcontent="user.calendar" />',
 					controller:function($scope,syncData){
 						$scope.toolName = "Agenda";
 						$scope.products = syncData('productz');
 						$scope.navigation = ['Search','Categories', 'Specials'];
-
 					}
 				},
 				delivery: {

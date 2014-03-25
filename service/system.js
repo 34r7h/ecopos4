@@ -64,6 +64,24 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $timeout, $l
             return users;
         },
 
+        createEvent: function(title, description, users, type, date){
+            console.log('creating event:'+title+':'+description+':'+JSON.stringify(users)+':'+JSON.stringify(type)+':'+date);
+
+            var newEvent = {title: title,
+                description: description,
+                users: users,
+                type: type};
+            if(date){
+                newEvent.date = date;
+            }
+            syncData('event').$add(newEvent).then(function(eventRef){
+                    angular.forEach(users, function(active, username){
+                        syncData('user/'+username+'/events/'+eventRef.name()).$set(active);
+                    });
+                });
+
+        },
+
         createConversation: function(subject, fromUser, toUsers, text){
             toUsers = (toUsers instanceof Array)?toUsers:[toUsers];
 
@@ -71,7 +89,9 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $timeout, $l
             var users = {};
             users[fromUser] = true;
             angular.forEach(toUsers, function(username, index){
-                users[username] = true;
+                if(!users[username]){
+                    users[username] = true;
+                }
             });
 
             var conversation = {};
