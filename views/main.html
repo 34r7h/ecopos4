@@ -23,7 +23,7 @@
 
     <div ng-show="user.id">
         Logged in as {{ user.id }} [{{ activeRole }}]<br/>
-        <span ng-repeat="(role, assigned) in user.bind.roles" ng-if="assigned">
+        <span ng-repeat="(role, assigned) in userBind.roles" ng-if="assigned">
             <label>{{ role }}</label> <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.activeRole" />
         </span>
         <span>

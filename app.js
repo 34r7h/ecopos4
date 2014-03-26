@@ -103,6 +103,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 							"height": ['input', 'text']
 						};
 
+                        $scope.orders = $scope.user.orders;
+
 					}
 				},
 				employee: {
@@ -112,6 +114,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 						$scope.dashSettings = ['name', 'address', 'contact', 'shopping', 'payment', 'schedule'];
 						$scope.products = syncData('inventory');
 						$scope.navigation = ['Search','Categories', 'Specials'];
+
+                        $scope.orders = $scope.user.orders;
 					}
 				},
 				supplier: {
@@ -132,6 +136,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 						$scope.products = syncData('"produceList"');
 						$scope.navigation = ['Search','Categories','Suppliers'];
 
+                        $scope.orders = $scope.manager.orders;
+
 					}
 				},
                 admin: {
@@ -148,6 +154,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 		                    "street name": ['input', 'text'],
 		                    "sex": ['input', 'checkbox']
 	                    };
+
+                        $scope.orders = $scope.manager.orders;
 
                     }
                 }
