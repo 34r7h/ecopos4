@@ -2,8 +2,9 @@
 
 angular.module('ecoposApp')
 	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, system, firebaseRef) {
-        $scope.user = {};
-        $scope.user.calendar = {};
+        $scope.user = {calendar: {}};
+        $scope.manager = {orders: {}};
+        $scope.activeRole = 'anonymous';
 		var unbindUser = null;
 		var firstActiveRole = false;
         var calendarEvents = {};
@@ -23,9 +24,8 @@ angular.module('ecoposApp')
 
 
 		$scope.$on('$simpleLogin:profile:loaded', function(event, user){
-			user.$bind($scope, 'user.bind').then(function(unbind){
+			user.$bind($scope, 'userBind').then(function(unbind){
 				unbindUser = unbind;
-
 
 				$scope.user.id = user.$id;
 
@@ -40,12 +40,17 @@ angular.module('ecoposApp')
 				loadUserMessages(user.$id);
 				loadUserOrders(user.$id);
                 loadUserEvents(user.$id);
+
+                if(user && user.roles && (user.roles.admin || user.roles.manager)){
+                    loadManagerData();
+                }
 			});
 		});
 
 		$scope.$on('$firebaseSimpleLogin:logout', function(event){
 			$log.debug('simpleLogin:logout:');
 			if(typeof unbindUser === 'function'){
+                $log.error('oh what');
 				unbindUser();
 				$scope.user = {};
 				$scope.activeRole = 'anonymous';
@@ -58,7 +63,7 @@ angular.module('ecoposApp')
 
 		function setDefaultActiveRole(user){
 			$scope.activeRole = 'anonymous';
-			if(user.roles){
+			if(user && user.roles){
 				if(user.roles.admin){
 					$scope.activeRole = 'admin';
 				}
@@ -77,47 +82,15 @@ angular.module('ecoposApp')
 			}
 		}
 
-        function setCalendarEvent(event){
-            if(event.date){
-                var cDate = new Date(event.date);
-                var cMonth = cDate.getMonth()+1;
-                var cDay = cDate.getDate();
-                var cYear = cDate.getFullYear();
-                if(!$scope.user.calendar[cYear]){
-                    $scope.user.calendar[cYear] = {};
-                }
-                if(!$scope.user.calendar[cYear][cMonth]){
-                    $scope.user.calendar[cYear][cMonth] = {};
-                }
-                if(!$scope.user.calendar[cYear][cMonth][cDay]){
-                    $scope.user.calendar[cYear][cMonth][cDay] = {};
-                }
-                $scope.user.calendar[cYear][cMonth][cDay][event.$id] = event.title;
-
-                if(calendarEvents[event.$id]){
-                    var oldDate = calendarEvents[event.$id];
-                    if(oldDate.year !== calendarEvents[event.$id].year || oldDate.month !== calendarEvents[event.$id].month || oldDate.day !== calendarEvents[event.$id].day){
-                        if($scope.user.calendar[oldDate.year] && $scope.user.calendar[oldDate.year][oldDate.month] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][event.$id]){
-                            delete $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][event.$id];
-                        }
-                    }
-                }
-                calendarEvents[event.$id] = {year: cYear, month: cMonth, day: cDay};
-                $rootScope.$broadcast('calendar:changed');
-            }
+        // load data for the store manager
+        function loadManagerData(){
+            var orderBind = syncData('order').$getRef();
+            orderBind.on('child_added', function(childSnapshot, prevChildName){
+                $scope.manager.orders[childSnapshot.name()] = childSnapshot.val();
+            });
         }
 
-        function removeCalendarEvent(eventID){
-            if(calendarEvents[eventID]){
-                var oldDate = calendarEvents[eventID];
-                if($scope.user.calendar[oldDate.year] && $scope.user.calendar[oldDate.year][oldDate.month] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][eventID]){
-                    delete $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][eventID];
-                }
-                delete calendarEvents[eventID];
-                $rootScope.$broadcast('calendar:changed');
-            }
-        }
-
+        // USER DATA LOADING
         function loadUserEvents(userID){
             $scope.user.events = {};
 
@@ -182,6 +155,49 @@ angular.module('ecoposApp')
 				delete $scope.user.orders[oldChildSnapshot.name()];
 			});
 		}
+
+
+        // CALENDAR AND EVENTS STUFF
+        function setCalendarEvent(event){
+            if(event.date){
+                var cDate = new Date(event.date);
+                var cMonth = cDate.getMonth()+1;
+                var cDay = cDate.getDate();
+                var cYear = cDate.getFullYear();
+                if(!$scope.user.calendar[cYear]){
+                    $scope.user.calendar[cYear] = {};
+                }
+                if(!$scope.user.calendar[cYear][cMonth]){
+                    $scope.user.calendar[cYear][cMonth] = {};
+                }
+                if(!$scope.user.calendar[cYear][cMonth][cDay]){
+                    $scope.user.calendar[cYear][cMonth][cDay] = {};
+                }
+                $scope.user.calendar[cYear][cMonth][cDay][event.$id] = event.title;
+
+                if(calendarEvents[event.$id]){
+                    var oldDate = calendarEvents[event.$id];
+                    if(oldDate.year !== calendarEvents[event.$id].year || oldDate.month !== calendarEvents[event.$id].month || oldDate.day !== calendarEvents[event.$id].day){
+                        if($scope.user.calendar[oldDate.year] && $scope.user.calendar[oldDate.year][oldDate.month] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][event.$id]){
+                            delete $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][event.$id];
+                        }
+                    }
+                }
+                calendarEvents[event.$id] = {year: cYear, month: cMonth, day: cDay};
+                $rootScope.$broadcast('calendar:changed');
+            }
+        }
+
+        function removeCalendarEvent(eventID){
+            if(calendarEvents[eventID]){
+                var oldDate = calendarEvents[eventID];
+                if($scope.user.calendar[oldDate.year] && $scope.user.calendar[oldDate.year][oldDate.month] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][eventID]){
+                    delete $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][eventID];
+                }
+                delete calendarEvents[eventID];
+                $rootScope.$broadcast('calendar:changed');
+            }
+        }
 
         $scope.newEvent = {
             title: '',
