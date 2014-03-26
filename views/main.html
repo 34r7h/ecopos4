@@ -9,6 +9,16 @@
     <li ng-cloak ng-show-auth="['logout','error']"><a ui-sref="main.login">Log In</a></li>
   </ul>
   <h3 class="text-muted">ecopos</h3>
+    <div overlay="myOverlay">
+        <h4 class="overlay-title">My Overlay</h4>
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolorem, ex eaque possimus ipsa ab quasi quos corporis consequatur laudantium? Ab assumenda delectus quo velit voluptates doloribus. Earum odit facilis qui.
+        </p>
+        <p toggle="off" bubble target="myOverlay">
+            <span class="btn btn-primary">Ok</span>
+            <span class="btn btn-default">Cancel</span>
+        </p>
+    </div>
     <input ng-model="widget">{{ widget }}{{ userz }}
 
     <div ng-show="user.id">
@@ -16,73 +26,41 @@
         <span ng-repeat="(role, assigned) in user.bind.roles" ng-if="assigned">
             <label>{{ role }}</label> <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.activeRole" />
         </span>
-        <div>
-            <button ng-click="msgsChecked=!msgsChecked" ng-hide="msgsChecked">Show Messages</button>
-            <button ng-click="msgsChecked=!msgsChecked" ng-show="msgsChecked">Hide Messages</button>
+        <span>
 
             <div ng-show="msgsChecked">
                 <messages></messages>
             </div>
-        </div>
+        </span>
+        <span>
 
-        <div>
-            <h4>Events</h4>
-
-            <h5>To-Do</h5>
-            <ul>
-                <li ng-repeat="event in user.events | eventFilter:{isTodo: true}">{{ event.title }}</li>
-            </ul>
-
-            <h5>Calendar</h5>
-            <ul>
-                <li ng-repeat="event in user.events | eventFilter:{isCalendar: true}">{{ event.date | date:'shortDate' }} @ {{ event.date | date:'shortTime' }} - {{ event.title }}</li>
-            </ul>
+            <div ng-show="evtsChecked">
+                <events></events>
+            </div>
+        </span>
 
 
-            <fieldet>
-                <legend>New Event</legend>
-                <div>
-                    <label>Title</label>
-                    <input type="text" ng-model="newEvent.title" />
-                </div>
-
-                <div>
-                    <label>Description</label>
-                    <textarea ng-model="newEvent.description"></textarea>
-                </div>
-                <div>
-                    <label>Users</label>
-                    <!-- input type="text" ng-model="newEvent.users" /-->
-                    <select ng-model="newEvent.users" multiple="multiple">
-                        <option ng-repeat="username in users" value="{{ username }}">{{ username }}</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Type</label>
-
-                    <label>Calendar</label>
-                    <input type="radio" ng-model="newEvent.type" value="calendar" />
-
-                    <label>To-Do</label>
-                    <input type="radio" ng-model="newEvent.type" value="todo" />
-                </div>
-                <div ng-show="newEvent.type === 'todo'">
-                    <label>Due Date</label>
-                    <input type="checkbox" ng-model="newEvent.dueDate" />
-                </div>
-                <div ng-show="newEvent.type === 'calendar' || newEvent.dueDate">
-                    <label>Date</label><br/>
-                    <div date-picker="newEvent.date" view="month"></div>
-                </div>
-
-                <button ng-click="createEvent()">Create Event</button>
-            </fieldet>
-        </div>
     </div>
 
 
 </div>
 
   <h3>♥</h3>
-        <div ui-view autoscroll="false"></div>
+        <div ui-view></div>
+
+
+<div style="position: fixed; bottom: 0; width: 100%;">
+    <span>
+        <button ng-click="msgsChecked=!msgsChecked" ng-hide="msgsChecked">Show Messages</button>
+        <button ng-click="msgsChecked=!msgsChecked" ng-show="msgsChecked">Hide Messages</button>
+    </span>
+    <span>
+        <button ng-click="evtsChecked=!evtsChecked" ng-hide="evtsChecked">Show Events</button>
+        <button ng-click="evtsChecked=!evtsChecked" ng-show="evtsChecked">Hide Events</button>
+    </span>
+    <span>
+    <button href="#myOverlay" toggle="on">Cloverleaf Industries</button>
+    </span>
 </div>
+
+
