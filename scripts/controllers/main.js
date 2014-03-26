@@ -96,7 +96,7 @@ angular.module('ecoposApp')
 
                 if(calendarEvents[event.$id]){
                     var oldDate = calendarEvents[event.$id];
-                    if(oldDate.year != calendarEvents[event.$id].year || oldDate.month != calendarEvents[event.$id].month || oldDate.day != calendarEvents[event.$id].day){
+                    if(oldDate.year !== calendarEvents[event.$id].year || oldDate.month !== calendarEvents[event.$id].month || oldDate.day !== calendarEvents[event.$id].day){
                         if($scope.user.calendar[oldDate.year] && $scope.user.calendar[oldDate.year][oldDate.month] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][event.$id]){
                             delete $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][event.$id];
                         }
@@ -110,8 +110,7 @@ angular.module('ecoposApp')
         function removeCalendarEvent(eventID){
             if(calendarEvents[eventID]){
                 var oldDate = calendarEvents[eventID];
-                if($scope.user.calendar[oldDate.year] && $scope.user.calendar[oldDate.year][oldDate.month] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day]
-                    && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][eventID]){
+                if($scope.user.calendar[oldDate.year] && $scope.user.calendar[oldDate.year][oldDate.month] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][eventID]){
                     delete $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][eventID];
                 }
                 delete calendarEvents[eventID];
