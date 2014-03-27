@@ -2,9 +2,17 @@
 
 angular.module('ecoposApp')
 	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, system, firebaseRef) {
+<<<<<<< HEAD
 		$scope.user = {calendar: {}};
 		$scope.manager = {orders: {}};
 		$scope.activeRole = 'anonymous';
+=======
+        $scope.users = system.getUsersFlat();
+
+        $scope.user = {calendar: {}};
+        $scope.manager = {orders: {}};
+        $scope.activeRole = 'anonymous';
+>>>>>>> c3ffe36137ace4c739e2db5846c0da5c616a7e1b
 		var unbindUser = null;
 		var firstActiveRole = false;
 		var calendarEvents = {};
@@ -157,6 +165,7 @@ angular.module('ecoposApp')
 		}
 
 
+<<<<<<< HEAD
 		// CALENDAR AND EVENTS STUFF
 		function setCalendarEvent(event){
 			if(event.date){
@@ -227,5 +236,84 @@ angular.module('ecoposApp')
 			// TODO: need some validation here (or in the system.createEvent as a promise)
 			system.createEvent($scope.newEvent.title, $scope.newEvent.description, users, $scope.newEvent.type, dateStamp);
 		};
+=======
+        // CALENDAR AND EVENTS STUFF
+        function setCalendarEvent(event){
+            if(event.date){
+                var cDate = new Date(event.date);
+                var cMonth = cDate.getMonth()+1;
+                var cDay = cDate.getDate();
+                var cYear = cDate.getFullYear();
+                if(!$scope.user.calendar[cYear]){
+                    $scope.user.calendar[cYear] = {};
+                }
+                if(!$scope.user.calendar[cYear][cMonth]){
+                    $scope.user.calendar[cYear][cMonth] = {};
+                }
+                if(!$scope.user.calendar[cYear][cMonth][cDay]){
+                    $scope.user.calendar[cYear][cMonth][cDay] = {};
+                }
+                $scope.user.calendar[cYear][cMonth][cDay][event.$id] = event.title;
+
+                if(calendarEvents[event.$id]){
+                    var oldDate = calendarEvents[event.$id];
+                    if(oldDate.year !== calendarEvents[event.$id].year || oldDate.month !== calendarEvents[event.$id].month || oldDate.day !== calendarEvents[event.$id].day){
+                        if($scope.user.calendar[oldDate.year] && $scope.user.calendar[oldDate.year][oldDate.month] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][event.$id]){
+                            delete $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][event.$id];
+                        }
+                    }
+                }
+                calendarEvents[event.$id] = {year: cYear, month: cMonth, day: cDay};
+                $rootScope.$broadcast('calendar:changed');
+            }
+        }
+
+        function removeCalendarEvent(eventID){
+            if(calendarEvents[eventID]){
+                var oldDate = calendarEvents[eventID];
+                if($scope.user.calendar[oldDate.year] && $scope.user.calendar[oldDate.year][oldDate.month] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day] && $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][eventID]){
+                    delete $scope.user.calendar[oldDate.year][oldDate.month][oldDate.day][eventID];
+                }
+                delete calendarEvents[eventID];
+                $rootScope.$broadcast('calendar:changed');
+            }
+        }
+
+        $scope.newEvent = {
+            title: '',
+            description: '',
+            users: [],
+            shiftType: {},
+            type: 'todo',
+            date: new Date(),
+            end: new Date(),
+            hasEnd: false,
+            dueDate: false
+        };
+
+        $scope.createEvent = function(){
+            var users = {};
+            /**
+            if($scope.user && $scope.user.id){
+                users[$scope.user.id] = true;
+            }
+             */
+            angular.forEach($scope.newEvent.users, function(username, index){
+                users[username] = $scope.newEvent.shiftType[username];
+            });
+
+            var dateStamp = 0;
+            var endStamp = 0;
+            if($scope.newEvent.type === 'calendar' || $scope.newEvent.type === 'shift' || ($scope.newEvent.type === 'todo' && $scope.newEvent.dueDate)){
+                dateStamp = $scope.newEvent.date.getTime();
+                if($scope.newEvent.type === 'shift' || $scope.newEvent.hasEnd){
+                    endStamp = $scope.newEvent.end.getTime();
+                }
+            }
+
+            // TODO: need some validation here (or in the system.createEvent as a promise)
+            system.createEvent($scope.newEvent.title, $scope.newEvent.description, users, $scope.newEvent.type, dateStamp, endStamp);
+        };
+>>>>>>> c3ffe36137ace4c739e2db5846c0da5c616a7e1b
 
 	});

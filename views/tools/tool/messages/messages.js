@@ -9,8 +9,6 @@ angular.module('ecoposApp').directive('messages', function(system, syncData, $ti
             scope.text = {new:''};
             scope.subject = '';
 
-            scope.users = system.getUsersFlat();
-
             scope.sendMessage = function(messageID, index){
                 if(messageID && scope.user.messages){
                     var message = null;
@@ -22,7 +20,7 @@ angular.module('ecoposApp').directive('messages', function(system, syncData, $ti
                     }
 
                     if(message){
-                        system.sendMessage(message, scope.user.$id, scope.text[index]);
+                        system.sendMessage(message, scope.user.id, scope.text[index]);
 	                    scope.text[index] = null;
                     }
                 }
