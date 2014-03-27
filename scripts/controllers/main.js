@@ -27,7 +27,7 @@ angular.module('ecoposApp')
 		$scope.$on('$simpleLogin:profile:loaded', function(event, user){
 			user.$bind($scope, 'userBind').then(function(unbind){
 				unbindUser = unbind;
-
+				$rootScope.toggle();
 				$scope.user.id = user.$id;
 
 				// load user data that affects how the state will load
