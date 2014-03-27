@@ -8,7 +8,9 @@
     <li ng-cloak ng-show-auth="login" ng-controller="LoginController"><a href="#" ng-click="logout()">Log Out</a></li>
     <li ng-cloak ng-show-auth="['logout','error']"><a ui-sref="main.login">Log In</a></li>
   </ul>
+
   <h3 class="text-muted">ecopos</h3>
+</div>
     <div overlay="myOverlay">
         <h4 class="overlay-title">My Overlay</h4>
         <p>
@@ -41,7 +43,7 @@
             <div ng-show="evtsChecked" scrollable-content class="msgevt col-sm-4 col-xs-push-4">
                 <events></events>
             </div>
-        </span>
+        </div>
     </div>
 
 
@@ -50,7 +52,7 @@
         <div ui-view></div>
 
 
-<div style="position: fixed; bottom: 0; width: 100%;z-index:9991" back>
+<div style="position: fixed; bottom: 0; width: 100%;z-index:9991">
     <span>
         <button ng-click="msgsChecked=!msgsChecked" ng-hide="msgsChecked">Show Messages</button>
         <button ng-click="msgsChecked=!msgsChecked" ng-show="msgsChecked">Hide Messages</button>
@@ -63,5 +65,3 @@
     <button href="#myOverlay" toggle="on">Cloverleaf Industries</button>
     </span>
 </div>
-
-
