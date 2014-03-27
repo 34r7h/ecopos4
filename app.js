@@ -11,13 +11,16 @@ angular.module('ecoposApp', [
 	'angular-gestures',
 	'google-maps',
 	'ui.bootstrap',
-    'datePicker'
+    'datePicker',
+	"mobile-angular-ui",
+	"mobile-angular-ui.touch",
+	"mobile-angular-ui.scrollable"
 ]);
 
-angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, $anchorScrollProvider) {
+angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) {
 
 
-	$anchorScrollProvider.disableAutoScrolling();
+
 
     $urlRouterProvider.otherwise('/');
 

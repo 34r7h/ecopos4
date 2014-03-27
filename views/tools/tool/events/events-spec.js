@@ -1,4 +1,4 @@
-describe('helper', function() {
+describe('events', function() {
 
   beforeEach(module('ecoposApp'));
 

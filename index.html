@@ -13,11 +13,12 @@
 </head>
 <body>
 
+
     
-    <div>
-        <div id="content" class="container">
+    <div class="scrollable">
+        <div id="content" class="container scrollable-content">
             <div class="col-sm-12">
-                <div ui-view autoscroll="false">
+                <div ui-view>
                 </div>
             </div>
         </div>
@@ -56,7 +57,10 @@
     <script src="bower_components/angular-md5/angular-md5.js"></script>
 
     <script src="bower_components/angular-datepicker/dist/index.js"></script>
-
+    <script src="bower_components/mobile-angular-ui/dist/js/mobile-angular-ui.js"></script>
+    <script src="bower_components/mobile-angular-ui/dist/js/mobile-angular-ui-scrollable-iscroll.js"></script>
+    <script src="bower_components/mobile-angular-ui/dist/js/mobile-angular-ui-scrollable-overthrow.js"></script>
+    <script src="bower_components/mobile-angular-ui/dist/js/mobile-angular-ui-touch-fastclick.js"></script>
 
     <!-- Main App JS -->
   <script src="app.js"></script>
@@ -85,6 +89,7 @@
   <script src="scripts/directives/helper.js"></script>
   <script src="service/cart.js"></script>
   <script src="filter/eventFilter.js"></script>
+  <script src="views/tools/tool/events/events.js"></script>
   <!-- Add New Component JS Above -->
 
 

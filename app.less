@@ -1,4 +1,6 @@
 @import "bower_components/bootstrap/less/bootstrap.less";
+@import "bower_components/mobile-angular-ui/dist/css/mobile-angular-ui-base.css";
+@import "/bower_components/mobile-angular-ui/dist/css/mobile-angular-ui-max-width-767px.css";
 //@import "bower_components/bootstrap/less/theme.less";
 @import "bower_components/font-awesome/less/font-awesome.less";
 @import "bower_components/angular-datepicker/dist/index.css";
@@ -19,6 +21,7 @@
 @import "views/tools/tool/maps/maps.less";
 @import "views/tools/tool/infos/infos.less";
 @import "views/tools/tool/messages/messages.less";
+@import "views/tools/tool/events/events.less";
 /* Add Component LESS Above */
 
 /* Required for Angular UI Bootstrap */
@@ -36,6 +39,12 @@
 //	}
 //}
 
+body {
+  background-image: url("images/bg-img.jpg");
+  background-position: center;
+
+
+}
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important;
 }

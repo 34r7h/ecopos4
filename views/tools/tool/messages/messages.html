@@ -4,7 +4,7 @@
 
 
         <div  style="clear: both" ng-repeat="(messageID, message) in user.messages.unseen track by $index">
-            <a href="#msgHeader" ng-click="msgChecked=!msgChecked" ng-hide="msgChecked"><button>Show Conversation</button></a>
+            <button ng-click="msgChecked=!msgChecked" ng-hide="msgChecked">Show Conversation</button>
             <button ng-click="msgChecked=!msgChecked" ng-show="msgChecked">Hide Conversation</button>
             <div class="col-sm-3" ng-click="msgChecked-!msgChecked">
                 <h3>subject: {{ message.subject }}</h3>
@@ -18,7 +18,7 @@
                              <code class="col-sm-3">{{ timestamp | date:'shortDate'  }} {{ timestamp | date:'shortTime'  }}</code> <span class="col-sm-9"><b>{{ contrib.user }}:</b> {{ contrib.text }}</span><hr>
                         </div>
 
-                        <h4 scroll-to-bookmark id="msgHeader">Add Message:</h4>
+                        <h4 id="msgHeader">Add Message:</h4>
                         <div class="form-group col-sm-10">
                             <textarea ng-model="text[$index]"></textarea>
                         </div>
