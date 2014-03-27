@@ -22,6 +22,7 @@
 @import "views/tools/tool/infos/infos.less";
 @import "views/tools/tool/messages/messages.less";
 @import "views/tools/tool/events/events.less";
+@import "test/directive/test.less";
 /* Add Component LESS Above */
 
 /* Required for Angular UI Bootstrap */
@@ -59,11 +60,11 @@ textarea {
 }
 
 .msgevt {
-  width:50%;
-  height:50%;
-  position:absolute;
+
+  max-height:60%;
+  position:fixed;
   bottom: 0;
-  left:0;
+
   z-index: 9990;
   background: rgba(255,255,255, .8);
   overflow-y: scroll;
