@@ -22,11 +22,18 @@
     <input ng-model="widget">{{ widget }}{{ userz }}
 
     <div ng-show="user.id">
-        Logged in as {{ user.id }} [{{ activeRole }}]<br/>
-        <span ng-repeat="(role, assigned) in userBind.roles" ng-if="assigned">
-            <label>{{ role }}</label> <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.activeRole" />
-        </span>
-        <span>
+        Logged in as <strong>{{ user.id }}</strong> <em>[{{ activeRole }}]</em>
+        <div ng-show="employee.shiftType">
+            scheduled as: <em>{{ employee.shiftType }}</em><span ng-show="user.session.activeShift.end"> until {{ user.session.activeShift.end | date:'shortTime' }}</span>
+        </div>
+        <div>
+            <span ng-repeat="(role, assigned) in userBind.roles" ng-if="assigned">
+                <label>{{ role }}</label> <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.activeRole" />
+            </span>
+        </div>
+        <div>
+            <button ng-click="msgsChecked=!msgsChecked" ng-hide="msgsChecked">Show Messages</button>
+            <button ng-click="msgsChecked=!msgsChecked" ng-show="msgsChecked">Hide Messages</button>
 
             <div ng-show="msgsChecked" scrollable-content class="msgevt">
                 <messages></messages>
