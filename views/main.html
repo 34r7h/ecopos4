@@ -6,12 +6,12 @@
       <li><a ui-sref="main.tools.views">Tools</a></li>
 
     <li ng-cloak ng-show-auth="login" ng-controller="LoginController"><a href="#" ng-click="logout()">Log Out</a></li>
-    <li ng-cloak ng-show-auth="['logout','error']"><a ui-sref="main.login">Log In</a></li>
+    <li ng-cloak ng-show-auth="['logout','error']"><a toggle="on" href="#loginOverlay">Log In</a></li>
   </ul>
 
   <h3 class="text-muted">ecopos</h3>
 </div>
-    <div overlay="myOverlay">
+    <div overlay="loginOverlay">
         <h4 class="overlay-title">My Overlay</h4>
         <test></test>
         <!--p>
@@ -25,13 +25,13 @@
     <input ng-model="widget">{{ widget }}{{ userz }}
 
     <div ng-show="user.id">
-        Logged in as <strong>{{ user.id }}</strong> <em>[{{ activeRole }}]</em>
+        Logged in as <strong>{{ user.id }}</strong> <em>[{{ user.activeRole }}]</em>
         <div ng-show="employee.shiftType">
             scheduled as: <em>{{ employee.shiftType }}</em><span ng-show="user.session.activeShift.end"> until {{ user.session.activeShift.end | date:'shortTime' }}</span>
         </div>
         <div>
             <span ng-repeat="(role, assigned) in userBind.roles" ng-if="assigned">
-                <label>{{ role }}</label> <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.activeRole" />
+                <label>{{ role }}</label> <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.user.activeRole" />
             </span>
         </div>
         <div>
@@ -63,6 +63,6 @@
         <button ng-click="evtsChecked=!evtsChecked" ng-show="evtsChecked">Hide Events</button>
     </span>
     <span>
-    <button href="#myOverlay" toggle="on">Cloverleaf Industries</button>
+    <button href="#loginOverlay" toggle="on">Cloverleaf Industries</button>
     </span>
 </div>
