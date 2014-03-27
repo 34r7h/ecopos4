@@ -6,7 +6,6 @@ angular.module('ecoposApp').directive('test', function(simpleLogin,profileManage
 		templateUrl: 'test/directive/test.html',
 		link: function(scope, element, attrs,$location, $rootScope) {
 
-
 					scope.pass = null;
 					scope.err = null;
 					scope.email = null;
@@ -14,7 +13,7 @@ angular.module('ecoposApp').directive('test', function(simpleLogin,profileManage
 					scope.createMode = false;
 					scope.passwordMode = false;
 					scope.profileMode = false;
-					scope.user = null;
+					scope.userAuth = null;
 					scope.username = null;
 					scope.displayName = null;
 
@@ -28,10 +27,6 @@ angular.module('ecoposApp').directive('test', function(simpleLogin,profileManage
 										scope.username = user.username;
 										scope.email = user.emails[0].value?user.emails[0].value:null;
 										scope.displayName = user.displayName;
-										scope.tiggle = function(){
-											$rootScope.toggle('myOverlay', 'off');
-										};
-										scope.tiggle();
 									}
 									else if(user.provider === 'twitter'){
 										scope.username = user.username;
@@ -41,7 +36,7 @@ angular.module('ecoposApp').directive('test', function(simpleLogin,profileManage
 									scope.profileMode = true; // trigger the ng-show
 								});
 							}
-							scope.user = user;
+							scope.userAuth = user;
 							scope.err = err? err + '' : null;
 						});
 					};
@@ -70,7 +65,7 @@ angular.module('ecoposApp').directive('test', function(simpleLogin,profileManage
 									}
 								}
 
-								scope.user = user;
+								scope.userAuth = user;
 
 								scope.err = err? err + '' : null;
 								if( !err && cb ) {
@@ -124,14 +119,14 @@ angular.module('ecoposApp').directive('test', function(simpleLogin,profileManage
 										});
 									}
 								}
-								scope.user = user;
+								scope.userAuth = user;
 							});
 						}
 					};
 
 					scope.cancelProfile = function(){
 						simpleLogin.logout();
-						if(scope.user.provider === 'password'){
+						if(scope.userAuth.provider === 'password'){
 							simpleLogin.removeAccount(scope.email, scope.pass);
 						}
 						else{
@@ -146,7 +141,7 @@ angular.module('ecoposApp').directive('test', function(simpleLogin,profileManage
 
 					scope.createProfile = function(){
 						// this is for creating the user profile (associates with auth account from email/password, facebook, twitter, etc)
-						profileManager.createProfile(scope.user.uid, scope.username, scope.email, scope.displayName).then(function(success){
+						profileManager.createProfile(scope.userAuth.uid, scope.username, scope.email, scope.displayName).then(function(success){
 
 						}, function(err){
 								$scope.err = err;
