@@ -8,11 +8,13 @@
     <li ng-cloak ng-show-auth="login" ng-controller="LoginController"><a href="#" ng-click="logout()">Log Out</a></li>
     <li ng-cloak ng-show-auth="['logout','error']"><a ui-sref="main.login">Log In</a></li>
   </ul>
+
   <h3 class="text-muted">ecopos</h3>
+</div>
     <div overlay="myOverlay">
         <h4 class="overlay-title">My Overlay</h4>
         <p>
-            <test/>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolorem, ex eaque possimus ipsa ab quasi quos corporis consequatur laudantium? Ab assumenda delectus quo velit voluptates doloribus. Earum odit facilis qui.
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolorem, ex eaque possimus ipsa ab quasi quos corporis consequatur laudantium? Ab assumenda delectus quo velit voluptates doloribus. Earum odit facilis qui.
         </p>
         <p toggle="off" bubble target="myOverlay">
             <span class="btn btn-primary">Ok</span>
@@ -50,7 +52,7 @@
         <div ui-view></div>
 
 
-<div style="position: fixed; bottom: 0; width: 100%;z-index:9991" back>
+<div style="position: fixed; bottom: 0; width: 100%;z-index:9991">
     <span>
         <button ng-click="msgsChecked=!msgsChecked" ng-hide="msgsChecked">Show Messages</button>
         <button ng-click="msgsChecked=!msgsChecked" ng-show="msgsChecked">Hide Messages</button>
@@ -63,5 +65,3 @@
     <button href="#myOverlay" toggle="on">Cloverleaf Industries</button>
     </span>
 </div>
-
-
