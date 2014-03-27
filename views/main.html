@@ -26,12 +26,12 @@
         <span ng-repeat="(role, assigned) in userBind.roles" ng-if="assigned">
             <label>{{ role }}</label> <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.activeRole" />
         </span>
-        <span style="width:50%; position:absolute; bottom: 0;left:0;z-index: 9990; background: rgba(255,255,255, .6);">
+        <span>
 
-            <div ng-show="msgsChecked">
+            <div ng-show="msgsChecked" scrollable-content class="msgevt">
                 <messages></messages>
             </div>
-            <div ng-show="evtsChecked">
+            <div ng-show="evtsChecked" scrollable-content class="msgevt">
                 <events></events>
             </div>
         </span>
