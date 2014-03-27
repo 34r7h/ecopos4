@@ -8,6 +8,7 @@ angular.module('ecoposApp')
 		$scope.manager = {orders: {}};
 		$scope.activeRole = 'anonymous';
 
+
 		var unbindUser = null;
 		var firstActiveRole = false;
 		var calendarEvents = {};
@@ -29,6 +30,7 @@ angular.module('ecoposApp')
 				unbindUser = unbind;
 				$rootScope.toggle();
 				$scope.user.id = user.$id;
+                $rootScope.toggle('myOverlay', 'off');
 
 				// load user data that affects how the state will load
 				$scope.user.session.loginTime = new Date().getTime();
