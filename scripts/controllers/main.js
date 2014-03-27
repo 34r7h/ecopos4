@@ -2,6 +2,8 @@
 
 angular.module('ecoposApp')
 	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, system, firebaseRef) {
+        $scope.users = system.getUsersFlat();
+
         $scope.user = {calendar: {}};
         $scope.manager = {orders: {}};
         $scope.activeRole = 'anonymous';
