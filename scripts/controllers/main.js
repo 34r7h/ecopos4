@@ -1,18 +1,12 @@
-
-
 angular.module('ecoposApp')
 	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, system, firebaseRef) {
-<<<<<<< HEAD
-		$scope.user = {calendar: {}};
-		$scope.manager = {orders: {}};
-		$scope.activeRole = 'anonymous';
-=======
+
         $scope.users = system.getUsersFlat();
 
         $scope.user = {calendar: {}};
         $scope.manager = {orders: {}};
         $scope.activeRole = 'anonymous';
->>>>>>> c3ffe36137ace4c739e2db5846c0da5c616a7e1b
+
 		var unbindUser = null;
 		var firstActiveRole = false;
 		var calendarEvents = {};
@@ -165,7 +159,7 @@ angular.module('ecoposApp')
 		}
 
 
-<<<<<<< HEAD
+
 		// CALENDAR AND EVENTS STUFF
 		function setCalendarEvent(event){
 			if(event.date){
@@ -236,7 +230,7 @@ angular.module('ecoposApp')
 			// TODO: need some validation here (or in the system.createEvent as a promise)
 			system.createEvent($scope.newEvent.title, $scope.newEvent.description, users, $scope.newEvent.type, dateStamp);
 		};
-=======
+
         // CALENDAR AND EVENTS STUFF
         function setCalendarEvent(event){
             if(event.date){
@@ -314,6 +308,6 @@ angular.module('ecoposApp')
             // TODO: need some validation here (or in the system.createEvent as a promise)
             system.createEvent($scope.newEvent.title, $scope.newEvent.description, users, $scope.newEvent.type, dateStamp, endStamp);
         };
->>>>>>> c3ffe36137ace4c739e2db5846c0da5c616a7e1b
+
 
 	});
