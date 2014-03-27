@@ -1,7 +1,6 @@
 angular.module('ecoposApp').filter('eventFilter', function() {
 	return function(input,args) {
         var output = {};
-        //if(args.hasDate && )
         angular.forEach(input, function(event, key){
             if(args.isCalendar && event.date){
                 output[key] = event;

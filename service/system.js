@@ -64,7 +64,7 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $timeout, $l
             return users;
         },
 
-        createEvent: function(title, description, users, type, date){
+        createEvent: function(title, description, users, type, date, end){
             console.log('creating event:'+title+':'+description+':'+JSON.stringify(users)+':'+JSON.stringify(type)+':'+date);
 
             var newEvent = {title: title,
@@ -73,6 +73,9 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $timeout, $l
                 type: type};
             if(date){
                 newEvent.date = date;
+            }
+            if(end){
+                newEvent.end = end;
             }
             syncData('event').$add(newEvent).then(function(eventRef){
                     angular.forEach(users, function(active, username){

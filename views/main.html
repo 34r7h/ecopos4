@@ -65,14 +65,29 @@
 
                     <label>To-Do</label>
                     <input type="radio" ng-model="newEvent.type" value="todo" />
+
+                    <label>Shift</label>
+                    <input type="radio" ng-model="newEvent.type" value="shift" />
+                </div>
+                <div ng-show="newEvent.type === 'shift'">
+                    {{newEvent}}
+                    <div ng-repeat="username in newEvent.users">
+                        <strong>{{ username }}'s assignment:</strong><br/>
+                        <input type="radio" ng-model="newEvent.shiftType[username]" value="general" /> <label>General</label><br/>
+                        <input type="radio" ng-model="newEvent.shiftType[username]" value="cashier" /> <label>Cashier</label><br/>
+                        <input type="radio" ng-model="newEvent.shiftType[username]" value="delivery" /> <label>Delivery</label><br/>
+                        <input type="radio" ng-model="newEvent.shiftType[username]" value="asst-manager" /> <label>Assistant Manager</label>
+                    </div>
                 </div>
                 <div ng-show="newEvent.type === 'todo'">
                     <label>Due Date</label>
                     <input type="checkbox" ng-model="newEvent.dueDate" />
                 </div>
-                <div ng-show="newEvent.type === 'calendar' || newEvent.dueDate">
-                    <label>Date</label><br/>
-                    <div date-picker="newEvent.date" view="month"></div>
+                <div ng-show="newEvent.type === 'calendar' || newEvent.type === 'shift' || newEvent.dueDate">
+                    <label>Date</label> <span ng-hide="newEvent.type === 'shift'"><input type="checkbox" ng-model="newEvent.hasEnd" /> End Date</span><br/>
+
+                    <div ng-hide="newEvent.hasEnd || newEvent.type === 'shift'" date-picker="newEvent.date" view="month"></div>
+                    <div ng-show="newEvent.hasEnd || newEvent.type === 'shift'" date-range start="newEvent.date" end="newEvent.end" view="month"></div>
                 </div>
 
                 <button ng-click="createEvent()">Create Event</button>
