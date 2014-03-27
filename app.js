@@ -17,10 +17,10 @@ angular.module('ecoposApp', [
 	"mobile-angular-ui.scrollable"
 ]);
 
-angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, $anchorScrollProvider) {
+angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) {
 
 
-	// $anchorScrollProvider.disableAutoScrolling();
+
 
     $urlRouterProvider.otherwise('/');
 
