@@ -156,8 +156,6 @@ angular.module('ecoposApp').directive('test', function(simpleLogin,profileManage
                 user.$bind(scope, 'userBind').then(function(unbind){
                     unbindUser = unbind;
 
-                    $log.debug('rs2:'+$rootScope);
-
                     scope.user.id = user.$id;
                     $rootScope.toggle('myOverlay', 'off');
 
