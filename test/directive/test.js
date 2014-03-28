@@ -157,7 +157,7 @@ angular.module('ecoposApp').directive('test', function(simpleLogin,profileManage
                     unbindUser = unbind;
 
                     scope.user.id = user.$id;
-                    $rootScope.toggle('myOverlay', 'off');
+                    $rootScope.toggle('loginOverlay', 'off');
 
                     // load user data that affects how the state will load
                     scope.user.session.loginTime = new Date().getTime();
