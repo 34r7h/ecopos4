@@ -1,10 +1,11 @@
 angular.module('ecoposApp').factory('system',function(syncData, $q, $timeout, $log, cart) {
 
+    var data = {
+
+    };
 
 
-	var system = {
-
-
+	var api = {
 
 		// Shop API
 
@@ -44,6 +45,8 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $timeout, $l
 			return total;
 		},
 
+        // Utility API
+
         // gets a flattened user list with no duplicates
         getUsersFlat: function(){
             var users = [];
@@ -63,6 +66,8 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $timeout, $l
             });
             return users;
         },
+
+        // Events API
 
         createEvent: function(title, description, users, type, date, end){
             console.log('creating event:'+title+':'+description+':'+JSON.stringify(users)+':'+JSON.stringify(type)+':'+date);
@@ -120,5 +125,8 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $timeout, $l
         }
     };
 
-	return system;
+	return {
+        api: api,
+        data: data
+    };
 });

@@ -1,7 +1,7 @@
 angular.module('ecoposApp')
 	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, system, firebaseRef) {
 
-		$scope.users = system.getUsersFlat();
+		$scope.users = system.api.getUsersFlat();
 
 		$scope.user = {activeRole: 'anonymous', messages: {}, events: {}, calendar: {}, session: {firstActiveRole: false, calendarEvents: {}}};
 		$scope.employee = {shiftType: null};
