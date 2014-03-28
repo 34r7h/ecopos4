@@ -70,7 +70,7 @@
                   // stop loading the requested state
                   event.preventDefault();
                 }
-                this._rootScope.toggle('myOverlay', 'on');
+                this._rootScope.toggle('loginOverlay', 'on');
                 //this._redirect(loginState);
             }
 		}
