@@ -29,7 +29,7 @@
 			});
 
 			//self._rootScope.$on('$firebaseSimpleLogin:login', angular.bind(this, this._login));
-      self._rootScope.$on('ecopos:user:bound', angular.bind(this, this._login));
+            self._rootScope.$on('ecopos:user:bound', angular.bind(this, this._login));
 			self._rootScope.$on('$firebaseSimpleLogin:logout', angular.bind(this, this._logout));
 			self._rootScope.$on('$firebaseSimpleLogin:error', angular.bind(this, this._logout));
 		},
@@ -70,7 +70,8 @@
                   // stop loading the requested state
                   event.preventDefault();
                 }
-                this._redirect(loginState);
+                this._rootScope.toggle('loginOverlay', 'on');
+                //this._redirect(loginState);
             }
 		}
 	};
