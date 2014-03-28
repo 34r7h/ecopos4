@@ -1,4 +1,4 @@
-angular.module('ecoposApp').directive('events', function() {
+angular.module('ecoposApp').directive('events', function(system) {
 	return {
 		restrict: 'E',
 		replace: true,
