@@ -177,6 +177,7 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
             }
             else{
                 data.user.activeRole = 'anonymous';
+                data.user.id = null;
                 data.user.profile = null;
                 data.user.messages = {};
                 data.user.events = {};
