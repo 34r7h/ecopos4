@@ -65,9 +65,6 @@
   <h3>♥</h3>
 
 
-
-
-
 <div ng-show="user.id">
 
     <div style="position: fixed; bottom: 0; width: 100%;z-index:9991">
@@ -89,7 +86,7 @@
         scheduled as: <em>{{ employee.shiftType }}</em><span ng-show="user.session.activeShift.end"> until {{ user.session.activeShift.end | date:'shortTime' }}</span>
     </div>
     <div>
-            <span ng-repeat="(role, assigned) in userBind.roles" ng-if="assigned">
+            <span ng-repeat="(role, assigned) in user.profile.roles" ng-if="assigned">
                 <label>{{ role }}</label> <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.user.activeRole" />
             </span>
     </div>
