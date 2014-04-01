@@ -1,19 +1,5 @@
 <div>
-
-    <h4>Events</h4>
-
-    <h5>To-Do</h5>
-    <ul>
-        <li ng-repeat="event in user.events | eventFilter:{isTodo: true}">{{ event.title }}</li>
-    </ul>
-
-    <h5>Calendar</h5>
-    <ul>
-        <li ng-repeat="event in user.events | eventFilter:{isCalendar: true}">{{ event.date | date:'shortDate' }} @ {{ event.date | date:'shortTime' }} - {{ event.title }}</li>
-    </ul>
-
-
-    <fieldset>
+    <fieldset ng-show="newEvt" class="col-xs-12">
         <legend>New Event</legend>
         <div>
             <label>Title</label>
@@ -64,8 +50,22 @@
             <div ng-show="newEvent.hasEnd || newEvent.type === 'shift'" date-range start="newEvent.date" end="newEvent.end" view="month"></div>
         </div>
 
-        <button ng-click="createEvent()">Create Event</button>
+        <button ng-click="createEvent(); newEvt=!newEvt;">Create Event</button>
     </fieldset>
+    <h5>To-Do</h5>
+    <ul>
+        <li ng-repeat="event in user.events | eventFilter:{isTodo: true}">{{ event.title }}</li>
+    </ul>
+<div class="col-xs-12" ng-show="cal">
+    <h5>Calendar</h5>
+    <calendar></calendar>
+    <ul>
+        <li ng-repeat="event in user.events | eventFilter:{isCalendar: true}">{{ event.date | date:'shortDate' }} @ {{ event.date | date:'shortTime' }} - {{ event.title }}</li>
+    </ul>
+</div>
+
+
+
 
 
 </div>

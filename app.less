@@ -1,6 +1,7 @@
 @import "bower_components/bootstrap/less/bootstrap.less";
 @import "bower_components/mobile-angular-ui/dist/css/mobile-angular-ui-base.css";
-@import "/bower_components/mobile-angular-ui/dist/css/mobile-angular-ui-max-width-767px.css";
+@import "bower_components/mobile-angular-ui/dist/css/mobile-angular-ui-max-width-767px.css";
+@import "bower_components/mobile-angular-ui/dist/css/mobile-angular-ui-desktop.css";
 //@import "bower_components/bootstrap/less/theme.less";
 @import "bower_components/font-awesome/less/font-awesome.less";
 @import "bower_components/angular-datepicker/dist/index.css";
@@ -59,14 +60,27 @@ textarea {
 
   width: 100%;
 }
-
+.footer-nav {
+  position: fixed; bottom: 0; z-index:9991; float: right;
+}
 .msgevt {
+position: fixed;
+  height:auto;
+  bottom:0;
 
-  max-height:60%;
-  position:fixed;
-  bottom: 0;
+}
+.msgevt .panel {
 
-  z-index: 9990;
-  background: rgba(255,255,255, .8);
-  overflow-y: scroll;
+}
+
+
+.msgevt .panel-heading {
+
+}
+.msgevt .panel-body {
+
+
+}
+.btn-group.nav-tabs a {
+  width:auto;
 }

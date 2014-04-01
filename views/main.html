@@ -1,49 +1,14 @@
-<ul class="nav nav-tabs">
-    <li><a href="#Tab0"toggle="on" parent-active-class="active"><h3 class="text-muted">ecopos</h3></a></li>
-    <li><a href="#Tab1" ui-sref="main.admin.views" toggle="on" parent-active-class="active">Admin</a></li>
-    <li><a href="#Tab2" ui-sref="main.shops.views" toggle="on" parent-active-class="active">Shop</a></li>
-    <li><a href="#Tab3" ui-sref="main.tools.views" toggle="on" parent-active-class="active">Tools</a></li>
+<ul class="nav nav-pills pull-right">
+    <li class="active"><a ng-href="#">Home</a></li>
+    <li><a ui-sref="main.admin.views">Admin</a></li>
+    <li><a ui-sref="main.shops.views">Shop</a></li>
+    <li><a ui-sref="main.tools.views">Tools</a></li>
+
     <li ng-cloak ng-show-auth="login" ng-controller="LoginController"><a href="#" ng-click="logout()">Log Out</a></li>
-    <li ng-cloak ng-show-auth="['logout','error']"><a toggle="on" href="#loginOverlay">Log In</a></li>
+    <li ng-cloak ng-show-auth="['logout','error']"><button href="#loginOverlay" toggle="on">Cloverleaf Industries</button></li>
+
 </ul>
-
-<div class="tab-content">
-    <div class="tab-pane" toggleable active-class="active" default="active" id="Tab0" exclusion-group="myTabs">
-
-        <h3 class="page-header">Home</h3>
-
-    </div>
-
-    <div class="tab-pane" toggleable active-class="active" id="Tab1" exclusion-group="myTabs">
-
-        <h3 class="page-header">Admin</h3>
-        <div ui-view></div>
-    </div>
-
-    <div class="tab-pane" toggleable active-class="active" id="Tab2" exclusion-group="myTabs">
-        <h3 class="page-header">Shoponomics</h3>
-        <div ui-view></div>
-    </div>
-
-    <div class="tab-pane" toggleable active-class="active" id="Tab3" exclusion-group="myTabs">
-        <h3 class="page-header">Tools</h3>
-        <p> <div ui-view></div></p>
-    </div>
-</div>
-
-<div class="btn-group justified nav-tabs">
-    <a class="btn btn-default" href="#Tab1" ui-sref="main.admin.views" toggle="on" active-class="active">Admin
-    </a>
-
-    <a class="btn btn-default" href="#Tab2"  ui-sref="main.shops.views" toggle="on" active-class="active">Shoponomics
-    </a>
-
-    <a class="btn btn-default" href="#Tab3" ui-sref="main.tools.views" toggle="on" active-class="active">Tools
-    </a>
-
-</div>
-
-
+<h3 class="text-muted">ecopos</h3>
 
 
 
@@ -59,29 +24,20 @@
         </p-->
     </div>
 
-
-
-
-  <h3>♥</h3>
-
-
-
-
-
 <div ng-show="user.id">
 
-    <div style="position: fixed; bottom: 0; width: 100%;z-index:9991">
-    <span>
-        <button ng-click="msgsChecked=!msgsChecked" ng-hide="msgsChecked">Show Messages</button>
-        <button ng-click="msgsChecked=!msgsChecked" ng-show="msgsChecked">Hide Messages</button>
-    </span>
-    <span>
-        <button ng-click="evtsChecked=!evtsChecked" ng-hide="evtsChecked">Show Events</button>
-        <button ng-click="evtsChecked=!evtsChecked" ng-show="evtsChecked">Hide Events</button>
-    </span>
-    <span>
-    <button href="#loginOverlay" toggle="on">Cloverleaf Industries</button>
-    </span>
+    <div class="footer-nav col-xs-12">
+        <span>
+            <button ng-click="msgsChecked=!msgsChecked" ng-hide="msgsChecked">Show Messages</button>
+            <button ng-click="msgsChecked=!msgsChecked" ng-show="msgsChecked">Hide Messages</button>
+        </span>
+        <span>
+            <button ng-click="evtsChecked=!evtsChecked" ng-hide="evtsChecked">Show Events</button>
+            <button ng-click="evtsChecked=!evtsChecked" ng-show="evtsChecked">Hide Events</button>
+        </span>
+        <span>
+        <button href="#loginOverlay" toggle="on">Cloverleaf Industries</button>
+        </span>
     </div>
 
     Logged in as <strong>{{ user.id }}</strong> <em>[{{ user.activeRole }}]</em>
@@ -93,15 +49,24 @@
                 <label>{{ role }}</label> <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.user.activeRole" />
             </span>
     </div>
-    <div>
-        <button ng-click="msgsChecked=!msgsChecked" ng-hide="msgsChecked">Show Messages</button>
-        <button ng-click="msgsChecked=!msgsChecked" ng-show="msgsChecked">Hide Messages</button>
+    <h3>♥</h3>
+        <div ui-view autoscroll="false"></div>
 
-        <div ng-show="msgsChecked" scrollable-content class="msgevt col-sm-4 col-xs-pull-0">
-            <messages></messages>
+    <div>
+        <div scrollable class="msgevt">
+            <div ng-show="msgsChecked" eco-panel title="Messages" iconz="iconx" scrollable-content class=" col-xs-4 pull-right ">
+                <messages></messages>
+            </div>
+            <div ng-show="evtsChecked" eco-panel title="Events" iconz="iconz" scrollable-content class=" col-xs-4 pull-right ">
+                <events></events>
+            </div>
         </div>
-        <div ng-show="evtsChecked" scrollable-content class="msgevt col-sm-4 col-xs-push-4">
-            <events></events>
-        </div>
+    </div>
+</div>
+
+<div class="scrollable">
+    <div class="scrollable-content">
+        <h1>Scrol this.</h1>
+        <h1>Scrol this.</h1>
     </div>
 </div>

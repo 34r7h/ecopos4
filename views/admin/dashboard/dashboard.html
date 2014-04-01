@@ -4,7 +4,7 @@
 
         <div class="well">
             <h2>Settings</h2>
-            <p ng-repeat="(key,settings) in dashStuff">{{ key }}:<prefs  type="settings[1]" element="settings[0]"></prefs></p>
+            <p ng-repeat="(key,settings) in dashStuff2 | orderBy:key:reverse">{{ key }}:<prefs type="settings.type" element="settings.elementual"></prefs></p>
         </div>
     </div>
     <div class="col-sm-5 col-md-5 col-lg-5">

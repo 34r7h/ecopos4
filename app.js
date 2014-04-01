@@ -147,6 +147,22 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
                         $scope.dashSettings = ['name', 'address', 'contact', 'shopping', 'payment', 'schedule'];
                         $scope.products = syncData('"produceList"');
                         $scope.navigation = ['Awesome', 'Search','Categories','Suppliers'];
+	                    $scope.dashStuff2 = {
+		                    "other name": {
+			                    "elementual": 'input',
+			                    "type": 'text' },
+		                    "end name": {
+			                    "elementual": 'input',
+			                    "type": 'checkbox' },
+		                    "streeetz name": {
+			                    "elementual": 'input',
+			                    "type": 'text' },
+		                    "kings of consciousness game": {
+			                    "elementual": 'input',
+			                    "type": 'number' }
+	                    };
+
+
 	                    $scope.dashStuff = {
 		                    "first name": ['input', 'text' ],
 		                    "last name": ['input', 'text'],
