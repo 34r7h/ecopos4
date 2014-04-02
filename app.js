@@ -24,6 +24,10 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
     $urlRouterProvider.otherwise('/');
 
+    $stateProvider.state('test', {
+        url: '/test',
+        templateUrl: 'test/test.html'
+    });
     /* Add New States Above */
 	$stateProvider
 		.state('main',{

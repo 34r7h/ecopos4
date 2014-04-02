@@ -1,72 +1,107 @@
-<ul class="nav nav-pills pull-right">
-    <li class="active"><a ng-href="#">Home</a></li>
-    <li><a ui-sref="main.admin.views">Admin</a></li>
-    <li><a ui-sref="main.shops.views">Shop</a></li>
-    <li><a ui-sref="main.tools.views">Tools</a></li>
-
-    <li ng-cloak ng-show-auth="login" ng-controller="LoginController"><a href="#" ng-click="logout()">Log Out</a></li>
-    <li ng-cloak ng-show-auth="['logout','error']"><button href="#loginOverlay" toggle="on">Cloverleaf Industries</button></li>
-
-</ul>
-<h3 class="text-muted">ecopos</h3>
-
-
-
-    <div overlay="loginOverlay">
-        <h4 class="overlay-title">Login</h4>
-        <login></login>
-        <!--p>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolorem, ex eaque possimus ipsa ab quasi quos corporis consequatur laudantium? Ab assumenda delectus quo velit voluptates doloribus. Earum odit facilis qui.
-        </p>
-        <p toggle="off" bubble target="myOverlay">
-            <span class="btn btn-primary">Ok</span>
-            <span class="btn btn-default">Cancel</span>
-        </p-->
-    </div>
-
-<div ng-show="user.id">
-
-    <div class="footer-nav col-xs-12">
-        <span>
-            <button ng-click="msgsChecked=!msgsChecked" ng-hide="msgsChecked">Show Messages</button>
-            <button ng-click="msgsChecked=!msgsChecked" ng-show="msgsChecked">Hide Messages</button>
-        </span>
-        <span>
-            <button ng-click="evtsChecked=!evtsChecked" ng-hide="evtsChecked">Show Events</button>
-            <button ng-click="evtsChecked=!evtsChecked" ng-show="evtsChecked">Hide Events</button>
-        </span>
-        <span>
-        <button href="#loginOverlay" toggle="on">Cloverleaf Industries</button>
-        </span>
-    </div>
-
-    Logged in as <strong>{{ user.id }}</strong> <em>[{{ user.activeRole }}]</em>
-    <div ng-show="employee.shiftType">
-        scheduled as: <em>{{ employee.shiftType }}</em><span ng-show="user.session.activeShift.end"> until {{ user.session.activeShift.end | date:'shortTime' }}</span>
-    </div>
-    <div>
+<div class="sidebar sidebar-left" toggleable parent-active-class="sidebar-left-in" id="mainSidebar">
+    <h1 class="app-name">êc0p0s</h1>
+    <h5 class="app-name">Logged in as <strong>{{ user.id }}</strong> <em>[{{ user.activeRole }}]</em></h5>
+    <h5 class="app-name" ng-show="employee.shiftType">
+        <p>scheduled as: <em>{{ employee.shiftType }}</em><span ng-show="user.session.activeShift.end"> until {{ user.session.activeShift.end | date:'shortTime' }}</span></p>
+    </h5>
+    <div  class="app-name">
             <span ng-repeat="(role, assigned) in userBind.roles" ng-if="assigned">
-                <label>{{ role }}</label> <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.user.activeRole" />
+                <label>{{ role }}</label>
+                <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.user.activeRole" />
             </span>
+        <h3>♥</h3>
     </div>
-    <h3>♥</h3>
-        <div ui-view autoscroll="false"></div>
 
-    <div>
-        <div scrollable class="msgevt">
-            <div ng-show="msgsChecked" eco-panel title="Messages" iconz="iconx" scrollable-content class=" col-xs-4 pull-right ">
-                <messages></messages>
+
+    <div class="">
+        <div class="">
+            <div class="list-group" toggle="off" bubble target="mainSidebar">
+                <a class="list-group-item" ng-href="#/"><i class="fa fa-home fa-navbar"></i> Home <i class="fa fa-chevron-right pull-right"></i></a>
+                <a class="list-group-item" ui-sref="main.admin.views"><i class="fa fa-book"></i> Admin <i class="fa fa-chevron-right pull-right"></i></a>
+                <a class="list-group-item" ui-sref="main.shops.views"><i class="fa fa-shopping-cart"></i>  Shop <i class="fa fa-chevron-right pull-right"></i></a>
+                <a class="list-group-item" ui-sref="main.tools.views"><i class="fa fa-compass"></i> Tools <i class="fa fa-chevron-right pull-right"></i></a>
+                <a ng-cloak class="list-group-item" ng-show-auth="login" ng-controller="LoginController" href="#" ng-click="logout()"><i class="fa fa-unlock"></i> Log Out <i class="fa fa-chevron-right pull-right"></i></a>
+                <a ng-cloak class="list-group-item" ng-show-auth="['logout','error']" href="#loginOverlay" toggle="on"><i class="fa fa-lock"></i> Cloverleaf Industries <i class="fa fa-chevron-right pull-right"></i></button></a>
             </div>
-            <div ng-show="evtsChecked" eco-panel title="Events" iconz="iconz" scrollable-content class=" col-xs-4 pull-right ">
-                <events></events>
-            </div>
+
         </div>
     </div>
 </div>
 
-<div class="scrollable">
-    <div class="scrollable-content">
-        <h1>Scrol this.</h1>
-        <h1>Scrol this.</h1>
+<div class="app">
+
+    <!-- Navbars -->
+    <div class="navbar navbar-app navbar-absolute-top">
+
+        <div class="navbar-brand navbar-brand-center" yield-to="title">
+            <span>êc0p0s</span>
+        </div>
+
+        <div class="btn-group pull-left">
+            <div ng-click="toggle('mainSidebar')" class="btn btn-navbar sidebar-toggle">
+                <i class="fa fa-bars"></i> Menu
+            </div>
+        </div>
+        <div class="btn-group pull-right">
+            <div class="btn-group pull-right toggleable-dropdown" active-class="open" id="myDropdown" toggleable>
+                <button type="button" class="btn btn-default dropdown-toggle" toggle target="myDropdown">
+                    <i class="fa fa-gear"></i> <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu" toggle="off" bubble target="myDropdown">
+                    <li><a href>Action</a></li>
+                    <li><a href>Another action</a></li>
+                    <li><a href>Something else here</a></li>
+                    <li class="divider">
+                    <li><a href>Separated link</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="btn-group pull-right" yield-to="navbarAction">
+            <div class="btn btn-navbar">
+                <i class="fa fa-plus"></i> New
+            </div>
+        </div>
+    </div>
+
+
+    <div class="">
+        <ui-view></ui-view>
+    </div>
+</div>
+
+<div class="navbar navbar-app navbar-fixed-bottom">
+    <div class="btn-group justified">
+        <a ng-click="msgsChecked=!msgsChecked" class="btn btn-navbar btn-icon-only" ng-hide="msgsChecked"><i class="fa fa-comments fa-navbar"></i> </a>
+        <a ng-click="msgsChecked=!msgsChecked" class="btn btn-navbar btn-icon-only" ng-show="msgsChecked"><i class="fa fa-comments fa-navbar"></i> </a>
+        <a ng-click="evtsChecked=!evtsChecked" class="btn btn-navbar btn-icon-only" ng-hide="evtsChecked"><i class="fa fa-calendar fa-navbar"></i> </a>
+        <a ng-click="evtsChecked=!evtsChecked" class="btn btn-navbar btn-icon-only" ng-show="evtsChecked"><i class="fa fa-calendar fa-navbar"></i> </a>
+
+    </div>
+</div>
+
+<div overlay="loginOverlay">
+    <h4 class="overlay-title">Login</h4>
+    <login></login>
+    <!--p>
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolorem, ex eaque possimus ipsa ab quasi quos corporis consequatur laudantium? Ab assumenda delectus quo velit voluptates doloribus. Earum odit facilis qui.
+    </p>
+    <p toggle="off" bubble target="myOverlay">
+        <span class="btn btn-primary">Ok</span>
+        <span class="btn btn-default">Cancel</span>
+    </p-->
+</div>
+
+<div ng-show="user.id">
+
+    <div>
+        <div scrollable>
+            <div ng-show="msgsChecked" eco-panel title="Messages" iconz="iconx" scrollable-content class="msgevt col-xs-3 pull-right ">
+                <messages></messages>
+            </div>
+            <div ng-show="evtsChecked" eco-panel title="Events" iconz="iconz" scrollable-content class="msgevt col-xs-4 pull-right ">
+                <events></events>
+            </div>
+        </div>
     </div>
 </div>
