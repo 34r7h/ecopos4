@@ -207,11 +207,11 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			views:{
 				eco: {
 					templateUrl:'views/shops/store/store.html',
-					controller:function($rootScope, $scope, cart, syncData,system){
+					controller:function($rootScope, $scope, cart, syncData, system){
 						$scope.shopName = "Ecossentials";
 						$scope.products = syncData('productz');
 						$scope.navigation = ['Search','Categories', 'Specials'];
-						$scope.inventory = syncData('preductz');
+						$scope.inventory = syncData('productz');
 
 						$scope.addProduct = system.api.addProduct;
 						$scope.removeItem = system.api.removeItem;
