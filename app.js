@@ -213,10 +213,10 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 						$scope.navigation = ['Search','Categories', 'Specials'];
 						$scope.inventory = syncData('productz');
 						$scope.qty = 1;
-						$scope.addItem = system.api.addItem;
+						$scopi.addItem;
 						$scope.addProduct = system.api.addProduct;
 						$scope.removeItem = system.api.removeItem;
-						$scope.total = system.api.total;
+						$scope.total = system.api$scope.total = system.total;
 
 						$scope.cart = cart.cart;
 						$scope.invoice = cart.invoice;
