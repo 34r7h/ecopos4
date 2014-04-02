@@ -1,5 +1,6 @@
 angular.module('ecoposApp')
 	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, system, firebaseRef) {
+<<<<<<< HEAD
 		$scope.iconz = {
 			icon1:{
 				icon:"fa fa-plus",
@@ -26,10 +27,14 @@ angular.module('ecoposApp')
 			}
 		};
 		$scope.users = system.getUsersFlat();
+=======
 
-		$scope.user = {activeRole: 'anonymous', messages: {}, events: {}, calendar: {}, session: {firstActiveRole: false, calendarEvents: {}}};
-		$scope.employee = {shiftType: null};
-		$scope.manager = {orders: {}};
+		$scope.users = system.api.getUsersFlat();
+>>>>>>> 8086b255babf276ab6b29e07138366e7b779ce59
+
+		$scope.user = system.data.user;
+		$scope.employee = system.data.employee;
+		$scope.manager = system.data.manager;
 		//$scope.activeRole = 'anonymous';
 
 		$scope.$watch('user.activeRole', function(value){
@@ -43,5 +48,26 @@ angular.module('ecoposApp')
 				}
 			}
 		});
+
+        $scope.$on('$simpleLogin:profile:loaded', function(event, user){
+            system.api.setUser(user);
+            system.api.setUserActiveRole();
+
+            $rootScope.toggle('loginOverlay', 'off');
+            $rootScope.$broadcast('ecopos:user:bound', user);
+
+            system.api.startUserSession();
+            system.api.loadUserData();
+        });
+
+        $scope.$on('$firebaseSimpleLogin:logout', function(event){
+            $log.debug('simpleLogin:logout:');
+            system.api.endUserSession();
+            system.api.setUser(null);
+        });
+
+        $scope.$on('$firebaseSimpleLogin:error', function(event, error){
+            $log.error('simpleLogin:error:'+error);
+        });
 
 	});

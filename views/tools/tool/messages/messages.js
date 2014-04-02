@@ -20,14 +20,14 @@ angular.module('ecoposApp').directive('messages', function(system, syncData, $ti
                     }
 
                     if(message){
-                        system.sendMessage(message, scope.user.id, scope.text[index]);
+                        system.api.sendMessage(message, scope.user.id, scope.text[index]);
 	                    scope.text[index] = null;
                     }
                 }
             };
 
             scope.startConversation = function(){
-                system.createConversation(scope.subject, scope.user.id, scope.sendTo, scope.text.new);
+                system.api.createConversation(scope.subject, scope.user.id, scope.sendTo, scope.text.new);
             };
 		}
 	};

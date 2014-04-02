@@ -92,9 +92,14 @@
     </p-->
 </div>
 
+  <h3>♥</h3>
+
+
+
 <div ng-show="user.id">
 
     <div>
+
         <div scrollable>
             <div ng-show="msgsChecked" eco-panel title="Messages" iconz="iconx" scrollable-content class="msgevt col-xs-3 pull-right ">
                 <messages></messages>
@@ -102,6 +107,21 @@
             <div ng-show="evtsChecked" eco-panel title="Events" iconz="iconz" scrollable-content class="msgevt col-xs-4 pull-right ">
                 <events></events>
             </div>
+
+            <span ng-repeat="(role, assigned) in user.profile.roles" ng-if="assigned">
+                <label>{{ role }}</label> <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.user.activeRole" />
+            </span>
+    </div>
+    <div>
+        <button ng-click="msgsChecked=!msgsChecked" ng-hide="msgsChecked">Show Messages</button>
+        <button ng-click="msgsChecked=!msgsChecked" ng-show="msgsChecked">Hide Messages</button>
+
+        <div ng-show="msgsChecked" scrollable-content class="msgevt col-sm-4 col-xs-pull-0">
+            <messages></messages>
+        </div>
+        <div ng-show="evtsChecked" scrollable-content class="msgevt col-sm-4 col-xs-push-4">
+            <events></events>
+
         </div>
     </div>
 </div>
