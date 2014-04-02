@@ -9,9 +9,9 @@
 
 	function RouteSecurityManager($rootScope, $state, loginState) {
 		this._state = $state;
-    this._rootState = 'main';
+        this._rootState = 'main';
 		this._rootScope = $rootScope;
-    this._loginState = loginState;
+        this._loginState = loginState;
 		this._redirectTo = null;
 		this._authenticated = !!($rootScope.auth && $rootScope.auth.user);
 		this._init();
@@ -47,9 +47,9 @@
 				this._redirect(this._redirectTo);
 				this._redirectTo = null;
 			}
-      else if(this._state.current && this._state.current.name === this._loginState){
-          this._redirect(this._rootState);
-      }
+            else if(this._state.current && this._state.current.name === this._loginState){
+              this._redirect(this._rootState);
+            }
 		},
 
 		_logout: function () {
@@ -58,7 +58,7 @@
 		},
 
 		_redirect: function (stateName) {
-        this._state.go(stateName, null, {location: 'replace'});
+            this._state.go(stateName, null, {location: 'replace'});
 		},
 
 		// A function to check whether the current path requires authentication,
@@ -67,8 +67,9 @@
             if(state.authRequired && !this._authenticated){
                 this._redirectTo = state.name;
                 if(event && typeof event.preventDefault === 'function'){
-                  // stop loading the requested state
-                  event.preventDefault();
+                    // stop loading the requested state
+                    event.preventDefault();
+                    this._redirect(this._rootState);
                 }
                 this._rootScope.toggle('loginOverlay', 'on');
                 //this._redirect(loginState);
