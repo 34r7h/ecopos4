@@ -1,7 +1,26 @@
 angular.module('ecoposApp')
 	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, system, firebaseRef) {
+		$scope.iconz = {
+			icon:"fa fa-plus",
+			fun: function(){
+				console.log("New Event Toggle");
+				$scope.newEvt = !$scope.newEvt;
+			}
+		};
+
+		$scope.iconx = {
+			icon:"fa fa-plus",
+			fun:function(){
+				console.log("x");
+				$scope.newMsg = !$scope.newMsg;
+			}
+		};
+
+
+
 
 		$scope.users = system.api.getUsersFlat();
+
 
 		$scope.user = system.data.user;
 		$scope.employee = system.data.employee;

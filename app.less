@@ -1,6 +1,7 @@
 @import "bower_components/bootstrap/less/bootstrap.less";
 @import "bower_components/mobile-angular-ui/dist/css/mobile-angular-ui-base.css";
-@import "/bower_components/mobile-angular-ui/dist/css/mobile-angular-ui-max-width-767px.css";
+@import "bower_components/mobile-angular-ui/dist/css/mobile-angular-ui-max-width-767px.css";
+@import "bower_components/mobile-angular-ui/dist/css/mobile-angular-ui-desktop.css";
 //@import "bower_components/bootstrap/less/theme.less";
 @import "bower_components/font-awesome/less/font-awesome.less";
 @import "bower_components/angular-datepicker/dist/index.css";
@@ -59,14 +60,88 @@ textarea {
 
   width: 100%;
 }
-
-.msgevt {
-
-  max-height:60%;
-  position:fixed;
-  bottom: 0;
-
-  z-index: 9990;
-  background: rgba(255,255,255, .8);
-  overflow-y: scroll;
+.footer-nav {
+  position: fixed; bottom: 0; z-index:9991; float: right;
 }
+.msgevt {
+position: fixed;
+  height:auto;
+  bottom:0;
+  right:0;
+  max-height: 62%;
+
+}
+.flyout {
+position: relative;
+}
+.msgevt .panel {
+
+}
+
+
+.msgevt .panel-heading {
+
+}
+.msgevt .panel-body {
+
+
+}
+.btn-group.nav-tabs a {
+  width:auto;
+}
+
+.test-scroll {max-height:300px;}
+
+input, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  background: none;
+  border: none;
+  border-bottom: 0px #333;
+  box-shadow: 0px 1px 0px #554A47;
+}
+
+input:focus, textarea:focus {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  background: none;
+  border: none;
+  border-bottom: 1px #333 dotted;
+  box-shadow: 0px 1px 0px rgba(0,0,0,0);
+  outline: none;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  -webkit-webkit-appearance: none;
+  -moz-webkit-appearance: none;
+  -ms-webkit-appearance: none;
+  -o-webkit-appearance: none;
+  webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=radio],
+input[type=checkbox] {
+  display: none;
+}
+input[type=radio] + span:before,
+input[type=checkbox] + span:before {
+  font-family: "FontAwesome";
+  width: 1.2em;
+  display:inline-block;
+}
+
+input[type=checkbox] + span:before                 { content: "\f096"; }
+input[type=checkbox]:checked + span:before         { content: "\f046"; }
+input[type=checkbox].inverse + span:before         { content: "\f0c8"; }
+input[type=checkbox].inverse:checked + span:before { content: "\f14a"; }
+
+input[type=radio] + span:before                    { content: "\f10c"; }
+input[type=radio]:checked + span:before            { content: "\f05d"; }
+input[type=radio].inverse + span:before            { content: "\f111"; }
+input[type=radio].inverse:checked + span:before    { content: "\f058"; }
+

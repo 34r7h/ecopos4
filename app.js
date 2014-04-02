@@ -24,6 +24,10 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
     $urlRouterProvider.otherwise('/');
 
+    $stateProvider.state('test', {
+        url: '/test',
+        templateUrl: 'test/test.html'
+    });
     /* Add New States Above */
 	$stateProvider
 		.state('main',{
@@ -147,6 +151,22 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
                         $scope.dashSettings = ['name', 'address', 'contact', 'shopping', 'payment', 'schedule'];
                         $scope.products = syncData('"produceList"');
                         $scope.navigation = ['Awesome', 'Search','Categories','Suppliers'];
+	                    $scope.dashStuff2 = {
+		                    "other name": {
+			                    "elementual": 'input',
+			                    "type": 'text' },
+		                    "end name": {
+			                    "elementual": 'input',
+			                    "type": 'checkbox' },
+		                    "streeetz name": {
+			                    "elementual": 'input',
+			                    "type": 'text' },
+		                    "kings of consciousness game": {
+			                    "elementual": 'input',
+			                    "type": 'number' }
+	                    };
+
+
 	                    $scope.dashStuff = {
 		                    "first name": ['input', 'text' ],
 		                    "last name": ['input', 'text'],
@@ -191,9 +211,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 						$scope.shopName = "Ecossentials";
 						$scope.products = syncData('productz');
 						$scope.navigation = ['Search','Categories', 'Specials'];
-						$scope.inventory = syncData('productz');
-						$scope.qty = 1;
-						$scope.addItem = system.api.addItem;
+						$scope.inventory = syncData('preductz');
+
 						$scope.addProduct = system.api.addProduct;
 						$scope.removeItem = system.api.removeItem;
 						$scope.total = system.api.total;
