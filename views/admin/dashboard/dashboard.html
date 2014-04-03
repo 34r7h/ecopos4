@@ -1,5 +1,46 @@
 <div class="col-xs-12" ng-controller="DashboardCtrl">
     <h1>{{ dashName }} Dashboard</h1>
+    <div class="col-xs-12" ng-show="dashName==='Admin'">
+        <div class="well">
+            <h2>Prodz to Inventory</h2>
+            <button ng-click="importProdzToInventory()" class="btn btn-danger">Fire in the Hole!</button>
+            <div class="scrollable">
+                <h4>Treasure:</h4>
+                <span ng-show="treasure.incoming">Incoming...</span>
+                <span ng-show="treasure.data.count">Products: {{treasure.data.count}}</span>
+                <div style="overflow-y:auto;height:500px;" ng-show="treasure.categories">
+                    <ul>
+                        <li ng-repeat="(topCat,topCatContent) in treasure.categories">
+                            <h5>{{topCat}}</h5>
+                            <ul ng-show="topCatContent">
+                                <li ng-repeat="(subCat, subCatContent) in topCatContent">
+                                    <h5>{{ subCat }}</h5>
+                                    <ul>
+                                        <li ng-repeat="(pName, productContent) in subCatContent">
+                                            <strong>{{productContent.name}}<span ng-show="pName!=productContent.name"> ({{pName}})</span></strong><span ng-show="productContent.description">{{productContent.description}}</span>
+                                            <ul ng-show="productContent.variations">
+                                                <li><em>variations:</em>
+                                                    <ul>
+                                                        <li ng-repeat="(vName, variation) in productContent.variations">
+                                                            <strong>{{variation.name}}<span ng-show="vName!=variation.name"> ({{vName}})</span></strong>
+                                                            <div ng-show="variation.possibleDup">
+                                                                {{variation.rawData}}
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="col-xs-7">
 
         <div class="well">

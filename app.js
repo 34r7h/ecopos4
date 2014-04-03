@@ -67,7 +67,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 		.state('main.admin',{
 			url:'admin',
 			abstract:true,
-      authRequired:true,
+            authRequired:true,
 			templateUrl:'views/admin/admin.html',
 			controller: function($scope){
 
@@ -146,7 +146,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 				},
                 admin: {
                     templateUrl:'views/admin/dashboard/dashboard.html',
-                    controller:function($scope,syncData){
+                    controller:function($scope,syncData, system){
                         $scope.dashName = "Admin";
                         $scope.dashSettings = ['name', 'address', 'contact', 'shopping', 'payment', 'schedule'];
                         $scope.products = syncData('"produceList"');
@@ -176,6 +176,9 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 	                    };
 
                         $scope.orders = $scope.manager.orders;
+
+                        $scope.importProdzToInventory = system.api.importProdzToInventory;
+                        $scope.treasure =  system.data.treasure;
 
                     }
                 }

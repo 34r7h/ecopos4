@@ -3,7 +3,8 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
     var data = {
         user: {activeRole: 'anonymous', profile: null, messages: {}, events: {}, calendar: {}, session: {firstActiveRole: true, calendarEvents: {}}},
         employee: {shiftType: null},
-        manager: {orders: {}}
+        manager: {orders: {}},
+        treasure: {}
     };
 
 
@@ -326,9 +327,143 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                     data.manager.orders[childSnapshot.name()] = childSnapshot.val();
                 });
             }
+        },
+
+
+        importProdzToInventory: function(){
+            $log.debug('Go for Gold ♥');
+            data.treasure.incoming = true;
+            syncData("horizon-products/current").$on('loaded', function(prodz){
+                data.treasure.incoming = false;
+                data.treasure.data = {count: prodz.length};
+                data.treasure.categories = {};
+                angular.forEach(prodz, function(prod, idx){
+                    //if(idx < 10){
+                        var cCat = prod.category;
+                        var cats = cCat.split(' - ');
+                        var topCat = '';
+                        var subCat = '';
+                        if(cats.length === 2){
+                            topCat = cats[0];
+                            subCat = cats[1];
+                        }
+                        else{
+                            if(cCat.indexOf('(Fresh)') >= 0){
+                                topCat = cCat.replace('(Fresh)', '');
+                                subCat = 'Fresh';
+                            }
+                            else if(cCat.indexOf('(Freezer)') >= 0 ){
+                                topCat = cCat.replace('(Freezer)', '');
+                                subCat = 'Frozen';
+                            }
+                            else{
+                                topCat = 'Grocery';
+                                subCat = cCat;
+                            }
+                        }
+
+                        topCat = fbSafeKey(topCat);
+                        subCat = fbSafeKey(subCat);
+
+                        if(!data.treasure.categories[topCat]){
+                            data.treasure.categories[topCat] = {};
+                        }
+                        if(!data.treasure.categories[topCat][subCat]){
+                            data.treasure.categories[topCat][subCat] = {};
+                        }
+
+                        var cName = prod['Item'];
+                        var names = cName.split(',', 2);
+                        var pName = '';
+                        var vName = '';
+                        if(names.length === 2){
+                            pName = names[0];
+                            vName = names[1];
+                        }
+                        else{
+                            pName = 'Unknown';
+                            vName = cName;
+                        }
+
+                        pNameFull = pName;
+                        vNameFull = vName;
+
+                        pName = fbSafeKey(pName);
+                        vName = fbSafeKey(vName);
+
+                        if(!data.treasure.categories[topCat][subCat][pName]){
+                            data.treasure.categories[topCat][subCat][pName] = {name: pNameFull, description: '', variations: {}};
+                        }
+
+                        var varDupCount = 0;
+                        var varDupCheck = vName;
+                        while(data.treasure.categories[topCat][subCat][pName].variations[varDupCheck]){
+                            varDupCount++;
+                            varDupCheck = vName+'-'+varDupCount;
+                        }
+                        if(varDupCount > 0 && data.treasure.categories[topCat][subCat][pName].variations[vName]){
+                            data.treasure.categories[topCat][subCat][pName].variations[vName].possibleDup = true;
+                        }
+                        vName = varDupCheck;
+
+                        data.treasure.categories[topCat][subCat][pName].variations[vName] = {
+                            idx: idx,
+                            name: vNameFull,
+                            code: prod['Code']?prod['Code']:'?',
+                            upc: prod['UPC Code']?prod['UPC Code']:'?',
+                            size: prod[' Size']?prod[' Size']:(prod['Size']?prod['Size']:'?'),
+                            bulk: prod['Bulk']?prod['Bulk']:'',
+                            pack: prod['Pack']?prod['Pack']:'?',
+                            casePrice: prod['Case Price']?prod['Case Price']:'?',
+                            brand: prod['Brand Name']?prod['Brand Name']:'?',
+                            possibleDup: (varDupCount > 0),
+                            rawData: prod
+                        };
+                });
+
+                syncData('inventoryz').$set(data.treasure.categories);
+            });
         }
 
     };
+
+    function fbSafeKey(rawKey){
+        var safeKey = rawKey.trim();
+        var foulChar = [];
+
+        //".", "#", "$", "/", "[", or "]"
+        if(safeKey.indexOf('.') >= 0){
+            foulChar.push('.');
+        }
+        if(safeKey.indexOf('#') >= 0){
+            foulChar.push('#');
+        }
+        if(safeKey.indexOf('$') >= 0){
+            foulChar.push('$');
+        }
+        if(safeKey.indexOf('/') >= 0){
+            foulChar.push('/');
+        }
+        if(safeKey.indexOf('[') >= 0){
+            foulChar.push('[');
+        }
+        if(safeKey.indexOf(']') >= 0){
+            foulChar.push(']');
+        }
+
+        safeKey = safeKey.replace(/\./g, '');
+        safeKey = safeKey.replace(/#/g, 'No_');
+        safeKey = safeKey.replace(/\$/g, '');
+        safeKey = safeKey.replace(/\//g, '-');
+        safeKey = safeKey.replace(/\[/g, '(');
+        safeKey = safeKey.replace(/\]/g, ')');
+
+        if(!safeKey){
+            safeKey = 'Unknown';
+        }
+
+        return safeKey;
+    }
 
 	return {
         api: api,
