@@ -26,9 +26,13 @@
                 <div class="cal-row-fluid" ng-repeat="week in month">
                     <div class="cal-span1 cal-cell" ng-repeat="day in week">
                         <div class="cal-month-day" ng-class="{'cal-day-outmonth' : day.outmonth , 'cal-day-weekend' : day.day == 6 || day.day == 7 , 'cal-day-today' : day.isToday }">
-                            <span class="pull-right" data-cal-date="{{day.dateFormatted}}" data-cal-view="day">{{day.date}}</span>
+                            <span class="pull-right" data-cal-date="{{day.dateFormatted}}" data-cal-view="day">{{day.date.day}}</span>
                             <div class="content">
-                                <div ng-html="day.content"></div>
+                                <ul ng-show="content[day.date.year][day.date.month][day.date.day]">
+                                    <li ng-repeat="event in content[day.date.year][day.date.month][day.date.day]">
+                                        {{event.title}}
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>

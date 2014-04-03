@@ -155,7 +155,7 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                 if(!data.user.calendar[cYear][cMonth][cDay]){
                     data.user.calendar[cYear][cMonth][cDay] = {};
                 }
-                data.user.calendar[cYear][cMonth][cDay][event.$id] = event.title;
+                data.user.calendar[cYear][cMonth][cDay][event.$id] = event;
 
                 if(data.user.session.calendarEvents[event.$id]){
                     var oldDate = data.user.session.calendarEvents[event.$id];
@@ -166,7 +166,6 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                     }
                 }
                 data.user.session.calendarEvents[event.$id] = {year: cYear, month: cMonth, day: cDay};
-                $rootScope.$broadcast('calendar:changed');
             }
         },
         removeCalendarEvent: function(eventID){
@@ -176,7 +175,6 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                     delete data.user.calendar[oldDate.year][oldDate.month][oldDate.day][eventID];
                 }
                 delete data.user.session.calendarEvents[eventID];
-                $rootScope.$broadcast('calendar:changed');
             }
         },
 
@@ -282,9 +280,6 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                     cEvent.$on('change', function(field){
                         if(cEvent.date){
                             api.setCalendarEvent(cEvent);
-                        }
-                        if(cEvent.complete){
-                            $log.debug('event \''+cEvent.title+'\' completed @ '+cEvent.complete);
                         }
                     });
 
