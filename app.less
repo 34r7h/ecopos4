@@ -25,6 +25,8 @@
 @import "views/tools/tool/events/events.less";
 @import "test/directive/test.less";
 @import "scripts/directives/login/login.less";
+@import "views/shops/store/productList/productList.less";
+@import "views/shops/store/productView/productView.less";
 /* Add Component LESS Above */
 
 /* Required for Angular UI Bootstrap */
@@ -42,7 +44,7 @@
 //	}
 //}
 
-body, .background-img {
+html, body, .background-img {
   background-image: url("images/bg-img.jpg");
   background-position: top;
   height: 100%;
@@ -110,46 +112,12 @@ input:focus, textarea:focus {
   outline: none;
 }
 
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  -webkit-webkit-appearance: none;
-  -moz-webkit-appearance: none;
-  -ms-webkit-appearance: none;
-  -o-webkit-appearance: none;
-  webkit-appearance: none;
-  margin: 0;
-}
-
-input[type=radio],
-input[type=checkbox] {
-  display: none;
-}
-input[type=radio] + span:before,
-input[type=checkbox] + span:before {
-  font-family: "FontAwesome";
-  width: 1.2em;
-  display:inline-block;
-}
-
-input[type=checkbox] + span:before                 { content: "\f096"; }
-input[type=checkbox]:checked + span:before         { content: "\f046"; }
-input[type=checkbox].inverse + span:before         { content: "\f0c8"; }
-input[type=checkbox].inverse:checked + span:before { content: "\f14a"; }
-
-input[type=radio] + span:before                    { content: "\f10c"; }
-input[type=radio]:checked + span:before            { content: "\f05d"; }
-input[type=radio].inverse + span:before            { content: "\f111"; }
-input[type=radio].inverse:checked + span:before    { content: "\f058"; }
 // infinite scroll
 .scroll-loader {
-  background: #f7f7f7;
-  height: 300px;
-  border: 3px solid #d2d2d2;
-  margin-bottom: 20px;
+  min-height: 300px;
+  height: 400px;
   overflow: auto;
-  padding: 10px 0;
-  border-radius: .5rem 0 0 .5rem;
+
 }
 
 .scroll-loader li,  {
@@ -157,4 +125,15 @@ input[type=radio].inverse:checked + span:before    { content: "\f058"; }
   border-bottom: 1px solid #aaa;
   padding: 5px;
   margin-bottom: 3px;
+}
+
+.resize-content {
+
+  padding:1em;
+  resize: both;
+  overflow: auto;
+}
+
+.navbar {
+  margin-bottom:0px;
 }

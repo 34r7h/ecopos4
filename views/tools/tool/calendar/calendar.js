@@ -21,7 +21,7 @@ var language = {
 	d5: 'Fri',
 	d6: 'Sat',
 
-	thisMonth: "This month",
+	thisMonth: "Meow",
 	prevMonth: "Prev",
 	nextMonth: "Next"
 

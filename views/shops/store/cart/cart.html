@@ -1,7 +1,7 @@
 <div>
-    <h4>Cart Directive</h4>
+    <h4>Cart</h4>
 
-
+    <div class="col-xs-12">
     <table class="table">
 
         <tr class="col-xs-12" ng-repeat="(sku, item) in items">
@@ -18,7 +18,9 @@
 
             <td></td>
             <td>Order Total:</td>
-            <td>{{total() | currency}}</td>
+            <td ng-model="totalOrder"><button class="btn-success">Checkout  {{total() | currency}}</button></td>
         </tr>
     </table>
+    </div>
+
 </div>
