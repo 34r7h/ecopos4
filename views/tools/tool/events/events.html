@@ -62,7 +62,7 @@
     </ul>
 <div class="col-xs-12" ng-show="cal">
     <h5>Calendar</h5>
-    <calendar></calendar>
+    <calendar calendar-content="user.calendar"></calendar>
     <ul>
         <li ng-repeat="event in user.events | eventFilter:{isCalendar: true}">{{ event.date | date:'shortDate' }} @ {{ event.date | date:'shortTime' }} - {{ event.title }}</li>
     </ul>

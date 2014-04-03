@@ -43,7 +43,6 @@ angular.module("ecoposApp").directive('ngHtml', function() {
 
 
 var calendarLinkFunction = function (scope, element) {
-	var contentObj = scope.content;
 	var targetMonth = parseInt(scope.assignedMonth, 10),
 		targetYear = parseInt(scope.assignedyear, 10);
 
@@ -63,10 +62,6 @@ var calendarLinkFunction = function (scope, element) {
 	scope.language = language;
 	scope.navigate = {};
 
-    scope.$on('calendar:changed', function(){
-        refreshCalendar();
-    });
-
 	// month between 1 and 12
 	var daysInMonth = function(month,year){
 		return new Date(year, month, 0).getDate();
@@ -85,20 +80,6 @@ var calendarLinkFunction = function (scope, element) {
 		refreshCalendar();
 	};
 
-	// month between 1 ~ 12
-	var getDateContent = function(year,month,date){
-		if(contentObj != null && contentObj[year] != null &&
-			contentObj[year][month] != null &&
-			contentObj[year][month][date] != null){
-            var result = '';
-            angular.forEach(contentObj[year][month][date], function(event, index){
-                result += (result?'<br/>':'')+event;
-            });
-            return result;
-			//return contentObj[year][month][date].join("<br/>");
-		}
-		return "";
-	};
 
 	// month between 1 ~ 12
 	var monthGenegrator = function(month, year){
@@ -138,26 +119,37 @@ var calendarLinkFunction = function (scope, element) {
 		for(var i =  1 ; i <= 7 ; i++){
 			var
 				realDate,
+                realMonth = month,
+                realYear = year,
 				outmonth = false,
 				content = "";
 
 			if(startDate + i < 0){
 				realDate = prevDaysOfMonth+startDate+i+1;
+                realMonth--;
+                if(realMonth < 1){
+                    realYear--;
+                    realMonth = 12;
+                }
 				outmonth = true;
 			}
 			else if(startDate + i + 1 > daysOfMonth){
 				realDate = startDate+i-daysOfMonth+1;
+                realMonth++;
+                if(realMonth > 12){
+                    realYear++;
+                    realMonth = 1;
+                }
 				outmonth = true;
 			}
 			else{
 				realDate =  startDate+i+1;
-				content = getDateContent(year , month , realDate);
 			}
 			week.push({
 				"outmonth" : outmonth,
 				"day": i,
 				"content": content,
-				"date" : realDate
+				"date" : { year: realYear, month: realMonth, day: realDate }
 			});
 		}
 		return week;
@@ -175,7 +167,7 @@ angular.module("ecoposApp").directive("calendar", function(){
 	return{
 		restrict: "E",
 		scope: {
-			content: '=calcontent',
+			content: '=calendarContent',
 			assignedMonth: '=calendarMonth',
 			assignedyear: '=calendarYear'
 		},
