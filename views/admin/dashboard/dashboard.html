@@ -17,12 +17,12 @@
                                     <h5>{{ subCat }}</h5>
                                     <ul>
                                         <li ng-repeat="(pName, productContent) in subCatContent">
-                                            <strong>{{productContent.name}}<span ng-show="pName!=productContent.name"> ({{pName}})</span></strong><span ng-show="productContent.description">{{productContent.description}}</span>
+                                            <strong>{{productContent.name}}<span ng-show="pName!==productContent.name"> ({{pName}})</span></strong><span ng-show="productContent.description">{{productContent.description}}</span>
                                             <ul ng-show="productContent.variations">
                                                 <li><em>variations:</em>
                                                     <ul>
                                                         <li ng-repeat="(vName, variation) in productContent.variations">
-                                                            <strong>{{variation.name}}<span ng-show="vName!=variation.name"> ({{vName}})</span></strong>
+                                                            <strong>{{variation.name}}<span ng-show="vName!==variation.name"> ({{vName}})</span></strong>
                                                             <div ng-show="variation.possibleDup">
                                                                 {{variation.rawData}}
                                                             </div>

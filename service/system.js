@@ -385,8 +385,8 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                             vName = cName;
                         }
 
-                        pNameFull = pName;
-                        vNameFull = vName;
+                        pNameFull = pName.trim();
+                        vNameFull = vName.trim();
 
                         pName = fbSafeKey(pName);
                         vName = fbSafeKey(vName);
