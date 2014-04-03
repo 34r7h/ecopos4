@@ -131,6 +131,7 @@ angular.module('ecoposApp').directive('login', function(system, simpleLogin, pro
                     scope.email = null;
                 }
                 scope.err = null;
+                scope.userAuth = null;
                 scope.username = null;
                 scope.displayName = null;
                 scope.pass = null;
@@ -140,7 +141,13 @@ angular.module('ecoposApp').directive('login', function(system, simpleLogin, pro
             scope.createProfile = function(){
                 // this is for creating the user profile (associates with auth account from email/password, facebook, twitter, etc)
                 profileManager.createProfile(scope.userAuth.uid, scope.username, scope.email, scope.displayName).then(function(success){
-
+                    scope.err = null;
+                    scope.userAuth = null;
+                    scope.username = null;
+                    scope.email = null;
+                    scope.pass = null;
+                    scope.displayName = null;
+                    scope.profileMode = false;
                 }, function(err){
                     scope.err = err;
                 });
