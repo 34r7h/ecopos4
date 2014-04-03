@@ -141,4 +141,20 @@ input[type=radio] + span:before                    { content: "\f10c"; }
 input[type=radio]:checked + span:before            { content: "\f05d"; }
 input[type=radio].inverse + span:before            { content: "\f111"; }
 input[type=radio].inverse:checked + span:before    { content: "\f058"; }
+// infinite scroll
+.scroll-loader {
+  background: #f7f7f7;
+  height: 300px;
+  border: 3px solid #d2d2d2;
+  margin-bottom: 20px;
+  overflow: auto;
+  padding: 10px 0;
+  border-radius: .5rem 0 0 .5rem;
+}
 
+.scroll-loader li,  {
+  list-style: none;
+  border-bottom: 1px solid #aaa;
+  padding: 5px;
+  margin-bottom: 3px;
+}
