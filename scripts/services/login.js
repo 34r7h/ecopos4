@@ -101,7 +101,15 @@ angular.module('angularfire.login').factory('simpleLogin', function($rootScope, 
       createAccount: function(email, pass, callback) {
         assertAuth();
           profileManager.emailAvailable(email).then(function(){
-            auth.$createUser(email, pass).then(function(user) { callback(null, user); }, callback);
+            auth.$createUser(email, pass).then(function(user){
+                auth.$login('password', {
+                    email: email,
+                    password: pass,
+                    rememberMe: true
+                }).then(function(user){
+                    callback(null, user);
+                }, callback);
+            }, callback);
           },
           function(err){
               if(callback){
