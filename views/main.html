@@ -64,9 +64,9 @@
             </div>
         </div>
         <div class="btn-group pull-right">
-            <div class="btn-group pull-right toggleable-dropdown" active-class="open" id="myDropdown" toggleable>
+            <div ng-show="total()>0" class="btn-group pull-right toggleable-dropdown" active-class="open" id="myDropdown" toggleable>
                 <button type="button" class="btn btn-default dropdown-toggle" toggle target="myDropdown">
-                    <i class="fa fa-gear"></i> Checkout  {{total() | currency}}<span class="caret"></span>
+                    <i class="fa fa-shopping-cart"></i> Checkout  {{total() | currency}}<span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" role="menu" toggle="off" bubble target="myDropdown">
                     <div class="col-xs-6"><div class="well"><cart/></div></div>
@@ -74,7 +74,7 @@
                     <li><a href>Another action</a></li>
                     <li><a href>Something else here</a></li>
                     <li class="divider">
-                    <li><a href>Separated link</a></li>
+
                 </ul>
             </div>
         </div>
