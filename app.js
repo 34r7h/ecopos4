@@ -1,4 +1,5 @@
 angular.module('ecoposApp', [
+	'ui.utils',
 	'ngCookies',
 	'ngResource',
 	'ngSanitize',
@@ -26,7 +27,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
     $stateProvider.state('test', {
         url: '/test',
-        templateUrl: 'test/test.html'
+        templateUrl: 'test/test.html',
+	    controller: 'TestCtrl'
     });
     /* Add New States Above */
 	$stateProvider

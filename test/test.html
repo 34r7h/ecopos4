@@ -1,111 +1,36 @@
-<div class="sidebar sidebar-left" toggleable parent-active-class="sidebar-left-in" id="mainSidebar">
-    <h1 class="app-name">My App</h1>
+<style type="text/css">
+    .scroll-loader {
+        background: #f7f7f7;
+        height: 300px;
+        border: 3px solid #d2d2d2;
+        margin-bottom: 20px;
+        overflow: auto;
+        padding: 10px 0;
+        border-radius: .5rem 0 0 .5rem;
+    }
 
-    <div class="scrollable">
-        <div class="scrollable-content">
-            <div class="list-group" toggle="off" bubble target="mainSidebar">
+    .scroll-loader li {
+        list-style: none;
+        border-bottom: 1px solid #aaa;
+        padding: 5px;
+        margin-bottom: 3px;
+    }
+</style>
+<div>
+    <h1>Angular Infinite Scroll Demo</h1>
 
-                <a class="list-group-item" ng-href="#/test">Home <i class="fa fa-chevron-right pull-right"></i></a>
-                <a class="list-group-item" ui-sref="main.admin.views">Views <i class="fa fa-chevron-right pull-right"></i></a>
-                <a class="list-group-item" ui-sref="main.shops.views">Shop <i class="fa fa-chevron-right pull-right"></i></a>
-                <a class="list-group-item" ui-sref="main.tools.views">Tools <i class="fa fa-chevron-right pull-right"></i></a>
-                <!-- ... -->
+    <p>Scroll the div to add more elements.</p>
 
-
-                    <li ng-cloak ng-show-auth="login" ng-controller="LoginController"><a href="#" ng-click="logout()">Log Out</a></li>
-                    <li ng-cloak ng-show-auth="['logout','error']"><button href="#loginOverlay" toggle="on">Cloverleaf Industries</button></li>
-
-                </ul>
-            </div>
-
-        </div>
+    <div infinite-scroll="addItems()" class="scroll-loader" can-load="canLoad" threshold="10">
+        <ul>
+            <li ng-repeat="item in items">{{item.name}}</li>
+        </ul>
     </div>
-</div>
-
-<div class="app">
-
-    <!-- Navbars -->
-    <div class="navbar navbar-app navbar-absolute-top">
-
-        <div class="navbar-brand navbar-brand-center" yield-to="title">
-            <span>My App</span>
-        </div>
-
-        <div class="btn-group pull-left">
-            <div ng-click="toggle('mainSidebar')" class="btn btn-navbar sidebar-toggle">
-                <i class="fa fa-bars"></i> Menu
-            </div>
-        </div>
-
-        <div class="btn-group pull-right" yield-to="navbarAction">
-            <div class="btn btn-navbar">
-                <i class="fa fa-plus"></i> New
-            </div>
-        </div>
-    </div>
-
-    <div class="navbar navbar-app navbar-absolute-bottom">
-        <div class="btn-group justified">
-            <a ui-sref="#/test" class="btn btn-navbar btn-icon-only"><i class="fa fa-home fa-navbar"></i></a>
-            <a ui-sref="#/admin" class="btn btn-navbar btn-icon-only"><i class="fa fa-list fa-navbar"></i></a>
-        </div>
-    </div>
-
-    <div class="app-body">
-        <ui-view></ui-view>
-        <h1>Hello</h1>
-    </div>
-</div>
-
-<div overlay="loginOverlay">
-    <h4 class="overlay-title">Login</h4>
-    <login></login>
-    <!--p>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolorem, ex eaque possimus ipsa ab quasi quos corporis consequatur laudantium? Ab assumenda delectus quo velit voluptates doloribus. Earum odit facilis qui.
+    <p>Maximum {{maxItems}} items
+        <small>({{items.length}} added)</small>
+        <button ng-click="items=[];canLoad=true;addItems();" class="btn">Reset</button>
     </p>
-    <p toggle="off" bubble target="myOverlay">
-        <span class="btn btn-primary">Ok</span>
-        <span class="btn btn-default">Cancel</span>
-    </p-->
+    <p>1
+        It is up to you to add server requests and loading indicators.
+    </p>
 </div>
-
-<div ng-show="user.id">
-
-    <div class="footer-nav col-xs-12">
-        <span>
-            <button ng-click="msgsChecked=!msgsChecked" ng-hide="msgsChecked">Show Messages</button>
-            <button ng-click="msgsChecked=!msgsChecked" ng-show="msgsChecked">Hide Messages</button>
-        </span>
-        <span>
-            <button ng-click="evtsChecked=!evtsChecked" ng-hide="evtsChecked">Show Events</button>
-            <button ng-click="evtsChecked=!evtsChecked" ng-show="evtsChecked">Hide Events</button>
-        </span>
-        <span>
-        <button href="#loginOverlay" toggle="on">Cloverleaf Industries</button>
-        </span>
-    </div>
-
-    Logged in as <strong>{{ user.id }}</strong> <em>[{{ user.activeRole }}]</em>
-    <div ng-show="employee.shiftType">
-        scheduled as: <em>{{ employee.shiftType }}</em><span ng-show="user.session.activeShift.end"> until {{ user.session.activeShift.end | date:'shortTime' }}</span>
-    </div>
-    <div>
-            <span ng-repeat="(role, assigned) in userBind.roles" ng-if="assigned">
-                <label>{{ role }}</label> <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.user.activeRole" />
-            </span>
-    </div>
-    <h3>♥</h3>
-    <div ui-view autoscroll="false"></div>
-
-    <div>
-        <div scrollable>
-            <div ng-show="msgsChecked" eco-panel title="Messages" iconz="iconx" scrollable-content class="msgevt col-xs-3 pull-right ">
-                <messages></messages>
-            </div>
-            <div ng-show="evtsChecked" eco-panel title="Events" iconz="iconz" scrollable-content class="msgevt col-xs-4 pull-right ">
-                <events></events>
-            </div>
-        </div>
-    </div>
-</div>
-

@@ -1,15 +1,20 @@
 <div>
-
+<h3>Orders</h3>
 <div>
-    <table>
-        <tr ng-repeat="order in orders">
+    <div class="scrollable">
+        <div>
+    <table  class="scrollable-content">
+        <tr ng-repeat="order in orders" >
 
-            <td data-title="'Date'">{{order.createdTime | date:'yyyy-MM-dd'}}</td>
-            <td data-title="'Items'" ><span ng-repeat="(key,item) in order.products">{{key}}, {{item.qty}}{{item.units}} - {{item.cost | currency}}<br></span></td>
-            <td data-title="'Total'">{{order.total | currency}}</td>
+                    <td data-title="'Date'">{{order.createdTime | date:'yyyy-MM-dd'}}</td>
+                    <td data-title="'Items'" ><span ng-repeat="(key,item) in order.products">{{key}}, {{item.qty}}{{item.units}} - {{item.cost | currency}}<br></span></td>
+                    <td data-title="'Total'">{{order.total | currency}}</td>
+
         </tr>
 
     </table>
+        </div>
+    </div>
 </div>
 
 </div>

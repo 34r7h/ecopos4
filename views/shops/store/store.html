@@ -1,26 +1,26 @@
-<div class="col-sm-12" ng-controller="StoreCtrl">
-    <h1>{{ shopName }} Shopping Experience</h1>
-    <div class="col-sm-7"><div class="well"><cart/></div></div>
-    <div class="col-sm-5"><div class="well"><button><h2>Checkout</h2></button></div></div>
+<div class="" ng-controller="StoreCtrl">
+
+    <div class="col-xs-7"><div class="well"><cart/></div></div>
+    <div class="col-xs-5"><div class="well"><button><h2>Checkout</h2></button></div></div>
     <div style="clear:both"></div>
 
-    <div class="col-sm-3"> <div class="well"><h3>{{ shopName + " Navigation" }}
+    <div class="col-xs-3"> <div class="well"><h3>{{ shopName + " Navigation" }}
         Search: <input ng-model="searchText">
     </h3>{{ navigation }}</div></div>
 
-    <div class="col-sm-9">
+    <div class="col-xs-9">
 
         <div ng-repeat="(key,category) in inventory | orderByPriority | filter:searchText"> <h1 style="clear: both">{{ $key | uppercase }}</h1>
             <div  ng-repeat="(item,product) in category | orderByPriority | filter:searchText">
 
-                <div class="col-sm-7">
+                <div class="col-xs-7">
                     <h3>{{ $key }}</h3>
                     <img width="100%" ng-src="{{product.img}}">
                     <p>Description: {{ product.description }}</p>
                     <p>Tags: <span ng-repeat="tag in product.tags">{{ tag }}, </span></p>
                 </div>
 
-                <div class="col-sm-5">
+                <div class="col-xs-5">
                     <h3>Available Variations: </h3>
                     <div  ng-repeat="(key,variation) in product.variations">
                         <b>{{ key }} @ {{ variation.price | currency }}/{{ $parent.product.unitType }}</b>

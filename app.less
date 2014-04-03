@@ -42,12 +42,17 @@
 //	}
 //}
 
-body {
+body, .background-img {
   background-image: url("images/bg-img.jpg");
-  background-position: center;
-
-
+  background-position: top;
+  height: 100%;
 }
+.app {
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important;
 }
@@ -75,7 +80,9 @@ position: fixed;
 
   min-height: 280px;
 }
-
+.quarter-margin {
+  margin-left: .5em;
+}
 .btn-group.nav-tabs a {
   width:auto;
 }
