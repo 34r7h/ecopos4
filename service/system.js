@@ -1,7 +1,7 @@
 angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, $timeout, $log, cart) {
 
     var data = {
-        user: {activeRole: 'anonymous', profile: null, messages: {}, events: {}, calendar: {}, session: {firstActiveRole: true, calendarEvents: {}}},
+        user: {id: null, profile: null, activeRole: 'anonymous', messages: {}, events: {}, calendar: {}, session: {firstActiveRole: true, calendarEvents: {}}},
         employee: {shiftType: null},
         manager: {orders: {}}
     };
@@ -91,6 +91,19 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                 });
 
         },
+
+        completeEvent: function(eventID){
+            if(data.user.events[eventID]){
+                if(!data.user.events[eventID].completeFlag){
+                    data.user.events[eventID].$update({completed: {user: data.user.id, time: new Date().getTime()}});
+                }
+                else{
+                    data.user.events[eventID].$update({completed: null});
+                }
+            }
+        },
+
+        // Messages API
 
         createConversation: function(subject, fromUser, toUsers, text){
             toUsers = (toUsers instanceof Array)?toUsers:[toUsers];
@@ -249,6 +262,8 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                     data.user.events[childSnapshot.name()] = cEvent;
 
                     cEvent.$on('loaded', function(field){
+                        cEvent.completeFlag = cEvent.completed?true:false;
+
                         if(cEvent.date){
                             api.setCalendarEvent(cEvent);
                             if(cEvent.type === 'shift' && data.user.session.loginTime && cEvent.users && cEvent.users[data.user.id] && data.user.session.loginTime >= cEvent.date && cEvent.end && data.user.session.loginTime <= cEvent.end) {
@@ -267,6 +282,9 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                     cEvent.$on('change', function(field){
                         if(cEvent.date){
                             api.setCalendarEvent(cEvent);
+                        }
+                        if(cEvent.complete){
+                            $log.debug('event \''+cEvent.title+'\' completed @ '+cEvent.complete);
                         }
                     });
 
