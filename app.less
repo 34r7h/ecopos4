@@ -110,37 +110,6 @@ input:focus, textarea:focus {
   outline: none;
 }
 
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  -webkit-webkit-appearance: none;
-  -moz-webkit-appearance: none;
-  -ms-webkit-appearance: none;
-  -o-webkit-appearance: none;
-  webkit-appearance: none;
-  margin: 0;
-}
-
-input[type=radio],
-input[type=checkbox] {
-  display: none;
-}
-input[type=radio] + span:before,
-input[type=checkbox] + span:before {
-  font-family: "FontAwesome";
-  width: 1.2em;
-  display:inline-block;
-}
-
-input[type=checkbox] + span:before                 { content: "\f096"; }
-input[type=checkbox]:checked + span:before         { content: "\f046"; }
-input[type=checkbox].inverse + span:before         { content: "\f0c8"; }
-input[type=checkbox].inverse:checked + span:before { content: "\f14a"; }
-
-input[type=radio] + span:before                    { content: "\f10c"; }
-input[type=radio]:checked + span:before            { content: "\f05d"; }
-input[type=radio].inverse + span:before            { content: "\f111"; }
-input[type=radio].inverse:checked + span:before    { content: "\f058"; }
 // infinite scroll
 .scroll-loader {
   background: #f7f7f7;
