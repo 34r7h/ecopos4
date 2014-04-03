@@ -54,11 +54,15 @@
     </fieldset>
     <h5>To-Do</h5>
     <ul>
-        <li ng-repeat="event in user.events | eventFilter:{isTodo: true}">{{ event.title }}</li>
+        <li ng-repeat="event in user.events | eventFilter:{isTodo: true}">
+            <input type="checkbox" ng-click="completeTodo(event.$id)" ng-checked="event.completeFlag" ng-model="event.completeFlag" />
+            {{ event.title }}
+            <div ng-show="event.completed">completed: {{event.completed.time | date:'shortDate'}} @ {{event.completed.time | date:'mediumTime'}} by {{event.completed.user}}</div>
+        </li>
     </ul>
 <div class="col-xs-12" ng-show="cal">
     <h5>Calendar</h5>
-    <calendar></calendar>
+    <calendar calendar-content="user.calendar"></calendar>
     <ul>
         <li ng-repeat="event in user.events | eventFilter:{isCalendar: true}">{{ event.date | date:'shortDate' }} @ {{ event.date | date:'shortTime' }} - {{ event.title }}</li>
     </ul>

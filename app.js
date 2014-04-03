@@ -271,7 +271,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
             authRequired:true,
 			views:{
 				agenda: {
-					template:'<calendar calcontent="user.calendar" />',
+					template:'<calendar calendar-content="user.calendar" />',
 					controller:function($scope,syncData){
 						$scope.toolName = "Agenda";
 						$scope.products = syncData('productz');
