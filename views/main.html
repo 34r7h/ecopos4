@@ -1,16 +1,15 @@
 <div class="sidebar sidebar-left" toggleable parent-active-class="sidebar-left-in" id="mainSidebar">
     <h1 class="app-name">êc0p0s</h1>
-    <label>{{ role }}</label>
-    <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.user.activeRole" />
 
     <h5 class="app-name">Logged in as <strong>{{ user.id }}</strong> <em>[{{ user.activeRole }}]</em></h5>
     <h5 class="app-name" ng-show="employee.shiftType">
         <p>scheduled as: <em>{{ employee.shiftType }}</em><span ng-show="user.session.activeShift.end"> until {{ user.session.activeShift.end | date:'shortTime' }}</span></p>
     </h5>
     <div  class="app-name">
-            <span ng-repeat="(role, assigned) in userBind.roles" ng-if="assigned">
-
-            </span>
+        <span ng-repeat="(role, assigned) in user.profile.roles" ng-if="assigned">
+            <label>{{ role }}</label>
+            <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.user.activeRole" />
+        </span>
         <h3>♥</h3>
     </div>
 
