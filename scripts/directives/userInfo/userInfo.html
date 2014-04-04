@@ -1,6 +1,6 @@
 <div class="bs-callout-info">
     <label>{{ role }}</label>
-    <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.user.activeRole" />
+    <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.user.activeRole" />
 
     <h5 >Logged in as <strong>{{ user.id }}</strong> <em>[{{ user.activeRole }}]</em></h5>
     <h5  ng-show="employee.shiftType">

@@ -33,10 +33,10 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			    controller: 'MainCtrl'
 		    },
 		    sidebar1:{
-			    template: '<left-bar></left-bar>',
+			    template: '<left-bar></left-bar>'
 		    },
 		    sidebar2:{
-			    template: '<right-bar></right-bar>',
+			    template: '<right-bar></right-bar>'
 		    }
 	    }
 
@@ -44,34 +44,21 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
     /* Add New States Above */
 	$stateProvider
 		.state('main',{
+
 			url:'/',
-			controller: 'MainCtrl',
+
 			views:{
 				main:{
-					templateUrl:'views/main.html'
+					templateUrl:'views/main.html',
+					controller:'MainCtrl'
 				},
 				sidebar1:{
 					template: '<left-bar></left-bar>',
-					controller: function($scope,syncData){
-						$scope.dashName = "Admin";
-						$scope.dashStuff2 = {
-							"other name": {
-								"elementual": 'input',
-								"type": 'text' },
-							"end name": {
-								"elementual": 'input',
-								"type": 'checkbox' },
-							"streeetz name": {
-								"elementual": 'input',
-								"type": 'text' },
-							"kings of consciousness game": {
-								"elementual": 'input',
-								"type": 'number' }
-						};
-					},
+					controller: 'MainCtrl'
 				},
 				sidebar2:{
-					template: '<right-bar></right-bar>'
+					template: '<right-bar></right-bar>',
+					controller:'MainCtrl'
 				}
 			},
 			onEnter: function(){
