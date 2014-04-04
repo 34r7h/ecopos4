@@ -1,0 +1,16 @@
+<div class="bs-callout-info">
+    <label>{{ role }}</label>
+    <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.$parent.user.activeRole" />
+
+    <h5 >Logged in as <strong>{{ user.id }}</strong> <em>[{{ user.activeRole }}]</em></h5>
+    <h5  ng-show="employee.shiftType">
+        <p>scheduled as: <em>{{ employee.shiftType }}</em><span ng-show="user.session.activeShift.end"> until {{ user.session.activeShift.end | date:'shortTime' }}</span></p>
+    </h5>
+    <div  >
+            <span ng-repeat="(role, assigned) in userBind.roles" ng-if="assigned">
+
+            </span>
+        <h3>♥</h3>
+    </div>
+
+</div>
