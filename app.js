@@ -56,6 +56,10 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 					template: '<left-bar></left-bar>',
 					controller: 'MainCtrl'
 				},
+				sidebarSettings:{
+					template:' <p ng-repeat="(key,settings) in dashStuff2 | orderBy:key:reverse">{{ key }}: <prefs type="settings.type" element="settings.elementual"></prefs></p>',
+					controller:'MainCtrl'
+				},
 				sidebar2:{
 					template: '<right-bar></right-bar>',
 					controller:'MainCtrl'
@@ -100,7 +104,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 		})
 		.state('main.admin.views',{
 			url:'',
-      authRequired:true,
+            authRequired:true,
 			views:{
 				customer: {
 					templateUrl:'views/admin/dashboard/dashboard.html',
@@ -169,8 +173,20 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
                         $scope.dashSettings = ['name', 'address', 'contact', 'shopping', 'payment', 'schedule'];
                         $scope.products = syncData('"produceList"');
                         $scope.navigation = ['Awesome', 'Search','Categories','Suppliers'];
-
-
+		                    $scope.dashStuff2 = {
+			                    "other name": {
+				                    "elementual": 'input',
+				                    "type": 'text' },
+			                    "end name": {
+				                    "elementual": 'input',
+				                    "type": 'checkbox' },
+			                    "streeetz name": {
+				                    "elementual": 'input',
+				                    "type": 'text' },
+			                    "kings of consciousness game": {
+				                    "elementual": 'input',
+				                    "type": 'number' }
+		                    };
 
 	                    $scope.dashStuff = {
 		                    "first name": ['input', 'text' ],
