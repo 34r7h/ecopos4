@@ -377,6 +377,12 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                 data.treasure.product = {};
                 data.treasure.shop = {};
 
+                var catCount = 0;
+                var prodProms = [];
+
+                var products = syncData('product');
+                products.$set(null);
+
                 angular.forEach(prodz, function(prod, idx) {
                     var cCat = prod.category;
                     var cats = cCat.split(' - ');
@@ -419,8 +425,6 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                         catPath = topCat;
                     }
                     catPath += (catPath?'/':'')+subCat;
-
-
 
                     var cName = prod['Item'];
                     var names = cName.split(',', 2);
@@ -472,24 +476,74 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                         casePrice: casePrice,
                         unitPrice: unitPrice,
                         unit: unit,
-                        size: bulkSize?bulkSize:size
-                        //,
-                        //rawData: prod
+                        size: bulkSize?bulkSize:size,
+                        rawIdx: idx,
+                        rawData: prod
                     };
 
                     var newProduct = {
-                        idx: idx,
                         autoData: true,
-                        catPath: catPath,
                         brand: brand,
                         name: vName,
                         size: size,
+                        bulk: bulk?true:false,
                         price: unitPrice*2.0,
                         unit: unit,
+                        stock: 0,
                         suppliers: suppliers
                     };
+                    var nameComp = newProduct.name;
+                    if(newProduct.brand){
+                        nameComp = newProduct.brand+' '+nameComp;
+                    }
+                    if(!bulk){
+                        if(newProduct.size){
+                            nameComp += ' ('+newProduct.size+')';
+                        }
+                    }
+                    else{
+                        nameComp += ' (Bulk)';
+                    }
 
-                    data.treasure.product[idx] = newProduct;
+                    var cProdProm = products.$add(newProduct);
+                    prodProms.push(cProdProm);
+
+                    cProdProm.then(function(ref){
+                        var prodName = ref.name();
+
+                        var prodCats = catPath.split('/');
+                        var zCat = data.treasure.shop;
+
+                        angular.forEach(prodCats, function(catName, catLevel){
+                            var catKey = api.fbSafeKey(catName);
+                            if(!zCat[catKey]){
+                                zCat[catKey] = {name: catName, children: {}};
+                                if(idx === 0){
+                                    $log.debug('add category:'+catKey);
+                                }
+                                catCount++;
+                            }
+                            zCat = zCat[catKey].children;
+                        });
+                        if(!zCat.children){
+                            zCat.children = {};
+                        }
+                        zCat.children[prodName] = nameComp;
+                    });
+
+                    if(idx % 100 === 0){
+                        $log.debug('added '+idx+' products...');
+                    }
+
+//                    data.treasure.product[idx] = newProduct;
+                });
+
+                $q.all(prodProms).then(function(res){
+                    $log.debug('added '+prodz.length+' products!');
+                    $log.debug('adding shop categories');
+                    syncData('shop').$set(data.treasure.shop);
+                    $log.debug(catCount+' shop categories added!');
+                    $log.debug('categories:'+JSON.stringify(data.treasure.shop));
                 });
 
             });

@@ -8,10 +8,21 @@
                 <h4>Treasure:</h4>
                 <span ng-show="treasure.incoming">Incoming...</span>
                 <span ng-show="treasure.data.count">Products: {{treasure.data.count}}</span>
-                <div style="overflow-y:auto;height:500px;" ng-show="treasure.product">
-                    <ol>
+                <div style="overflow-y:auto;height:500px;" ng-show="treasure.shop">
+                    {{treasure.shop}}
+                    <!--script type="text/ng-template" id="cat_template.html">
+                        <strong ng-show="cat.name">{{cat.name}}</strong>
+
+                        <ul ng-if="cat.children"><li data-ng-repeat = "(catID, cat) in cat.children"
+                                data-ng-include = "'cat_template.html'" ></li>
+                        </ul>
+                    </script>
+                    <ul>
+                        <li data-ng-repeat="(catID, cat) in treasure.shop" data-ng-include="'cat_template.html'"></li>
+                    </ul-->
+                    <!--ol>
                         <li ng-repeat="(idx, product) in treasure.product">{{product}}</li>
-                    </ol>
+                    </ol-->
                 </div>
             </div>
         </div>
