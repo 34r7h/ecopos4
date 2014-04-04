@@ -27,24 +27,53 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
     $stateProvider.state('test', {
         url: '/test',
-        templateUrl: 'test/test.html',
-	    controller: 'TestCtrl'
+	    views:{
+		    main:{
+			    template:'<div class="app"><top-bar></top-bar><ui-view></ui-view></div><bottom-bar></bottom-bar><div overlay="loginOverlay"></div><login></login></div><h3>♥</h3>',
+			    controller: 'MainCtrl'
+		    },
+		    sidebar1:{
+			    template: '<left-bar></left-bar>',
+		    },
+		    sidebar2:{
+			    template: '<right-bar></right-bar>',
+		    }
+	    }
+
     });
     /* Add New States Above */
 	$stateProvider
 		.state('main',{
 			url:'/',
-			resolve:{
-				test:function(){
-					console.log(1);
-
-
-
-					return 1;
+			controller: 'MainCtrl',
+			views:{
+				main:{
+					templateUrl:'views/main.html'
+				},
+				sidebar1:{
+					template: '<left-bar></left-bar>',
+					controller: function($scope,syncData){
+						$scope.dashName = "Admin";
+						$scope.dashStuff2 = {
+							"other name": {
+								"elementual": 'input',
+								"type": 'text' },
+							"end name": {
+								"elementual": 'input',
+								"type": 'checkbox' },
+							"streeetz name": {
+								"elementual": 'input',
+								"type": 'text' },
+							"kings of consciousness game": {
+								"elementual": 'input',
+								"type": 'number' }
+						};
+					},
+				},
+				sidebar2:{
+					template: '<right-bar></right-bar>'
 				}
 			},
-			templateUrl:'views/main.html',
-			controller: 'MainCtrl',
 			onEnter: function(){
 				console.log("Entering Main State");
 			},
@@ -69,7 +98,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 		.state('main.admin',{
 			url:'admin',
 			abstract:true,
-      authRequired:true,
+            authRequired:true,
 			templateUrl:'views/admin/admin.html',
 			controller: function($scope){
 
@@ -153,20 +182,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
                         $scope.dashSettings = ['name', 'address', 'contact', 'shopping', 'payment', 'schedule'];
                         $scope.products = syncData('"produceList"');
                         $scope.navigation = ['Awesome', 'Search','Categories','Suppliers'];
-	                    $scope.dashStuff2 = {
-		                    "other name": {
-			                    "elementual": 'input',
-			                    "type": 'text' },
-		                    "end name": {
-			                    "elementual": 'input',
-			                    "type": 'checkbox' },
-		                    "streeetz name": {
-			                    "elementual": 'input',
-			                    "type": 'text' },
-		                    "kings of consciousness game": {
-			                    "elementual": 'input',
-			                    "type": 'number' }
-	                    };
+
 
 
 	                    $scope.dashStuff = {
@@ -229,7 +245,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 					templateUrl:'views/shops/store/store.html',
 					controller:function($scope,syncData){
 						$scope.shopName = "Sunshine Organics";
-						$scope.products = syncData('inventory');
+						$scope.products = syncData('inventoryz');
 						$scope.navigation = ['Search','Categories', 'Specials'];
 					}
 				},
@@ -237,7 +253,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 					templateUrl:'views/shops/store/store.html',
 					controller:function($scope,syncData){
 						$scope.shopName = "Purchase Order";
-						$scope.products = syncData('"produceList"/groceryList', 20);
+						$scope.products = syncData('inventoryz', 20);
 						$scope.navigation = ['Search','Categories','Suppliers'];
 
 					}

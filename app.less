@@ -27,6 +27,11 @@
 @import "scripts/directives/login/login.less";
 @import "views/shops/store/productList/productList.less";
 @import "views/shops/store/productView/productView.less";
+@import "scripts/directives/userInfo/userInfo.less";
+@import "scripts/directives/layout/topBar/topBar.less";
+@import "scripts/directives/layout/bottomBar/bottomBar.less";
+@import "scripts/directives/layout/leftBar/leftBar.less";
+@import "scripts/directives/layout/rightBar/rightBar.less";
 /* Add Component LESS Above */
 
 /* Required for Angular UI Bootstrap */
@@ -136,4 +141,13 @@ input:focus, textarea:focus {
 
 .navbar {
   margin-bottom:0px;
+}
+
+.bs-callout-info {
+  padding: 1em;
+  background-color: rgba(255,255,255,.8);
+
+  margin: 1em 0;
+
+  border-left: 3px solid white;
 }
