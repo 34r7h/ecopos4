@@ -525,10 +525,7 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                             }
                             zCat = zCat[catKey].children;
                         });
-                        if(!zCat.children){
-                            zCat.children = {};
-                        }
-                        zCat.children[prodName] = nameComp;
+                        zCat[prodName] = nameComp;
                     });
 
                     if(idx % 100 === 0){
@@ -543,7 +540,6 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                     $log.debug('adding shop categories');
                     syncData('shop').$set(data.treasure.shop);
                     $log.debug(catCount+' shop categories added!');
-                    $log.debug('categories:'+JSON.stringify(data.treasure.shop));
                 });
 
             });
