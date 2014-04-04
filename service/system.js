@@ -1,4 +1,4 @@
-angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, $timeout, $log, cart) {
+angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, $timeout, $log, cart, firebaseRef) {
 
     var data = {
         user: {activeRole: 'anonymous', profile: null, messages: {}, events: {}, calendar: {}, session: {firstActiveRole: true, calendarEvents: {}}},
@@ -370,7 +370,8 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
         importProdzToInventory: function(){
             $log.debug('Go for Gold ♥');
             data.treasure.incoming = true;
-            syncData("horizon-products/current").$on('loaded', function(prodz){
+            firebaseRef("horizon-products/current").once('value', function(dataSnap){
+                var prodz = dataSnap.val();
                 data.treasure.incoming = false;
                 data.treasure.data = {count: prodz.length, supplier: 'horizon'};
 
@@ -380,8 +381,8 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                 var catCount = 0;
                 var prodProms = [];
 
-                var products = syncData('product');
-                products.$set(null);
+                var products = firebaseRef('product');
+                products.set(null);
 
                 angular.forEach(prodz, function(prod, idx) {
                     var cCat = prod.category;
@@ -464,7 +465,7 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                     if(bulk){
                         if(caseWeight){
                             bulkSize = caseWeight; // * 453.592; // lbs -> grams
-                            unitPrice = casePrice/caseWeight; // $/lb
+                            unitPrice = (casePrice && caseWeight)?(casePrice/caseWeight):casePrice; // $/lb
                             unit = 'lb';
                             size = 1; // priced per 1 pound
                         }
@@ -472,25 +473,26 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
 
                     var suppliers = {};
                     suppliers[data.treasure.data.supplier] = {
-                        caseSize: casePack,
-                        casePrice: casePrice,
-                        unitPrice: unitPrice,
-                        unit: unit,
-                        size: bulkSize?bulkSize:size,
+                        caseSize: casePack?casePack:'?',
+                        casePrice: casePrice?casePrice:'?',
+                        unitPrice: unitPrice?unitPrice:'?',
+                        unit: unit?unit:'?',
+                        size: bulkSize?bulkSize:(size?size:'?'),
                         rawIdx: idx,
                         rawData: prod
                     };
 
                     var newProduct = {
                         autoData: true,
-                        brand: brand,
-                        name: vName,
-                        size: size,
+                        brand: brand?brand:'',
+                        name: vName?vName:'?',
+                        size: size?size:'?',
                         bulk: bulk?true:false,
-                        price: unitPrice*2.0,
-                        unit: unit,
+                        price: unitPrice?(unitPrice*2.0):'?',
+                        unit: unit?unit:'1',
                         stock: 0,
-                        suppliers: suppliers
+                        suppliers: suppliers,
+                        categories: [catPath]
                     };
                     var nameComp = newProduct.name;
                     if(newProduct.brand){
@@ -505,11 +507,27 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                         nameComp += ' (Bulk)';
                     }
 
-                    var cProdProm = products.$add(newProduct);
+                    if(idx === 0){
+                        $log.debug('adding product:'+JSON.stringify(newProduct));
+                    }
+
+                    var cProdDefer = $q.defer();
+                    var cProdProm = cProdDefer.promise;
                     prodProms.push(cProdProm);
+                    var cProdRef = products.push(newProduct, function(err){
+                        if(err){
+                            cProdDefer.reject(err);
+                        }
+                        else{
+                            cProdDefer.resolve(cProdRef);
+                        }
+                    });
 
                     cProdProm.then(function(ref){
-                        var prodName = ref.name();
+                        var prodID = ref.name();
+                        if(idx === 0){
+                            $log.debug('added \''+newProduct.name+'\' as:'+prodID);
+                        }
 
                         var prodCats = catPath.split('/');
                         var zCat = data.treasure.shop;
@@ -518,14 +536,11 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                             var catKey = api.fbSafeKey(catName);
                             if(!zCat[catKey]){
                                 zCat[catKey] = {name: catName, children: {}};
-                                if(idx === 0){
-                                    $log.debug('add category:'+catKey);
-                                }
                                 catCount++;
                             }
                             zCat = zCat[catKey].children;
                         });
-                        zCat[prodName] = nameComp;
+                        zCat[prodID] = nameComp;
                     });
 
                     if(idx % 100 === 0){
