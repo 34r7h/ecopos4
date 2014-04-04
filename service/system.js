@@ -3,7 +3,8 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
     var data = {
         user: {id: null, profile: null, activeRole: 'anonymous', messages: {}, events: {}, calendar: {}, session: {firstActiveRole: true, calendarEvents: {}}},
         employee: {shiftType: null},
-        manager: {orders: {}}
+        manager: {orders: {}},
+        catalog: {}
     };
 
 
@@ -46,6 +47,46 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
 
 			return total;
 		},
+
+        loadCategory: function(category, parent, depth){
+            if(typeof depth === 'undefined'){ depth = 0; }
+            if(category.name){
+                if(!parent[category.name]){
+                    parent[category.name] = {};
+                }
+
+                if(category.children){
+                    angular.forEach(category.children, function(subCat, subCatID){
+                        if(subCat.children){
+                            api.loadCategory(subCat, parent[category.name], depth+1);
+                        }
+                        else{
+                            parent[category.name][subCatID] = {name: subCat};
+                            var product = syncData('product/'+subCatID);
+                            product.$on('loaded', function(){
+                                parent[category.name][subCatID] = product;
+                            });
+                        }
+                    });
+                }
+            }
+        },
+
+        loadCatalog: function(shopName){
+            if(typeof shopName === 'undefined'){
+                shopName = 'shop';
+            }
+            $log.debug('loading \''+shopName+'\' catalog...');
+            var catalog = syncData(shopName);
+            catalog.$on('loaded', function(){
+                data.catalog[shopName] = {};
+
+                angular.forEach(catalog, function(category, catID){
+                    api.loadCategory(category, data.catalog[shopName]);
+                });
+            });
+
+        },
 
         // Utility API
 
