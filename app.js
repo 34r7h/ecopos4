@@ -34,7 +34,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 	$stateProvider
 		.state('main',{
 			url:'/',
-			resolve:{
+			/**resolve:{
 				test:function(){
 					console.log(1);
 
@@ -42,7 +42,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
 					return 1;
 				}
-			},
+			},*/
 			templateUrl:'views/main.html',
 			controller: 'MainCtrl',
 			onEnter: function(){
@@ -69,7 +69,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 		.state('main.admin',{
 			url:'admin',
 			abstract:true,
-      authRequired:true,
+            authRequired:true,
 			templateUrl:'views/admin/admin.html',
 			controller: function($scope){
 
@@ -84,7 +84,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 		})
 		.state('main.admin.views',{
 			url:'',
-      authRequired:true,
+            authRequired:true,
 			views:{
 				customer: {
 					templateUrl:'views/admin/dashboard/dashboard.html',
@@ -209,7 +209,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			views:{
 				eco: {
 					templateUrl:'views/shops/store/store.html',
-					controller:function($rootScope, $scope, cart, syncData, system){
+					controller:function($rootScope, $stateParams, $scope, cart, syncData, system){
 						$scope.shopName = "Ecossentials";
 						$scope.products = syncData('productz');
 						$scope.navigation = ['Search','Categories', 'Specials'];
@@ -223,6 +223,12 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 						$scope.invoice = cart.invoice;
 						$scope.items = cart.invoice.items;
 
+                        $scope.shopName = 'shop';
+                        //$scope.catalog = system.data.catalog;
+                        system.api.loadCatalog($scope.shopName).then(function(){
+                            console.log('catalog loaded');
+                            $scope.shopBrowse = system.data.catalog[$scope.shopName];
+                        });
 					}
 				},
 				sun: {
@@ -251,6 +257,15 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			}
 
 		})
+        .state('main.shops.views.browse',{
+            url: '/*categoryID',
+            onEnter: function(){
+                console.log("Entering Shop Browse");
+            },
+            onExit: function(){
+                console.log("Leaving Shop Browse");
+            }
+        })
 
 		.state('main.tools',{
 		url:'tools',

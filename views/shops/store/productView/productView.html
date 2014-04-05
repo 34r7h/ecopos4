@@ -6,7 +6,6 @@
                 <h3>{{ $key }}</h3>
                 <div class="resize-content"><img width="100%" ng-src="{{product.img}}"></div>
                 <p>Description: {{ product.description }}</p>
-                <p>Tags: <span ng-repeat="tag in product.tags">{{ tag }}, </span></p>
             </div>
 
             <div class="col-xs-7">
@@ -24,8 +23,7 @@
                                 $parent.product.img
                             )" class="btn-success">add item</button>
                     </div>
-                    <p>Variation Description:{{ variation.description }}</p>
-                    <h5>{{ variation.nutrition }}</h5>
+
                 </div>
 
 

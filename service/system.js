@@ -49,6 +49,7 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
 		},
 
         loadCategory: function(category, parent, depth){
+            var defer = $q.defer();
             if(typeof depth === 'undefined'){ depth = 0; }
             if(category.name){
                 if(!parent[category.name]){
@@ -56,36 +57,67 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                 }
 
                 if(category.children){
+                    var childProms = [];
                     angular.forEach(category.children, function(subCat, subCatID){
-                        if(subCat.children){
-                            api.loadCategory(subCat, parent[category.name], depth+1);
-                        }
-                        else{
-                            parent[category.name][subCatID] = {name: subCat};
-                            var product = syncData('product/'+subCatID);
-                            product.$on('loaded', function(){
-                                parent[category.name][subCatID] = product;
-                            });
+                        if(subCatID.indexOf('$') === -1){
+                            var cCatDefer = $q.defer();
+                            var cCatProm = cCatDefer.promise;
+                            childProms.push(cCatProm);
+                            if(subCat.children){
+                                api.loadCategory(subCat, parent[category.name], depth+1).then(function(){
+                                    cCatDefer.resolve(true);
+                                });
+                            }
+                            else{
+                                parent[category.name][subCatID] = {name: subCat};
+                                cCatDefer.resolve(true);
+
+                                var product = syncData('product/'+subCatID);
+                                product.$on('loaded', function(){
+                                    parent[category.name][subCatID] = product;
+                                    //cCatDefer.resolve(true);
+                                });
+                            }
                         }
                     });
+                    $q.all(childProms).then(function() {
+                        defer.resolve(true);
+                    });
+                }
+                else{
+                    defer.resolve(true);
                 }
             }
+            else{
+                defer.resolve(true);
+            }
+            //defer.resolve(true);
+            return defer.promise;
         },
 
         loadCatalog: function(shopName){
+            var defer = $q.defer();
             if(typeof shopName === 'undefined'){
                 shopName = 'shop';
             }
             $log.debug('loading \''+shopName+'\' catalog...');
             var catalog = syncData(shopName);
             catalog.$on('loaded', function(){
-                data.catalog[shopName] = {};
-
-                angular.forEach(catalog, function(category, catID){
-                    api.loadCategory(category, data.catalog[shopName]);
+                api.loadCategory({name: shopName, children: catalog}, data.catalog).then(function(){
+                    defer.resolve(true);
                 });
-            });
 
+
+                //data.catalog[shopName] = {};
+                /**
+                angular.forEach(catalog, function(category, catID){
+                    api.loadCategory(category, data.catalog[shopName]).then(function(){
+                        defer.resolve(true);
+                    });
+                });
+                 */
+            });
+            return defer.promise;
         },
 
         // Utility API
