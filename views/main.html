@@ -1,9 +1,77 @@
-
-<div ui-view class="app">
-
+<div class="header rowz col-xs-12">
+    <div ui-view="1@ecoApp.nav"></div>
+    <div ui-view="2@ecoApp.nav"></div>
+</div>
+<div class="main"><img src="images/3drooms.png" width="100%" height="100%" ></div>
+<div class="left col col-xs-12">
+    <span ui-view="1@ecoApp.nav.not.tools"></span>
+    <span ui-view="2@ecoApp.nav.not.tools"></span>
 </div>
 
+<div class="middle col col-xs-12">
+
+    <div class="body rowz  col-xs-12">
 
 
 
 
+        <div class="scroll-x col-xs-12">
+            <h2 href ng-click="$state.go('ecoApp')">Natural State</h2>
+            
+            <h2 href ng-click="$state.go('ecoApp.nav')">Nav</h2>
+            <div class="well">
+              <div ui-view="1@ecoApp"></div>
+              <div ui-view="2@ecoApp"></div>
+            </div>
+            <h2 href ng-click="$state.go('ecoApp.nav.not')">Notifications</h2>
+            <div class="well">
+              <div ui-view="1@ecoApp.nav"></div>
+              <div ui-view="2@ecoApp.nav"></div>
+            </div>
+            <h2 href ng-click="$state.go('ecoApp.nav.not.tools')">Tools</h2>
+            <div class="well">
+              <div ui-view="1@ecoApp.nav.not"></div>
+              <div ui-view="2@ecoApp.nav.not"></div>
+            </div>
+            <h2 href ng-click="$state.go('ecoApp.nav.not.tools.settings')">Settings</h2>
+            <div class="well">
+              <div ui-view="1@ecoApp.nav.not.tools"></div>
+              <div ui-view="2@ecoApp.nav.not.tools"></div>
+            </div>
+        </div>
+
+    </div>
+    </div>
+        <div class="right col col-xs-12">
+            <div ui-view="1@ecoApp.nav.not"></div>
+            <div ui-view="2@ecoApp.nav.not"></div>
+        </div>
+
+    <div class="footer rowz col-xs-12">
+        <div ui-view="1@ecoApp"></div>
+        <div ui-view="2@ecoApp"></div>
+    </div>
+</div>
+
+<!--
+
+<div class="sidebar sidebar-left" toggleable parent-active-class="sidebar-left-in" id="mainSidebar">
+    <left-bar></left-bar>
+</div>
+
+<right-bar></right-bar>
+<top-bar></top-bar>
+<div style="position:absolute;left:50%;top:50%">
+    <h2 href ng-click="$state.go('ecoApp')">Natural State</h2>
+    <h2 href ng-click="$state.go('ecoApp.nav')">Nav</h2>
+    <h2 href ng-click="$state.go('ecoApp.nav.not')">Notifications</h2>
+    <h2 href ng-click="$state.go('ecoApp.nav.not.tools')">Tools</h2>
+    <h2 href ng-click="$state.go('ecoApp.nav.not.tools.settings')">Settings</h2>
+</div>
+<bottom-bar></bottom-bar>
+<div overlay="loginOverlay">
+    <login></login>
+</div>
+<h3>♥</h3>
+
+-->

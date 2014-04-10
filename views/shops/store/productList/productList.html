@@ -1,4 +1,5 @@
 <div>
+    Products
     <div ng-repeat="(key,category) in inventory | orderByPriority | filter:searchText"> <a href ng-click="catClicked=!catClicked"> <h1 style="clear: both">{{ $key | uppercase }}</h1></a>
         <div ng-hide="catClicked" ng-repeat="(item,product) in category | orderByPriority | filter:searchText">
 

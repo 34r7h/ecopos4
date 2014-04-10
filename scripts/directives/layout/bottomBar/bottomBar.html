@@ -1,4 +1,7 @@
 <div class="navbar navbar-app navbar-fixed-bottom text-center">
+    <div ui-view="1@ecoApp"></div>
+    <div ui-view="2@ecoApp"></div>
+
     <a ng-click="toggle('rightSidebar');" class="btn btn-navbar btn-icon-only" ng-hide="msgsChecked"><i class="fa fa-comments fa-navbar"></i> </a>
     <a class="btn btn-navbar " ng-href="#/"><i class="fa fa-home fa-navbar"></i> Home</a>
     <a class="btn btn-navbar " ui-sref="main.admin.views"><i class="fa fa-book"></i> Admin</a>

@@ -20,11 +20,91 @@ angular.module('ecoposApp', [
 
 angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, $anchorScrollProvider) {
 
+	$stateProvider.
+		state('ecoApp', {
+			url:'/',
+			templateUrl:'views/main.html',
+			onEnter: function(){
+				console.log('ecoApp State');
+			},
+			onExit: function(){
+				console.log('goodbye ecoApp state');
+			}
+		}).
+		state('ecoApp.nav',{
+
+			views:{
+				1:{
+
+					template:'<h2 href ng-click="$state.go(\'^\')">Nav Yolo 1</h2>'
+				},
+				2:{
+					template:'<h2 href ng-click="$state.go(\'^\')">Nav Yolo 2</h2>'
+				}
+			},
+			onEnter: function(){
+				console.log('NAV State');
+			},
+			onExit: function(){
+				console.log('goodbye Navigation state');
+			}
+		}).
+		state('ecoApp.nav.not',{
+			views:{
+				1:{
+					template:'<h3 href ng-click="$state.go(\'^\')">Notifications Yolo 1</h3>'
+				},
+				2:{
+					template:'<h3 href ng-click="$state.go(\'^\')">Notifications Yolo 2</h3>'
+				}
+			},
+			onEnter: function(){
+				console.log('notifications state');
+			},
+			onExit: function(){
+				console.log('goodbye Notifications state');
+			}
+		}).
+		state('ecoApp.nav.not.tools',{
+
+			views:{
+				1:{
+					template: '<h4 href ng-click="$state.go(\'^\')">Tools Yolo 1</h4>'
+				},
+				2:{
+					template: '<h4 href ng-click="$state.go(\'^\')">Tools Yolo 2</h4>'
+				}
+			},
+			onEnter: function(){
+				console.log('tools state');
+			},
+			onExit: function(){
+				console.log('goodbye tools state');
+			}
+		}).
+		state('ecoApp.nav.not.tools.settings',{
+			url:':params',
+			views: {
+				1:{
+					url:'nav',
+					template:'<a href ng-click="$state.go(\'^\')">Settings Yolo 1</a></div>'
+				},
+				2:{
+					template:'<a href ng-click="$state.go(\'^\')">Settings Yolo 2</a></div>'
+				}
+			},
+			onEnter: function(){
+				console.log('settings state');
+			},
+			onExit: function(){
+				console.log('goodbye settings state');
+			}
+		});
 
 	// $anchorScrollProvider.disableAutoScrolling();
 
     $urlRouterProvider.otherwise('/');
-
+/*
     $stateProvider.state('test', {
         url: '/test',
 	    views:{
@@ -41,7 +121,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 	    }
 
     });
-    /* Add New States Above */
+
 	$stateProvider
 		.state('main',{
 
@@ -110,13 +190,12 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 					templateUrl:'views/admin/dashboard/dashboard.html',
 					controller:function($scope, syncData){
 						//$scope.user = user;
-            /**
 						$scope.order = syncData('order');
 						$scope.dashName = 'Customer';
 						$scope.dashSettings = ['first name', 'last name', 'street','address', 'contact', 'shopping', 'payment'];
 						console.log($scope.user.$id);
 						console.log($scope.order);
-*/
+
 
 						$scope.navigation = ['Edit', 'Cancel', 'Save'];
 
@@ -333,11 +412,14 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			}
 
 		});
+	*/
 
 });
 
-angular.module('ecoposApp').run(function($rootScope, simpleLogin) {
-	    // if there is a user authenticated with firebase, this will trigger the rest of the login sequence for them
+angular.module('ecoposApp').run(function($rootScope, simpleLogin, $state, $stateParams) {
+	$rootScope.$state = $state;
+	$rootScope.$stateParams = $stateParams;
+	       // if there is a user authenticated with firebase, this will trigger the rest of the login sequence for them
 	simpleLogin.activateCurrent();
     $rootScope.safeApply = function(fn) {
         var phase = $rootScope.$$phase;
