@@ -35,11 +35,13 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
 			views:{
 				1:{
-
-					template:'<h2 href ng-click="$state.go(\'^\')">Nav Yolo 1</h2>'
+					controller: function($scope){
+						$scope.test = "1: I'm scoped from nav state!"
+					},
+					template:'<p>{{test}}</p><h2 href ng-click="$state.go(\'^\')">Nav Yolo 1</h2>'
 				},
 				2:{
-					template:'<h2 href ng-click="$state.go(\'^\')">Nav Yolo 2</h2>'
+					template:'<h2 href ng-click="$state.go(\'^\')">Nav Yolo 2</h2><p>{{test}}</p>'
 				}
 			},
 			onEnter: function(){
@@ -86,11 +88,16 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			url:':params',
 			views: {
 				1:{
-					url:'nav',
-					template:'<a href ng-click="$state.go(\'^\')">Settings Yolo 1</a></div>'
+					controller: function($scope){
+						$scope.test = "1: I'm scoped from settings state!"
+					},
+					template:'<a href ng-click="$state.go(\'^\')">Settings Yolo 1</a> {{test}}</div>'
 				},
 				2:{
-					template:'<a href ng-click="$state.go(\'^\')">Settings Yolo 2</a></div>'
+					controller: function($scope){
+						$scope.test = "2: I'm scoped from settings state!"
+					},
+					template:'<a href ng-click="$state.go(\'^\')">Settings Yolo 2</a> {{test}}</div>'
 				}
 			},
 			onEnter: function(){
