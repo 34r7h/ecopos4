@@ -153,15 +153,15 @@ input:focus, textarea:focus {
 }
 
 body { margin: 0; overflow:hidden;box-sizing: border-box;}
-.rowz, .col { overflow-y: scroll; position: absolute; }
+.rowz, .col { overflow-y: scroll; overflow-x:hidden; position: absolute; }
 .row { left: 0; right: 0; }
 .col { top: 0; bottom: 0; }
 .scroll-x { overflow-x: auto; }
 .scroll-y { overflow-y: auto; }
 .no-scroll {overflow: hidden}
-.left.col { width: 15%; bottom: 88px; top:75px; background: #00caf2; opacity:.9;}
-.middle.col { width: 60%; left: 15%; right: 0; bottom: 88px; top:75px; opacity:.9;}
-.right.col { left: 85%; right: 0; bottom: 88px; top:75px;background: #ff9999; opacity:.9;}
+.left.col { left:1%; width: 15%; bottom: 88px; top:75px; background: #00caf2; opacity:.9;}
+.middle.col { width: 70%; left: 15%; right: 15%; bottom: 88px; top:75px; opacity:.9;}
+.right.col { width:15%; left: 84%; right: 1%; bottom: 88px; top:75px; background: #ff9999; opacity:.9;}
 .header.rowz { width:101%; height: 62px; max-height: 62px; line-height: 62px; overflow: scroll; z-index: 100!important; opacity:.9; background: #00AA88;}
 .body.rowz { top: 75px; bottom: 50px; }
 .footer.rowz { height: 75px; bottom: 0; line-height: 75px;  opacity:.9; background: #33AAAA; width: 101%}

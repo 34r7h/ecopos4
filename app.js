@@ -35,10 +35,11 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
 			views:{
 				1:{
-					controller: function($scope){
+					controller: function($scope,system){
+						$scope.params = system.data.params;
 						$scope.test = "1: I'm scoped from nav state!"
 					},
-					template:'<p>{{test}}</p><h2 href ng-click="$state.go(\'^\')">Nav Yolo 1</h2>'
+					template:'<p>{{params}}</p><h2 href ng-click="$state.go(\'^\')">Nav Yolo 1</h2>'
 				},
 				2:{
 					template:'<h2 href ng-click="$state.go(\'^\')">Nav Yolo 2</h2><p>{{test}}</p>'
@@ -54,10 +55,10 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 		state('ecoApp.nav.not',{
 			views:{
 				1:{
-					template:'<h3 href ng-click="$state.go(\'^\')">Notifications Yolo 1</h3>'
+					template:'<h3 href ng-click="$state.go(\'^\')">Notifications Yolo 1</h3><cart></cart>'
 				},
 				2:{
-					template:'<h3 href ng-click="$state.go(\'^\')">Notifications Yolo 2</h3>'
+					template:'<h3 href ng-click="$state.go(\'^\')">Notifications Yolo 2</h3><messages></messages>'
 				}
 			},
 			onEnter: function(){
@@ -71,10 +72,10 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
 			views:{
 				1:{
-					template: '<h4 href ng-click="$state.go(\'^\')">Tools Yolo 1</h4>'
+					template: '<h4 href ng-click="$state.go(\'^\')">Tools Yolo 1</h4><calendar></calendar>'
 				},
 				2:{
-					template: '<h4 href ng-click="$state.go(\'^\')">Tools Yolo 2</h4>'
+					template: '<h4 href ng-click="$state.go(\'^\')">Tools Yolo 2</h4><maps></maps>'
 				}
 			},
 			onEnter: function(){
@@ -85,26 +86,35 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			}
 		}).
 		state('ecoApp.nav.not.tools.settings',{
-			url:':params',
+			url:'*params?help&me',
 			views: {
 				1:{
-					controller: function($scope){
+					controller: function($scope,$stateParams,$log,system){
+						system.data.params = $stateParams;
+						$log.info($stateParams.params);
+						console.log('%c'+system.data.params, 'background: #222; color: #bada55');
+						$scope.help = system.data.params;
 						$scope.test = "1: I'm scoped from settings state!"
 					},
-					template:'<a href ng-click="$state.go(\'^\')">Settings Yolo 1</a> {{test}}</div>'
+					template:'<h6 ng-repeat="(key,param) in help">{{key}}: {{param}}</h6><a href ng-click="$state.go(\'^\')">Settings Yolo 1</a><orders></orders></div>'
 				},
 				2:{
-					controller: function($scope){
+					controller: function($scope,system){
 						$scope.test = "2: I'm scoped from settings state!"
 					},
-					template:'<a href ng-click="$state.go(\'^\')">Settings Yolo 2</a> {{test}}</div>'
+					template:'<a href ng-click="$state.go(\'^\')">Settings Yolo 2</a><prefs></prefs></div>'
 				}
 			},
 			onEnter: function(){
-				console.log('settings state');
+				var css = "color:rgba(255,255,255,.9);text-shadow: -1px -1px hsl(0,100%,50%), 1px 1px hsl(5.4, 100%, 50%), 3px 2px hsl(10.8, 100%, 50%), 5px 3px hsl(16.2, 100%, 50%), 7px 4px hsl(21.6, 100%, 50%), 9px 5px hsl(27, 100%, 50%), 11px 6px hsl(32.4, 100%, 50%), 13px 7px hsl(37.8, 100%, 50%), 14px 8px hsl(43.2, 100%, 50%), 16px 9px hsl(48.6, 100%, 50%), 18px 10px hsl(54, 100%, 50%), 20px 11px hsl(59.4, 100%, 50%), 22px 12px hsl(64.8, 100%, 50%), 23px 13px hsl(2154.6, 100%, 50%); font-size: 20px;";
+
+
+				console.log('%c settings state %s', css,'http://ecossentials.ca');
+
 			},
 			onExit: function(){
-				console.log('goodbye settings state');
+				var css = "color:rgba(255,255,255,1);text-shadow: -1px -1px hsl(0,100%,50%), 1px 1px hsl(5.4, 100%, 50%), 3px 2px hsl(10.8, 100%, 50%), 5px 3px hsl(16.2, 100%, 50%), 7px 4px hsl(21.6, 100%, 50%), 9px 5px hsl(27, 100%, 50%), 11px 6px hsl(32.4, 100%, 50%), 13px 7px hsl(37.8, 100%, 50%), 14px 8px hsl(43.2, 100%, 50%), 16px 9px hsl(48.6, 100%, 50%), 18px 10px hsl(54, 100%, 50%), 20px 11px hsl(59.4, 100%, 50%), 22px 12px hsl(64.8, 100%, 50%), 23px 13px hsl(2154.6, 100%, 50%); font-size: 16px;";
+				console.log('%c goodbye settings state %s',css);
 			}
 		});
 
