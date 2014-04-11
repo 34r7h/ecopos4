@@ -86,7 +86,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			}
 		}).
 		state('ecoApp.nav.not.tools.settings',{
-			url:'*params?help&me',
+			url:'*path?access_level&preferences',
 			views: {
 				1:{
 					controller: function($scope,$stateParams,$log,system){
