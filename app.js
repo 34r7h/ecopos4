@@ -22,7 +22,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
 	$stateProvider.
 		state('ecoApp', {
-			url:'/',
+
 			templateUrl:'views/main.html',
 			onEnter: function(){
 				console.log('ecoApp State');
@@ -37,7 +37,10 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 				1:{
 					controller: function($scope,system){
 						$scope.params = system.data.params;
-						$scope.test = "1: I'm scoped from nav state!"
+						$scope.test = "1: I'm scoped from nav state!";
+						$scope.reload = function() {
+							$state.reload();
+						};
 					},
 					template:'<p>{{params}}</p><h2 href ng-click="$state.go(\'^\')">Nav Yolo 1</h2>'
 				},
@@ -90,11 +93,17 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			views: {
 				1:{
 					controller: function($scope,$stateParams,$log,system){
+						$scope.reload = function() {
+							$state.reload();
+						};
 						system.data.params = $stateParams;
 						$log.info($stateParams.params);
 						console.log('%c'+system.data.params, 'background: #222; color: #bada55');
 						$scope.help = system.data.params;
-						$scope.test = "1: I'm scoped from settings state!"
+						$scope.test = "1: I'm scoped from settings state!";
+						if ($stateParams.access_level === 'god'){
+							console.log('%c Access of God', 'color:#ccc;background:#fff;');
+						}
 					},
 					template:'<h6 ng-repeat="(key,param) in help">{{key}}: {{param}}</h6><a href ng-click="$state.go(\'^\')">Settings Yolo 1</a><orders></orders></div>'
 				},
@@ -102,7 +111,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 					controller: function($scope,system){
 						$scope.test = "2: I'm scoped from settings state!"
 					},
-					template:'<a href ng-click="$state.go(\'^\')">Settings Yolo 2</a><prefs></prefs></div>'
+					template:'<a ng-click="reload()" ng-href="#/apples/bananas?access_level=god&preferences=satan&something=else">Settings Yolo 2</a><prefs></prefs></div>'
 				}
 			},
 			onEnter: function(){
