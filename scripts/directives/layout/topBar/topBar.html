@@ -1,0 +1,32 @@
+<div class="navbar navbar-app navbar-fixed-top">
+    <div ui-view="1@ecoApp.nav"></div>
+    <div ui-view="2@ecoApp.nav"></div>
+
+    <div class="navbar-brand navbar-brand-center" >
+        <p class="app-name text-center" style="line-height: 1em">êc0p0s</p>
+    </div>
+
+    <div class="btn-group pull-left">
+            <span ng-click="toggle('mainSidebar')" class="btn btn-navbar sidebar-toggle col-xs-3">
+                <i class="fa fa-bars"></i> Settings
+            </span>
+    </div>
+    <div class="btn-group pull-right">
+
+            <span ng-show="total()>0" class="btn-group pull-right toggleable-dropdown" active-class="open" id="myDropdown" toggleable>
+                <button type="button" class="btn btn-default dropdown-toggle" toggle target="myDropdown">
+                    <i class="fa fa-shopping-cart"></i> Cart {{total() | currency}}<span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu" bubble target="myDropdown">
+                    <div class="col-xs-6"><div class=""><cart/></div></div>
+                    <li class="divider">
+                        <div toggle="off" target="myDropdown"></div>
+
+
+                </ul>
+            </span>
+    </div>
+    <span class="col-xs-4 navbar-form pull-right"><b><i class="fa fa-search"></i>  <input ng-model="searchText"></b></span>
+
+
+</div>

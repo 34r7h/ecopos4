@@ -22,7 +22,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
 	$stateProvider.
 		state('ecoApp', {
-
+			controller:'MainCtrl',
 			templateUrl:'views/main.html',
 			onEnter: function(){
 				console.log('ecoApp State');
@@ -35,14 +35,14 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
 			views:{
 				1:{
-					controller: function($scope,system){
+					controller: function($scope,system,$state){
 						$scope.params = system.data.params;
 						$scope.test = "1: I'm scoped from nav state!";
 						$scope.reload = function() {
 							$state.reload();
 						};
 					},
-					template:'<p>{{params}}</p><h2 href ng-click="$state.go(\'^\')">Nav Yolo 1</h2>'
+					template:'<p ng-click="reload()">{{params}}</p><h2 href ng-click="$state.go(\'^\')">Nav Yolo 1</h2>'
 				},
 				2:{
 					template:'<h2 href ng-click="$state.go(\'^\')">Nav Yolo 2</h2><p>{{test}}</p>'
@@ -92,7 +92,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			url:'*path?access_level&preferences',
 			views: {
 				1:{
-					controller: function($scope,$stateParams,$log,system){
+					controller: function($scope,$stateParams,$log,system, $state, cart, syncData){
 						$scope.reload = function() {
 							$state.reload();
 						};
@@ -104,14 +104,26 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 						if ($stateParams.access_level === 'god'){
 							console.log('%c Access of God', 'color:#ccc;background:#fff;');
 						}
+						$scope.shopName = "Ecossentials";
+						$scope.products = syncData('productz');
+						$scope.navigation = ['Search','Categories', 'Specials'];
+						$scope.inventory = syncData('productz');
+
+						$scope.addProduct = system.api.addProduct;
+						$scope.removeItem = system.api.removeItem;
+						$scope.total = system.api.total;
+
+						$scope.cart = cart.cart;
+						$scope.invoice = cart.invoice;
+						$scope.items = cart.invoice.items;
 					},
-					template:'<h6 ng-repeat="(key,param) in help">{{key}}: {{param}}</h6><a href ng-click="$state.go(\'^\')">Settings Yolo 1</a><orders></orders></div>'
+					template:'<h6 ng-repeat="(key,param) in help">{{key}}: {{param}}</h6><a ng-cloak class="list-group-item" ng-show-auth="login" ng-controller="LoginController" href="#" ng-click="logout()"><i class="fa fa-unlock"></i> Log Out <i class="fa fa-chevron-right pull-right"></i></a><a ng-cloak class="list-group-item " ng-show-auth="[\'logout\',\'error\']" href="#loginOverlay" toggle="on"><i class="fa fa-lock"></i> Cloverleaf Industries <i class="fa fa-chevron-right pull-right"></i></a><a href ng-click="$state.go(\'^\')">Settings Yolo 1</a><p ng-repeat="(key,settings) in dashStuff2 | orderBy:key:reverse">{{ key }}: <prefs type="settings.type" element="settings.elementual"></prefs></p></div>'
 				},
 				2:{
 					controller: function($scope,system){
 						$scope.test = "2: I'm scoped from settings state!"
 					},
-					template:'<a ng-click="reload()" ng-href="#/apples/bananas?access_level=god&preferences=satan&something=else">Settings Yolo 2</a><prefs></prefs></div>'
+					template:'<a ng-href="#/apples/bananas?access_level=god&preferences=satan&something=else">Settings Yolo 2</a><p ng-click="reload()">Reload!</p><prefs></prefs></div>'
 				}
 			},
 			onEnter: function(){
