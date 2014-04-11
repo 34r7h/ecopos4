@@ -1,6 +1,19 @@
 angular.module('ecoposApp')
 	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, system, firebaseRef) {
-
+		$scope.dashStuff2 = {
+			"other name": {
+				"elementual": 'input',
+				"type": 'text' },
+			"end name": {
+				"elementual": 'input',
+				"type": 'checkbox' },
+			"streeetz name": {
+				"elementual": 'input',
+				"type": 'text' },
+			"kings of consciousness game": {
+				"elementual": 'input',
+				"type": 'number' }
+		};
 		$scope.addItems = function () {
 			for (var i = 0; i < 10; i++) {
 				$scope.items.push({name:'item ' + ($scope.items.length + 1)});

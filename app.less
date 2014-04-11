@@ -27,6 +27,11 @@
 @import "scripts/directives/login/login.less";
 @import "views/shops/store/productList/productList.less";
 @import "views/shops/store/productView/productView.less";
+@import "scripts/directives/userInfo/userInfo.less";
+@import "scripts/directives/layout/topBar/topBar.less";
+@import "scripts/directives/layout/bottomBar/bottomBar.less";
+@import "scripts/directives/layout/leftBar/leftBar.less";
+@import "scripts/directives/layout/rightBar/rightBar.less";
 /* Add Component LESS Above */
 
 /* Required for Angular UI Bootstrap */
@@ -45,9 +50,7 @@
 //}
 
 html, body, .background-img {
-  background-image: url("images/bg-img.jpg");
-  background-position: top;
-  height: 100%;
+
 }
 .app {
   background: none;
@@ -136,4 +139,42 @@ input:focus, textarea:focus {
 
 .navbar {
   margin-bottom:0px;
+  overflow: auto;
+  max-height: 75px;
 }
+
+.bs-callout-info {
+  padding: 1em;
+  background-color: rgba(255,255,255,.8);
+
+  margin: 1em 0;
+
+  border-left: 3px solid white;
+}
+
+body { margin: 0; overflow:hidden;box-sizing: border-box;}
+.rowz, .col { overflow-y: scroll; overflow-x:hidden; position: absolute; }
+.row { left: 0; right: 0; }
+.col { top: 0; bottom: 0; }
+.scroll-x { overflow-x: auto; }
+.scroll-y { overflow-y: auto; }
+.no-scroll {overflow: hidden}
+.left.col { left:1%; width: 18%; bottom: 96px; top:75px; background: #00caf2; opacity:.9;}
+.middle.col { width: 62%; left: 19%; right: 19%; bottom: 0px; top:0px; opacity:.9;}
+.right.col { width:18%; left: 81%; right: 1%; bottom: 96px; top:75px; background: #ff9999; opacity:.9;}
+.header.rowz { width:101%; height: 62px; max-height: 62px; line-height: 62px; overflow: scroll; z-index: 100!important; opacity:.9; background: #00AA88;}
+.body.rowz { top: 1em; bottom: 1em; }
+.footer.rowz { height: 81px; bottom: 0; line-height: 81px;  opacity:.9; background: #33AAAA; width: 101%}
+
+
+.main {
+  box-sizing: border-box;
+  position: absolute;
+  overflow: hidden;
+
+  max-height: 100%;
+  left:0;
+  right:0;
+  top:0;
+  bottom:0;
+  }

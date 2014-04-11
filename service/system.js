@@ -3,7 +3,8 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
     var data = {
         user: {id: null, profile: null, activeRole: 'anonymous', messages: {}, events: {}, calendar: {}, session: {firstActiveRole: true, calendarEvents: {}}},
         employee: {shiftType: null},
-        manager: {orders: {}}
+        manager: {orders: {}},
+	    params:{}
     };
 
 

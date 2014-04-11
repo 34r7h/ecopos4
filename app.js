@@ -20,31 +20,157 @@ angular.module('ecoposApp', [
 
 angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, $anchorScrollProvider) {
 
+	$stateProvider.
+		state('ecoApp', {
+
+			templateUrl:'views/main.html',
+			onEnter: function(){
+				console.log('ecoApp State');
+			},
+			onExit: function(){
+				console.log('goodbye ecoApp state');
+			}
+		}).
+		state('ecoApp.nav',{
+
+			views:{
+				1:{
+					controller: function($scope,system){
+						$scope.params = system.data.params;
+						$scope.test = "1: I'm scoped from nav state!";
+						$scope.reload = function() {
+							$state.reload();
+						};
+					},
+					template:'<p>{{params}}</p><h2 href ng-click="$state.go(\'^\')">Nav Yolo 1</h2>'
+				},
+				2:{
+					template:'<h2 href ng-click="$state.go(\'^\')">Nav Yolo 2</h2><p>{{test}}</p>'
+				}
+			},
+			onEnter: function(){
+				console.log('NAV State');
+			},
+			onExit: function(){
+				console.log('goodbye Navigation state');
+			}
+		}).
+		state('ecoApp.nav.not',{
+			views:{
+				1:{
+					template:'<h3 href ng-click="$state.go(\'^\')">Notifications Yolo 1</h3><cart></cart>'
+				},
+				2:{
+					template:'<h3 href ng-click="$state.go(\'^\')">Notifications Yolo 2</h3><messages></messages>'
+				}
+			},
+			onEnter: function(){
+				console.log('notifications state');
+			},
+			onExit: function(){
+				console.log('goodbye Notifications state');
+			}
+		}).
+		state('ecoApp.nav.not.tools',{
+
+			views:{
+				1:{
+					template: '<h4 href ng-click="$state.go(\'^\')">Tools Yolo 1</h4><calendar></calendar>'
+				},
+				2:{
+					template: '<h4 href ng-click="$state.go(\'^\')">Tools Yolo 2</h4><maps></maps>'
+				}
+			},
+			onEnter: function(){
+				console.log('tools state');
+			},
+			onExit: function(){
+				console.log('goodbye tools state');
+			}
+		}).
+		state('ecoApp.nav.not.tools.settings',{
+			url:'*path?access_level&preferences',
+			views: {
+				1:{
+					controller: function($scope,$stateParams,$log,system){
+						$scope.reload = function() {
+							$state.reload();
+						};
+						system.data.params = $stateParams;
+						$log.info($stateParams.params);
+						console.log('%c'+system.data.params, 'background: #222; color: #bada55');
+						$scope.help = system.data.params;
+						$scope.test = "1: I'm scoped from settings state!";
+						if ($stateParams.access_level === 'god'){
+							console.log('%c Access of God', 'color:#ccc;background:#fff;');
+						}
+					},
+					template:'<h6 ng-repeat="(key,param) in help">{{key}}: {{param}}</h6><a href ng-click="$state.go(\'^\')">Settings Yolo 1</a><orders></orders></div>'
+				},
+				2:{
+					controller: function($scope,system){
+						$scope.test = "2: I'm scoped from settings state!"
+					},
+					template:'<a ng-click="reload()" ng-href="#/apples/bananas?access_level=god&preferences=satan&something=else">Settings Yolo 2</a><prefs></prefs></div>'
+				}
+			},
+			onEnter: function(){
+				var css = "color:rgba(255,255,255,.9);text-shadow: -1px -1px hsl(0,100%,50%), 1px 1px hsl(5.4, 100%, 50%), 3px 2px hsl(10.8, 100%, 50%), 5px 3px hsl(16.2, 100%, 50%), 7px 4px hsl(21.6, 100%, 50%), 9px 5px hsl(27, 100%, 50%), 11px 6px hsl(32.4, 100%, 50%), 13px 7px hsl(37.8, 100%, 50%), 14px 8px hsl(43.2, 100%, 50%), 16px 9px hsl(48.6, 100%, 50%), 18px 10px hsl(54, 100%, 50%), 20px 11px hsl(59.4, 100%, 50%), 22px 12px hsl(64.8, 100%, 50%), 23px 13px hsl(2154.6, 100%, 50%); font-size: 20px;";
+
+
+				console.log('%c settings state %s', css,'http://ecossentials.ca');
+
+			},
+			onExit: function(){
+				var css = "color:rgba(255,255,255,1);text-shadow: -1px -1px hsl(0,100%,50%), 1px 1px hsl(5.4, 100%, 50%), 3px 2px hsl(10.8, 100%, 50%), 5px 3px hsl(16.2, 100%, 50%), 7px 4px hsl(21.6, 100%, 50%), 9px 5px hsl(27, 100%, 50%), 11px 6px hsl(32.4, 100%, 50%), 13px 7px hsl(37.8, 100%, 50%), 14px 8px hsl(43.2, 100%, 50%), 16px 9px hsl(48.6, 100%, 50%), 18px 10px hsl(54, 100%, 50%), 20px 11px hsl(59.4, 100%, 50%), 22px 12px hsl(64.8, 100%, 50%), 23px 13px hsl(2154.6, 100%, 50%); font-size: 16px;";
+				console.log('%c goodbye settings state %s',css);
+			}
+		});
 
 	// $anchorScrollProvider.disableAutoScrolling();
 
     $urlRouterProvider.otherwise('/');
-
+/*
     $stateProvider.state('test', {
         url: '/test',
-        templateUrl: 'test/test.html',
-	    controller: 'TestCtrl'
+	    views:{
+		    main:{
+			    template:'<div class="app"><top-bar></top-bar><ui-view></ui-view></div><bottom-bar></bottom-bar><div overlay="loginOverlay"></div><login></login></div><h3>♥</h3>',
+			    controller: 'MainCtrl'
+		    },
+		    sidebar1:{
+			    template: '<left-bar></left-bar>'
+		    },
+		    sidebar2:{
+			    template: '<right-bar></right-bar>'
+		    }
+	    }
+
     });
-    /* Add New States Above */
+
 	$stateProvider
 		.state('main',{
+
 			url:'/',
-			resolve:{
-				test:function(){
-					console.log(1);
 
-
-
-					return 1;
+			views:{
+				main:{
+					templateUrl:'views/main.html',
+					controller:'MainCtrl'
+				},
+				sidebar1:{
+					template: '<left-bar></left-bar>',
+					controller: 'MainCtrl'
+				},
+				sidebarSettings:{
+					template:' <p ng-repeat="(key,settings) in dashStuff2 | orderBy:key:reverse">{{ key }}: <prefs type="settings.type" element="settings.elementual"></prefs></p>',
+					controller:'MainCtrl'
+				},
+				sidebar2:{
+					template: '<right-bar></right-bar>',
+					controller:'MainCtrl'
 				}
 			},
-			templateUrl:'views/main.html',
-			controller: 'MainCtrl',
 			onEnter: function(){
 				console.log("Entering Main State");
 			},
@@ -69,7 +195,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 		.state('main.admin',{
 			url:'admin',
 			abstract:true,
-      authRequired:true,
+            authRequired:true,
 			templateUrl:'views/admin/admin.html',
 			controller: function($scope){
 
@@ -84,19 +210,18 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 		})
 		.state('main.admin.views',{
 			url:'',
-      authRequired:true,
+            authRequired:true,
 			views:{
 				customer: {
 					templateUrl:'views/admin/dashboard/dashboard.html',
 					controller:function($scope, syncData){
 						//$scope.user = user;
-            /**
 						$scope.order = syncData('order');
 						$scope.dashName = 'Customer';
 						$scope.dashSettings = ['first name', 'last name', 'street','address', 'contact', 'shopping', 'payment'];
 						console.log($scope.user.$id);
 						console.log($scope.order);
-*/
+
 
 						$scope.navigation = ['Edit', 'Cancel', 'Save'];
 
@@ -153,21 +278,20 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
                         $scope.dashSettings = ['name', 'address', 'contact', 'shopping', 'payment', 'schedule'];
                         $scope.products = syncData('"produceList"');
                         $scope.navigation = ['Awesome', 'Search','Categories','Suppliers'];
-	                    $scope.dashStuff2 = {
-		                    "other name": {
-			                    "elementual": 'input',
-			                    "type": 'text' },
-		                    "end name": {
-			                    "elementual": 'input',
-			                    "type": 'checkbox' },
-		                    "streeetz name": {
-			                    "elementual": 'input',
-			                    "type": 'text' },
-		                    "kings of consciousness game": {
-			                    "elementual": 'input',
-			                    "type": 'number' }
-	                    };
-
+		                    $scope.dashStuff2 = {
+			                    "other name": {
+				                    "elementual": 'input',
+				                    "type": 'text' },
+			                    "end name": {
+				                    "elementual": 'input',
+				                    "type": 'checkbox' },
+			                    "streeetz name": {
+				                    "elementual": 'input',
+				                    "type": 'text' },
+			                    "kings of consciousness game": {
+				                    "elementual": 'input',
+				                    "type": 'number' }
+		                    };
 
 	                    $scope.dashStuff = {
 		                    "first name": ['input', 'text' ],
@@ -229,7 +353,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 					templateUrl:'views/shops/store/store.html',
 					controller:function($scope,syncData){
 						$scope.shopName = "Sunshine Organics";
-						$scope.products = syncData('inventory');
+						$scope.products = syncData('inventoryz');
 						$scope.navigation = ['Search','Categories', 'Specials'];
 					}
 				},
@@ -237,7 +361,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 					templateUrl:'views/shops/store/store.html',
 					controller:function($scope,syncData){
 						$scope.shopName = "Purchase Order";
-						$scope.products = syncData('"produceList"/groceryList', 20);
+						$scope.products = syncData('inventoryz', 20);
 						$scope.navigation = ['Search','Categories','Suppliers'];
 
 					}
@@ -314,11 +438,14 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			}
 
 		});
+	*/
 
 });
 
-angular.module('ecoposApp').run(function($rootScope, simpleLogin) {
-	    // if there is a user authenticated with firebase, this will trigger the rest of the login sequence for them
+angular.module('ecoposApp').run(function($rootScope, simpleLogin, $state, $stateParams) {
+	$rootScope.$state = $state;
+	$rootScope.$stateParams = $stateParams;
+	       // if there is a user authenticated with firebase, this will trigger the rest of the login sequence for them
 	simpleLogin.activateCurrent();
     $rootScope.safeApply = function(fn) {
         var phase = $rootScope.$$phase;
