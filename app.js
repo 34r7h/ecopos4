@@ -35,14 +35,14 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
 			views:{
 				1:{
-					controller: function($scope,system,$state,$urlRouter){
+					controller: function($scope,system,$state){
 						$scope.params = system.data.params;
 						$scope.test = "1: I'm scoped from nav state!";
 						$scope.reload = function() {
 							$state.reload();
 						};
 					},
-					template:'<p ng-click="$urlRouter.sync()">{{params}}</p><h2 href ng-click="$state.go(\'^\')">Nav Yolo 1</h2>'
+					template:'<p ng-click="reload()">{{params}}</p><h2 href ng-click="$state.go(\'^\')">Nav Yolo 1</h2>'
 				},
 				2:{
 					template:'<h2 href ng-click="$state.go(\'^\')">Nav Yolo 2</h2><p>{{test}}</p>'
@@ -75,7 +75,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
 			views:{
 				1:{
-					template: '<h4 href ng-click="$state.go(\'^\')">Tools Yolo 1</h4><calendar></calendar>'
+					template: '<h4 href ng-click="$state.go(\'^\')">Tools Yolo 1</h4><calendar calendar-content="user.calendar"></calendar>'
 				},
 				2:{
 					template: '<h4 href ng-click="$state.go(\'^\')">Tools Yolo 2</h4><maps></maps>'
@@ -97,8 +97,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 						$scope.reload = function() {
 							$state.reload();
 						};
-
-
+						system.data.params.data = $stateParams;
 						$log.info($stateParams.params);
 						console.log('%c'+system.data.params, 'background: #222; color: #bada55');
 						$scope.help = system.data.params;
@@ -120,7 +119,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 						$scope.invoice = cart.invoice;
 						$scope.items = cart.invoice.items;
 					},
-					template:'<h6 ng-repeat="(key,param) in help.data">{{key}}: {{param}}</h6><a ng-cloak class="list-group-item" ng-show-auth="login" ng-controller="LoginController" href="#" ng-click="logout()"><i class="fa fa-unlock"></i> Log Out <i class="fa fa-chevron-right pull-right"></i></a><a ng-cloak class="list-group-item " ng-show-auth="[\'logout\',\'error\']" href="#loginOverlay" toggle="on"><i class="fa fa-lock"></i> Cloverleaf Industries <i class="fa fa-chevron-right pull-right"></i></a><a ng-href="#/settings?preferences=my_setttings">Settings Yolo 1</a><p ng-repeat="(key,settings) in dashStuff2 | orderBy:key:reverse">{{ key }}: <prefs type="settings.type" element="settings.elementual"></prefs></p></div>'
+					template:'<h6 ng-repeat="(key,param) in help.data">{{key}}: {{param}}</h6><a ng-cloak class="list-group-item" ng-show-auth="login" ng-controller="LoginController" href="#" ng-click="logout()"><i class="fa fa-unlock"></i> Log Out <i class="fa fa-chevron-right pull-right"></i></a><a ng-cloak class="list-group-item " ng-show-auth="[\'logout\',\'error\']" href="#loginOverlay" toggle="on"><i class="fa fa-lock"></i> Cloverleaf Industries <i class="fa fa-chevron-right pull-right"></i></a><a href ng-click="$state.go(\'^\')">Settings Yolo 1</a><p ng-repeat="(key,settings) in dashStuff2 | orderBy:key:reverse">{{ key }}: <prefs type="settings.type" element="settings.elementual"></prefs></p></div>'
 				},
 				2:{
 					controller: function($scope,system){
