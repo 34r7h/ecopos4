@@ -1,41 +1,26 @@
 <div>
-    Products
-    <div ng-repeat="(key,category) in inventory | orderByPriority | filter:searchText"> <a href ng-click="catClicked=!catClicked"> <h1 style="clear: both">{{ $key | uppercase }}</h1></a>
-        <div ng-hide="catClicked" ng-repeat="(item,product) in category | orderByPriority | filter:searchText">
+    {{shopName}} Products
 
-            <div class="col-xs-5">
-                <h3>{{ $key }}</h3>
-                <div class="resize-content"><img width="100%" ng-src="{{product.img}}"></div>
-                <p>Description: {{ product.description }}</p>
-            </div>
-
-            <div class="col-xs-7">
-                <h3>Available Variations: </h3>
-                <div  ng-repeat="(key,variation) in product.variations">
-                    <b>{{ key }} @ {{ variation.price | currency }}/{{ $parent.product.unitType }}</b>
-                    <div>
-                        Qty: <input type="number" ng-model="qty"/>
-                        <button href ng-click="addProduct(
-                                variation.sku,
-                                qty,
-                                $parent.product.unitType,
-                                key,
-                                variation.price,
-                                $parent.product.img
-                            )" class="btn-success">add item</button>
-                    </div>
-
+    <ul class="breadcrumb">
+        <li ng-repeat="cPath in shopState.path"><a ng-if="cPath.path" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(cPath.path))">{{cPath.name}}</a><strong ng-if="!cPath.path">{{cPath.name}}</strong></li>
+    </ul>
+    <input type="text" ng-model="shopState.search" />
+    <ul ng-show="shopState.category">
+        <li ng-repeat="(childName,child) in shopState.category.children | orderByPriority | filter:shopState.search">
+            <a ng-if="!child.product" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(child.$id, true))">{{child.name}}</a>
+            <div ng-if="child.product">
+                <h4 ng-hide="child.fullData">{{child.name}}</h4>
+                <div ng-show="child.fullData">
+                    <h4>
+                        <!--a ui-sref="ecoApp.nav.not.tools.settings(stateParamsAppendPath(child.name))"-->
+                        <span ng-if="child.fullData.brand">{{child.fullData.brand}} </span>
+                        <span ng-if="child.fullData.name">{{child.fullData.name}}</span>
+                        <span ng-if="child.fullData.size"> ({{child.fullData.size}})</span>
+                        <!--/a-->
+                    </h4>
+                    <span ng-if="child.fullData.price">{{child.fullData.price | currency}}</span>
                 </div>
-
-
-
-
-                <div ng-model="variation.price">{{variation.price}}</div>
-
-
             </div>
-        </div>
-
-    </div>
-
+        </li>
+    </ul>
 </div>

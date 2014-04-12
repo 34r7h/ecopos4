@@ -4,8 +4,8 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
         user: {id: null, profile: null, activeRole: 'anonymous', messages: {}, events: {}, calendar: {}, session: {firstActiveRole: true, calendarEvents: {}}},
         employee: {shiftType: null},
         manager: {orders: {}},
-	    params:{},
-	    view:''
+        catalog: {browse: {categoryID: '', path: [], search: ''}},
+	    params:{}
     };
 
 
@@ -48,6 +48,85 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
 
 			return total;
 		},
+
+        loadCategory: function(category, loadInto){
+            var defer = $q.defer();
+
+            if(category.$id && category.name) {
+                if(!loadInto.children){
+                    loadInto.children = {};
+                }
+                if (!loadInto.children[category.$id]) {
+                    loadInto.children[category.$id] = {$id: category.$id, name: category.name};
+                }
+
+                if(category.$id !== category.name){
+                    console.log('who is:'+category.$id+':'+category.name+':');
+                }
+
+                if(category.children) {
+                    var childProms = [];
+                    angular.forEach(category.children, function (subCat, subCatID) {
+                        if (subCatID.indexOf('$') === -1) {
+                            var cCatDefer = $q.defer();
+                            var cCatProm = cCatDefer.promise;
+                            childProms.push(cCatProm);
+                            if (subCat.children) {
+                                subCat.$id = subCatID;
+                                api.loadCategory(subCat, loadInto.children[category.$id]).then(function () {
+                                    cCatDefer.resolve(true);
+                                });
+                            }
+                            else {
+                                //console.log('what:'+subCatID+':'+JSON.stringify(subCat));
+                                if(!loadInto.children[category.$id].children){
+                                    loadInto.children[category.$id].children = {};
+                                }
+                                loadInto.children[category.$id].children[subCatID] = {$id: subCatID, product: true, name: subCat};
+                                cCatDefer.resolve(true);
+                            }
+                        }
+                    });
+                    $q.all(childProms).then(function() {
+                        defer.resolve(true);
+                    });
+                }
+                else{
+                    defer.resolve(true);
+                }
+            }
+            else{
+                defer.resolve(true);
+            }
+
+            return defer.promise;
+        },
+
+        loadCategoryProducts: function(category){
+            angular.forEach(category, function(child, childID){
+                if(child.product){
+                    var product = syncData('product/'+childID);
+                    product.$on('loaded', function(){
+                        category[childID].fullData = product;
+                    });
+                }
+            });
+        },
+
+        loadCatalog: function(shopName){
+            var defer = $q.defer();
+            if(typeof shopName === 'undefined'){
+                shopName = 'shop';
+            }
+            $log.debug('loading \''+shopName+'\' catalog...');
+            var catalog = syncData(shopName);
+            catalog.$on('loaded', function(){
+                api.loadCategory({$id: shopName, name: shopName, children: catalog}, data.catalog).then(function(){
+                    defer.resolve(true);
+                });
+            });
+            return defer.promise;
+        },
 
         // Utility API
 
