@@ -1,4 +1,11 @@
 <div class="header rowz col-xs-12">
+
+    <span>
+        <img ng-src="http://ecossentials.ca/images/eco-logo.png">
+        <p style="margin: 8px 1% 0 0; font-size:3em; text-align: right">
+            <i class="fa fa-envelope"></i> <i class="fa fa-calendar-o"></i> <i class="fa fa-shopping-cart"></i>
+        </p>
+        </span>
     <div ui-view="1@ecoApp.nav"></div>
     <div ui-view="2@ecoApp.nav"></div>
 </div>
@@ -16,6 +23,11 @@
 
 
         <div class="scroll-x">
+            <div class="well">
+                <div ui-view="{{view}}"></div>
+
+            </div>
+            <!--
             <h2 href ng-click="$state.go('ecoApp')">Natural State</h2>
             <div class="well">
                 <product-list></product-list>
@@ -40,6 +52,7 @@
               <div ui-view="1@ecoApp.nav.not.tools"></div>
               <div ui-view="2@ecoApp.nav.not.tools"></div>
             </div>
+            -->
         </div>
 
     </div>

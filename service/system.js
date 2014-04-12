@@ -4,7 +4,8 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
         user: {id: null, profile: null, activeRole: 'anonymous', messages: {}, events: {}, calendar: {}, session: {firstActiveRole: true, calendarEvents: {}}},
         employee: {shiftType: null},
         manager: {orders: {}},
-	    params:{}
+	    params:{},
+	    view:'1@ecoApp.nav.not.tools'
     };
 
 
