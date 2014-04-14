@@ -5,7 +5,8 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
         employee: {shiftType: null},
         manager: {orders: {}},
         catalog: {browse: {categoryID: '', path: [], search: ''}},
-	    params:{}
+	    params:{},
+        view:''
     };
 
 
