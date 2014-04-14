@@ -1,7 +1,7 @@
 angular.module('ecoposApp')
 	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, system, firebaseRef) {
 		$scope.view = system.data.view;
-
+		$scope.icons=['envelope', 'calendar', 'shopping-cart', 'user'];
 		$scope.dashStuff2 = {
 			"other name": {
 				"elementual": 'input',
