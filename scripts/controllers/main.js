@@ -1,5 +1,7 @@
 angular.module('ecoposApp')
 	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, system, firebaseRef) {
+		$scope.view = system.data.view;
+		$scope.icons=['envelope', 'calendar', 'shopping-cart', 'user'];
 		$scope.dashStuff2 = {
 			"other name": {
 				"elementual": 'input',
@@ -74,7 +76,7 @@ angular.module('ecoposApp')
 			if(value){
 				// don't reload state if they just logged in - routesecurity is taking care of that
 				if(!$scope.user.session.firstActiveRole){
-					$state.go('main');
+					$state.go('ecoApp.nav.not.tools.settings');
 				}
 				else{
                     $scope.user.session.firstActiveRole = false;
