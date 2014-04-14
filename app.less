@@ -115,6 +115,18 @@ input:focus, textarea:focus {
   outline: none;
 }
 
+
+  .search {
+    font-size: 2em;
+    max-height: 71px;
+    margin: 2px;
+}
+
+.search ::-webkit-input-placeholder::before { font-family: fontAwesome; content:'\f002  '; color: #69f }
+::-moz-placeholder::before  { font-family: fontAwesome; content:'\f002  '; color: #69f } /* firefox 19+ */
+:-ms-input-placeholder::before  { font-family: fontAwesome; content:'\f002  '; color: #69f } /* ie */
+input:-moz-placeholder::before  { font-family: fontAwesome; content:'\f002  '; color: #69f }
+
 // infinite scroll
 .scroll-loader {
   min-height: 300px;
@@ -187,8 +199,9 @@ body { margin: 0; overflow:hidden;box-sizing: border-box;}
 }
 .header.rowz { width:101%; height: 62px; max-height: 62px; line-height: 62px; overflow: scroll; z-index: 100!important; opacity:.9; background:RGBA(232.00, 231.00, 231.00, 1.00);border-top: 2px solid rgba(250,250,250,.25);box-shadow: 0px 1px 2px rgba(0,0,0,.38);}
 .body.rowz { top: 1em; bottom: 1em; }
-.footer.rowz { height: 81px; bottom: 0; line-height: 81px;  opacity:.9; background:RGBA(200.00, 201.00, 201.00, 1.00); width: 101%;border-bottom: 3px solid rgba(0,0,0,.38);border-top: 1px solid rgba(250,250,250,.19);}
 
+.footer.rowz { overflow:hidden;max-height: 81px; height: 81px; bottom: 0; line-height: 81px;  opacity:.9; background:RGBA(200.00, 201.00, 201.00, 1.00); width: 101%;border-bottom: 3px solid rgba(0,0,0,.38);border-top: 1px solid rgba(250,250,250,.19);}
+.footer div {max-height: 71px; margin: 2px 0;}
 
 .main {
   box-sizing: border-box;
