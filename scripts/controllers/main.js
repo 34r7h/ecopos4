@@ -72,6 +72,60 @@ angular.module('ecoposApp')
 		$scope.manager = system.data.manager;
 		//$scope.activeRole = 'anonymous';
 
+        $scope.shopName = 'shop'; // could be ecossentials or sunshine-organics -- whatever we name the catalog/category tree in firebase
+
+        //$scope.categoryID = system.data.params.data['path'];
+        $scope.stateParams = system.data.params;
+        $scope.shopState = system.data.catalog.browse;
+        system.api.loadCatalog($scope.shopName).then(function() {
+            var pathParts = system.data.catalog.browse.categoryID.split('/');
+            if(pathParts.length && pathParts[0] === ''){
+                pathParts = pathParts.slice(1);
+            }
+
+            $scope.shopState.category = system.data.catalog.children[$scope.shopName];
+
+            var cCatLevel = 0;
+            var cBreadCrumb = '';
+            system.data.catalog.browse.path.length = 0;
+            system.data.catalog.browse.path.push({name: $scope.shopName, path: '/'});
+            while(cCatLevel < pathParts.length && $scope.shopState.category.children[pathParts[cCatLevel]]){
+                cBreadCrumb += ((cBreadCrumb.charAt(cBreadCrumb.length-1)!=='/')?'/':'')+pathParts[cCatLevel];
+                system.data.catalog.browse.path.push({name: pathParts[cCatLevel], path: (cCatLevel < pathParts.length-1)?cBreadCrumb:''});
+
+                $scope.shopState.category = $scope.shopState.category.children[pathParts[cCatLevel++]];
+            }
+            system.api.loadCategoryProducts($scope.shopState.category);
+
+
+          //console.log('data:'+JSON.stringify($scope.shopState.category));
+        });
+
+        $scope.stateParamsSetPath = function(path, append){
+            if(typeof append === 'undefined'){ append = false; }
+            if(system.data.params.data){
+                var newParams = angular.copy(system.data.params.data);
+                if(append){
+                    newParams.path += ((newParams.path.charAt(newParams.path.length-1) !== '/')?'/':'')+path;
+                }
+                else{
+                    newParams.path = path;
+                }
+                return newParams;
+            }
+        };
+
+
+
+        /**$scope.shopBrowse = function(categoryName){
+            var newParams = system.data.params.data;
+            newParams.path += '/'+categoryName;
+            $state.go('ecoApp.nav.not.tools.settings', newParams, {reload: true});
+        };
+         */
+
+
+
 		$scope.$watch('user.activeRole', function(value){
 			if(value){
 				// don't reload state if they just logged in - routesecurity is taking care of that
