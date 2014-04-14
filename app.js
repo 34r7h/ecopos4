@@ -89,7 +89,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			}
 		}).
 		state('ecoApp.nav.not.tools.settings',{
-			url:'*path?access_level&preferences',
+			url:'*path?access_level&preferences&history',
 			views: {
 				1:{
 					controller: function($scope,$stateParams,$log,system, $state, cart, syncData){
@@ -120,11 +120,11 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 						$scope.invoice = cart.invoice;
 						$scope.items = cart.invoice.items;
 					},
-					template:'<h6 ng-repeat="(key,param) in help">{{key}}: {{param}}</h6><a ng-cloak class="list-group-item" ng-show-auth="login" ng-controller="LoginController" href="#" ng-click="logout()"><i class="fa fa-unlock"></i> Log Out <i class="fa fa-chevron-right pull-right"></i></a><a ng-cloak class="list-group-item " ng-show-auth="[\'logout\',\'error\']" href="#loginOverlay" toggle="on"><i class="fa fa-lock"></i> Cloverleaf Industries <i class="fa fa-chevron-right pull-right"></i></a><a ng-href="#/settings?preferences=my_setttings">Settings Yolo 1</a><p ng-repeat="(key,settings) in dashStuff2 | orderBy:key:reverse">{{ key }}: <prefs type="settings.type" element="settings.elementual"></prefs></p></div>'
+					template:'<h6 ng-repeat="(key,param) in help.data">{{key}}: {{param}}</h6><a ng-cloak class="list-group-item" ng-show-auth="login" ng-controller="LoginController" href="#" ng-click="logout()"><i class="fa fa-unlock"></i> Log Out <i class="fa fa-chevron-right pull-right"></i></a><a ng-cloak class="list-group-item " ng-show-auth="[\'logout\',\'error\']" href="#loginOverlay" toggle="on"><i class="fa fa-lock"></i> Cloverleaf Industries <i class="fa fa-chevron-right pull-right"></i></a><a ng-href="#/settings?preferences=my_setttings">Settings Yolo 1</a><p ng-repeat="(key,settings) in dashStuff2 | orderBy:key:reverse">{{ key }}: <prefs type="settings.type" element="settings.elementual"></prefs></p></div>'
 				},
 				2:{
 					controller: function($scope,system){
-						$scope.test = "2: I'm scoped from settings state!"
+						$scope.test = "2: I'm scoped from settings state!";
 					},
 					template:'<a ng-href="#/apples/bananas?access_level=god&preferences=satan&something=else">Settings Yolo 2</a><p ng-click="reload()">Reload!</p><prefs></prefs></div>'
 				}
@@ -133,12 +133,19 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
 				system.data.params.data = $stateParams;
 
-				if(/^\/settings(\/.*)?$/.test($stateParams.path)){
-					console.log('path does = /settings');
+
+				if(/^\/notifications(\/.*)?$/.test($stateParams.path)){
+					console.log('path does = /notifications');
+					system.data.view = '1@ecoApp.nav';
+				} else if (/^\/tools(\/.*)?$/.test($stateParams.path)) {
+					console.log('path does = /tools');
 					system.data.view = '1@ecoApp.nav.not';
-				} else {
-					console.log('path does != /settings');
+				}  else if (/^\/settings(\/.*)?$/.test($stateParams.path)) {
+					console.log('path does = /settings');
 					system.data.view = '1@ecoApp.nav.not.tools';
+				} else if(/^\/*(\/.*)?$/.test($stateParams.path)){
+					console.log('path does = /anything');
+					system.data.view = '1@ecoApp';
 				}
 
 				var css = "color:rgba(255,255,255,.9);text-shadow: -1px -1px hsl(0,100%,50%), 1px 1px hsl(5.4, 100%, 50%), 3px 2px hsl(10.8, 100%, 50%), 5px 3px hsl(16.2, 100%, 50%), 7px 4px hsl(21.6, 100%, 50%), 9px 5px hsl(27, 100%, 50%), 11px 6px hsl(32.4, 100%, 50%), 13px 7px hsl(37.8, 100%, 50%), 14px 8px hsl(43.2, 100%, 50%), 16px 9px hsl(48.6, 100%, 50%), 18px 10px hsl(54, 100%, 50%), 20px 11px hsl(59.4, 100%, 50%), 22px 12px hsl(64.8, 100%, 50%), 23px 13px hsl(2154.6, 100%, 50%); font-size: 20px;";
@@ -471,9 +478,10 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 angular.module('ecoposApp').run(function($rootScope, simpleLogin, $state, $stateParams) {
 	$rootScope.$on('$stateChangeSuccess',
 		function(event, toState, toParams, fromState, fromParams){
-			if(fromParams !== toParams){
+			if(fromParams !== toParams || toState !== fromState){
 				$state.reload();
-				console.log("%c $state reloaded", "background:#aaa; color:#444")
+
+				console.log("%c $state reloaded "+toState+" greatly", "background:#aaa; color:#444");
 			}
 		}
 	);

@@ -1,32 +1,34 @@
-<div class="header rowz col-xs-12">
+<div class="header rowz">
 
-    <span>
-        <img ng-src="http://ecossentials.ca/images/eco-logo.png">
-        <p style="margin: 8px 1% 0 0; font-size:3em; text-align: right">
-            <i class="fa fa-envelope"></i> <i class="fa fa-calendar-o"></i> <i class="fa fa-shopping-cart"></i>
-        </p>
-        </span>
+    <span class="col-xs-12">
+        <img ng-src="http://ecossentials.ca/images/eco-logo.png" class="col-xs-5" style="margin-top:16px;float:left;width: initial;">
+        <div class="btn-group-lg col-xs-7 pull-right">
+            <div class="" ng-repeat="(key,icon) in icons">
+                <button class="col-xs-3 pull-right"><i class="fa fa-{{icon}} btn btn-lg pull-left"> {{icon}}</i></button>
+            </div>
+        </div>
+    </span>
     <div ui-view="1@ecoApp.nav"></div>
     <div ui-view="2@ecoApp.nav"></div>
 </div>
-<div class="main"><img src="images/3drooms.png" width="100%" height="100%" ></div>
+
 <div class="left col col-xs-12">
     <span ui-view="1@ecoApp.nav.not.tools"></span>
     <span ui-view="2@ecoApp.nav.not.tools"></span>
 </div>
 
-<div class="middle col">
+<div class="middle col ">
 
-    <div class="body rowz  col-xs-12">
-
-
+    <div class="body rowz col-xs-12 ">
 
 
-        <div class="scroll-x">
-            <div class="well">
+
+
+        <div class="scroll-x well">
+
                 <div ui-view="{{view}}"></div>
 
-            </div>
+
             <!--
             <h2 href ng-click="$state.go('ecoApp')">Natural State</h2>
             <div class="well">
@@ -63,6 +65,7 @@
         </div>
 
     <div class="footer rowz col-xs-12">
+
         <div ui-view="1@ecoApp"></div>
         <div ui-view="2@ecoApp"></div>
     </div>

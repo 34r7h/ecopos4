@@ -5,7 +5,7 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
         employee: {shiftType: null},
         manager: {orders: {}},
 	    params:{},
-	    view:'1@ecoApp.nav.not.tools'
+	    view:''
     };
 
 
