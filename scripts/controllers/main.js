@@ -78,7 +78,10 @@ angular.module('ecoposApp')
         $scope.stateParams = system.data.params;
         $scope.shopState = system.data.catalog.browse;
         system.api.loadCatalog($scope.shopName).then(function() {
-            var pathParts = system.data.catalog.browse.categoryID.split('/');
+            var pathParts = [];
+            if(system.data.catalog.browse.categoryID){
+                pathParts = system.data.catalog.browse.categoryID.split('/');
+            }
             if(pathParts.length && pathParts[0] === ''){
                 pathParts = pathParts.slice(1);
             }
@@ -105,7 +108,7 @@ angular.module('ecoposApp')
             if(typeof append === 'undefined'){ append = false; }
             if(system.data.params.data){
                 var newParams = angular.copy(system.data.params.data);
-                if(append){
+                if(append && newParams.path){
                     newParams.path += ((newParams.path.charAt(newParams.path.length-1) !== '/')?'/':'')+path;
                 }
                 else{
