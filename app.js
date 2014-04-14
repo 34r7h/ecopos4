@@ -124,13 +124,13 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
                         system.data.catalog.browse['categoryID'] = system.data.params.data['path'];
 					},
-					template:'<h6 ng-repeat="(key,param) in help.data">{{key}}: {{param}}</h6><a ng-cloak class="list-group-item" ng-show-auth="login" ng-controller="LoginController" href="#" ng-click="logout()"><i class="fa fa-unlock"></i> Log Out <i class="fa fa-chevron-right pull-right"></i></a><a ng-cloak class="list-group-item " ng-show-auth="[\'logout\',\'error\']" href="#loginOverlay" toggle="on"><i class="fa fa-lock"></i> Cloverleaf Industries <i class="fa fa-chevron-right pull-right"></i></a><a href ng-click="$state.go(\'^\')">Settings Yolo 1</a><p ng-repeat="(key,settings) in dashStuff2 | orderBy:key:reverse">{{ key }}: <prefs type="settings.type" element="settings.elementual"></prefs></p></div>'
+					template:'<h6 ng-repeat="(key,param) in help.data">{{key}}: {{param}}</h6><a ng-cloak class="list-group-item" ng-show-auth="login" ng-controller="LoginController" href="#" ng-click="logout()"><i class="fa fa-unlock"></i> Log Out <i class="fa fa-chevron-right pull-right"></i></a><a ng-cloak class="list-group-item " ng-show-auth="[\'logout\',\'error\']" href="#loginOverlay" toggle="on"><i class="fa fa-lock"></i> Cloverleaf Industries <i class="fa fa-chevron-right pull-right"></i></a><a href="/#/settings">Settings Yolo 1</a><p ng-repeat="(key,settings) in dashStuff2 | orderBy:key:reverse">{{ key }}: <prefs type="settings.type" element="settings.elementual"></prefs></p></div>'
 				},
 				2:{
 					controller: function($scope,system){
 						$scope.test = "2: I'm scoped from settings state!";
 					},
-					template:'<a ng-href="#/apples/bananas?access_level=god&preferences=satan&something=else">Settings Yolo 2</a><p ng-click="reload()">Reload!</p><prefs></prefs></div>'
+					template:'<a ng-href="#/settings?access_level=god&preferences=satan&something=else">Settings Yolo 2</a><p ng-click="reload()">Reload!</p><prefs></prefs></div>'
 				}
 			},
 			onEnter: function(system,$stateParams){
@@ -146,7 +146,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 					system.data.view = '1@ecoApp.nav.not';
 				}  else if (/^\/settings(\/.*)?$/.test($stateParams.path)) {
 					console.log('path does = /settings');
-					system.data.view = '1@ecoApp';
+					system.data.view = '1@ecoApp.nav.not.tools';
 				} else if(/^\/*(\/.*)?$/.test($stateParams.path)){
 					console.log('path does = /anything');
 					system.data.view = 'shop@ecoApp';
