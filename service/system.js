@@ -104,11 +104,11 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
         },
 
         loadCategoryProducts: function(category){
-            angular.forEach(category, function(child, childID){
+            angular.forEach(category.children, function(child, childID){
                 if(child.product){
                     var product = syncData('product/'+childID);
                     product.$on('loaded', function(){
-                        category[childID].fullData = product;
+                        category.children[childID].fullData = product;
                     });
                 }
             });
