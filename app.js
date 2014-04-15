@@ -11,7 +11,7 @@ angular.module('ecoposApp', [
 	'simpleLoginTools',
 	'angular-gestures',
 	'google-maps',
-
+	'ui.bootstrap',
     'datePicker',
 	"mobile-angular-ui",
 	"mobile-angular-ui.touch",
