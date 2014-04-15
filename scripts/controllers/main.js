@@ -2,7 +2,7 @@ angular.module('ecoposApp')
 	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, system, firebaseRef) {
 		$scope.view = system.data.view;
 		$scope.notificationIcons=[ {icon:'user',name:'User'}, {icon:'shopping-cart',name:'Cart'}, {icon:'envelope',name:'Messages'}, {icon:'calendar',name:'Events'}];
-		$scope.navigationIcons=[ {icon: 'gears',name:'Settings'}, {icon: 'wrench',name:'Tools'}, {icon: 'tags',name:'Shop'} ];
+		$scope.navigationIcons=[ {icon: 'gear',name:'Settings'}, {icon: 'magic',name:'Tools'}, {icon: 'leaf',name:'Shop'} ];
 		$scope.dashStuff2 = {
 			"other name": {
 				"elementual": 'input',
