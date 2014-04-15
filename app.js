@@ -11,7 +11,7 @@ angular.module('ecoposApp', [
 	'simpleLoginTools',
 	'angular-gestures',
 	'google-maps',
-
+	'ui.bootstrap',
     'datePicker',
 	"mobile-angular-ui",
 	"mobile-angular-ui.touch",
@@ -130,7 +130,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 					controller: function($scope,system){
 						$scope.test = "2: I'm scoped from settings state!";
 					},
-					template:'<a ng-href="#/settings?access_level=god&preferences=satan&something=else">Settings Yolo 2</a><p ng-click="reload()">Reload!</p><prefs></prefs></div>'
+					template:'<a ng-href="#/settings?access_level=admin&preferences=sunshine-organics&history=shop/baked-goods">Settings Yolo 2</a><p ng-click="reload()">Reload!</p><prefs></prefs></div>'
 				}
 			},
 			onEnter: function(system,$stateParams){
