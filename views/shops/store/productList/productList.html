@@ -5,7 +5,7 @@
         <li ng-repeat="cPath in shopState.path"><a ng-if="cPath.path" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(cPath.path))">{{cPath.name}}</a><strong ng-if="!cPath.path">{{cPath.name}}</strong></li>
     </ul>
     <input type="text" ng-model="shopState.search" />
-    <ul ng-show="shopState.category && !shopState.product">
+    <ul ng-if="shopState.category && !shopState.product">
         <li ng-repeat="(childName,child) in shopState.category.children | orderByPriority | filter:shopState.search">
             <a ng-if="!child.product" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(child.$id, true))">{{child.name}}</a>
             <div ng-if="child.product">
@@ -24,17 +24,30 @@
             </div>
         </li>
     </ul>
-    <div ng-show="shopState.product">
+    <div ng-if="shopState.product">
         <h4 ng-hide="shopState.product.fullData">{{shopState.product.name}}</h4>
-        <p>This is the real deal product view...</p>
         <div ng-show="shopState.product.fullData">
+            id#{{shopState.product.fullData.$id}}
             <h4>
-                <span ng-if="shopState.product.fullData.brand">{{shopState.product.fullData.brand}} </span>
-                <span ng-if="shopState.product.fullData.name">{{shopState.product.fullData.name}}</span>
+                <span ng-hide="user.activeRole==='admin'" ng-if="shopState.product.fullData.brand">{{shopState.product.fullData.brand}} </span>
+                <input ng-show="user.activeRole==='admin'" ng-model="shopState.product.fullData.brand" type="text" />
+
+                <span ng-hide="user.activeRole==='admin'" ng-if="shopState.product.fullData.name">{{shopState.product.fullData.name}}</span>
+                <input ng-show="user.activeRole==='admin'" ng-model="shopState.product.fullData.name" type="text" />
+
                 <span ng-if="shopState.product.fullData.size && !shopState.product.fullData.bulk"> ({{shopState.product.fullData.size}})</span>
                 <span ng-if="shopState.product.fullData.bulk"> (Bulk)</span>
             </h4>
-            <span ng-if="shopState.product.fullData.price">{{shopState.product.fullData.price | currency}}</span>
+            <span ng-if="shopState.product.fullData.price && !shopState.product.fullData.bulk">{{shopState.product.fullData.price | currency}}</span>
+            <span ng-if="shopState.product.fullData.price && shopState.product.fullData.bulk">{{shopState.product.fullData.price | bulkPrice:shopState.product.fullData.unit:shopState.product.fullData.size:'g':100 | currency}}/100g</span>
+            <div ng-show="user.activeRole==='admin'" ng-if="shopState.product.fullData.bulk">$<input ng-model="shopState.product.fullData.price" type="text" />/<input ng-model="shopState.product.fullData.size" type="text" /><select ng-model="shopState.product.fullData.unit"><option value="lb">lb</option><option value="g">g</option></select></div>
+
+            <div ng-show="user.activeRole==='admin'">
+                <button ng-click="saveProduct(shopState.product.fullData)" class="btn-danger">Save Product</button>
+            </div>
+
+            <div>{{shopState.product.fullData}}</div>
         </div>
+
     </div>
 </div>

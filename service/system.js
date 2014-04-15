@@ -129,6 +129,12 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
             return defer.promise;
         },
 
+        saveProduct: function(product){
+            // need some magic for bulk pricing...
+
+            product.$save();
+        },
+
         // Utility API
 
         // gets a flattened user list with no duplicates
