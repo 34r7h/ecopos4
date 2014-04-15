@@ -72,9 +72,10 @@ angular.module('ecoposApp')
 		$scope.manager = system.data.manager;
 		//$scope.activeRole = 'anonymous';
 
-        $scope.shopName = 'shop'; // could be ecossentials or sunshine-organics -- whatever we name the catalog/category tree in firebase
+        // SHOP SELECTION - could be ecossentials or sunshine-organics - whatever we name the catalog/category tree in firebase
+        $scope.shopName = 'shop';
 
-        //$scope.categoryID = system.data.params.data['path'];
+        // handle catalog browsing
         $scope.stateParams = system.data.params;
         $scope.shopState = system.data.catalog.browse;
         system.api.loadCatalog($scope.shopName).then(function() {
@@ -87,21 +88,31 @@ angular.module('ecoposApp')
             }
 
             $scope.shopState.category = system.data.catalog.children[$scope.shopName];
+            $scope.shopState.product = null;
 
             var cCatLevel = 0;
             var cBreadCrumb = '';
             system.data.catalog.browse.path.length = 0;
             system.data.catalog.browse.path.push({name: $scope.shopName, path: '/'});
-            while(cCatLevel < pathParts.length && $scope.shopState.category.children[pathParts[cCatLevel]]){
-                cBreadCrumb += ((cBreadCrumb.charAt(cBreadCrumb.length-1)!=='/')?'/':'')+pathParts[cCatLevel];
-                system.data.catalog.browse.path.push({name: pathParts[cCatLevel], path: (cCatLevel < pathParts.length-1)?cBreadCrumb:''});
-
-                $scope.shopState.category = $scope.shopState.category.children[pathParts[cCatLevel++]];
+            if($scope.shopState.category.children){
+                while(cCatLevel < pathParts.length && $scope.shopState.category.children[pathParts[cCatLevel]]){
+                    cBreadCrumb += ((cBreadCrumb.charAt(cBreadCrumb.length-1)!=='/')?'/':'')+pathParts[cCatLevel];
+                    system.data.catalog.browse.path.push({name: pathParts[cCatLevel], path: (cCatLevel < pathParts.length-1)?cBreadCrumb:''});
+                    $scope.shopState.category = $scope.shopState.category.children[pathParts[cCatLevel++]];
+                }
+                system.api.loadCategoryProducts($scope.shopState.category);
+                if(cCatLevel < pathParts.length){
+                    // the child for cCatLevel doesn't exist - maybe it is a product? try to look up by name
+                    var cChild = 0;
+                    var cChildNames = Object.keys($scope.shopState.category.children);
+                    do{
+                        if($scope.shopState.category.children[cChildNames[cChild]] && $scope.shopState.category.children[cChildNames[cChild]].name === pathParts[cCatLevel]){
+                            $scope.shopState.product = $scope.shopState.category.children[cChildNames[cChild]];
+                        }
+                        cChild++;
+                    }while(!$scope.shopState.product && cChild < cChildNames.length);
+                }
             }
-            system.api.loadCategoryProducts($scope.shopState.category);
-
-
-          //console.log('data:'+JSON.stringify($scope.shopState.category));
         });
 
         $scope.stateParamsSetPath = function(path, append){

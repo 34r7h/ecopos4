@@ -5,22 +5,36 @@
         <li ng-repeat="cPath in shopState.path"><a ng-if="cPath.path" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(cPath.path))">{{cPath.name}}</a><strong ng-if="!cPath.path">{{cPath.name}}</strong></li>
     </ul>
     <input type="text" ng-model="shopState.search" />
-    <ul ng-show="shopState.category">
+    <ul ng-show="shopState.category && !shopState.product">
         <li ng-repeat="(childName,child) in shopState.category.children | orderByPriority | filter:shopState.search">
             <a ng-if="!child.product" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(child.$id, true))">{{child.name}}</a>
             <div ng-if="child.product">
                 <h4 ng-hide="child.fullData">{{child.name}}</h4>
                 <div ng-show="child.fullData">
                     <h4>
-                        <!--a ui-sref="ecoApp.nav.not.tools.settings(stateParamsAppendPath(child.name))"-->
-                        <span ng-if="child.fullData.brand">{{child.fullData.brand}} </span>
-                        <span ng-if="child.fullData.name">{{child.fullData.name}}</span>
-                        <span ng-if="child.fullData.size"> ({{child.fullData.size}})</span>
-                        <!--/a-->
+                        <a ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(child.name, true))">
+                            <span ng-if="child.fullData.brand">{{child.fullData.brand}} </span>
+                            <span ng-if="child.fullData.name">{{child.fullData.name}}</span>
+                            <span ng-if="child.fullData.size && !child.fullData.bulk"> ({{child.fullData.size}})</span>
+                            <span ng-if="child.fullData.bulk"> (Bulk)</span>
+                        </a>
                     </h4>
                     <span ng-if="child.fullData.price">{{child.fullData.price | currency}}</span>
                 </div>
             </div>
         </li>
     </ul>
+    <div ng-show="shopState.product">
+        <h4 ng-hide="shopState.product.fullData">{{shopState.product.name}}</h4>
+        <p>This is the real deal product view...</p>
+        <div ng-show="shopState.product.fullData">
+            <h4>
+                <span ng-if="shopState.product.fullData.brand">{{shopState.product.fullData.brand}} </span>
+                <span ng-if="shopState.product.fullData.name">{{shopState.product.fullData.name}}</span>
+                <span ng-if="shopState.product.fullData.size && !shopState.product.fullData.bulk"> ({{shopState.product.fullData.size}})</span>
+                <span ng-if="shopState.product.fullData.bulk"> (Bulk)</span>
+            </h4>
+            <span ng-if="shopState.product.fullData.price">{{shopState.product.fullData.price | currency}}</span>
+        </div>
+    </div>
 </div>
