@@ -1,13 +1,16 @@
 <div class="header rowz">
-
-    <span class="col-xs-12">
-        <img ng-src="http://ecossentials.ca/images/eco-logo.png" class="col-xs-5" style="margin-top:16px;float:left;width: initial;">
-        <div class="btn-group-lg col-xs-7 pull-right">
-            <div class="" ng-repeat="(key,icon) in icons">
-                <button class="col-xs-3 pull-right"><i class="fa fa-{{icon}} btn btn-lg pull-left"> {{icon}}</i></button>
+    <div class="col-xs-12">
+        <div class="col-xs-3">
+            <img ng-src="http://ecossentials.ca/images/eco-logo.png" style="margin-top:16px;float:left;width: initial;">
+        </div>
+        <div class="col-xs-9 pull-right">
+            <div class="" ng-repeat="icon in notificationIcons">
+                <a class="col-xs-1 pull-right"><i class="fa fa-{{icon.icon}} btn btn-lg center"></i></a>
             </div>
         </div>
-    </span>
+
+
+    </div>
     <div ui-view="1@ecoApp.nav"></div>
     <div ui-view="2@ecoApp.nav"></div>
 </div>
@@ -18,84 +21,38 @@
 </div>
 
 <div class="middle col ">
-
     <div class="body rowz col-xs-12 ">
-
-
-
-
         <div class="scroll-x well">
-
                 <div ui-view="{{view}}"></div>
-
-
-            <!--
-            <h2 href ng-click="$state.go('ecoApp')">Natural State</h2>
-            <div class="well">
-                <product-list></product-list>
-            </div>
-            <h2 href ng-click="$state.go('ecoApp.nav')">Nav</h2>
-            <div class="well">
-              <div ui-view="1@ecoApp"></div>
-              <div ui-view="2@ecoApp"></div>
-            </div>
-            <h2 href ng-click="$state.go('ecoApp.nav.not')">Notifications</h2>
-            <div class="well">
-              <div ui-view="1@ecoApp.nav"></div>
-              <div ui-view="2@ecoApp.nav"></div>
-            </div>
-            <h2 href ng-click="$state.go('ecoApp.nav.not.tools')">Tools</h2>
-            <div class="well">
-              <div ui-view="1@ecoApp.nav.not"></div>
-              <div ui-view="2@ecoApp.nav.not"></div>
-            </div>
-            <h2 href ng-click="$state.go('ecoApp.nav.not.tools.settings')">Settings</h2>
-            <div class="well">
-              <div ui-view="1@ecoApp.nav.not.tools"></div>
-              <div ui-view="2@ecoApp.nav.not.tools"></div>
-            </div>
-            -->
         </div>
-
     </div>
-    </div>
+</div>
         <div class="right col col-xs-12">
             <div ui-view="1@ecoApp.nav.not"></div>
             <div ui-view="2@ecoApp.nav.not"></div>
         </div>
 
     <div class="footer rowz col-xs-12">
-        <div class="col-xs-4"><div ui-view="1@ecoApp"></div></div>
-        <div class="col-xs-4"><div class="search"><input placeholder="Search"></div></div>
-        <div class="col-xs-4"><div ui-view="2@ecoApp"></div></div>
-
-
-
+        <div class="col-xs-4">
+            <div class="foots breadcrumbs">
+                <span ng-repeat="cPath in shopState.path">
+                    <a ng-if="cPath.path" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(cPath.path))">/ {{cPath.name}}</a>
+                    <strong ng-if="!cPath.path"><br> {{cPath.name}}</strong>
+                </span>
+            </div>
+        </div>
+        <div class="col-xs-4">
+            <div class="search">
+                <input placeholder="Search">
+            </div>
+        </div>
+        <div class="col-xs-4">
+            <div class="col-xs-12"   >
+                <div class="col-xs-4 text-center footnav fa-lg" ng-repeat="icon in navigationIcons"><a><i class="fa fa-circle fa-stack-2x fa-inverse"></i><i class="fa fa-{{icon.icon}} fa-2x fa-fw fa-stack-1x "> </i><br>{{icon.name}}<center></center></a></div>
+            </div>
+        </div>
     </div>
-</div>
 
-<!--
-
-<div class="sidebar sidebar-left" toggleable parent-active-class="sidebar-left-in" id="mainSidebar">
-    <left-bar></left-bar>
-</div>
-
-<right-bar></right-bar>
-<top-bar></top-bar>
-<div style="position:absolute;left:50%;top:50%">
-    <h2 href ng-click="$state.go('ecoApp')">Natural State</h2>
-    <h2 href ng-click="$state.go('ecoApp.nav')">Nav</h2>
-    <h2 href ng-click="$state.go('ecoApp.nav.not')">Notifications</h2>
-    <h2 href ng-click="$state.go('ecoApp.nav.not.tools')">Tools</h2>
-    <h2 href ng-click="$state.go('ecoApp.nav.not.tools.settings')">Settings</h2>
-</div>
-<bottom-bar></bottom-bar>
-<div overlay="loginOverlay">
-    <login></login>
-</div>
-<h3>♥</h3>
-
--->
 <div overlay="loginOverlay">
     <login></login>
 </div>
