@@ -4,6 +4,9 @@
             <img ng-src="http://ecossentials.ca/images/eco-logo.png" style="margin-top:16px;float:left;width: initial;">
         </div>
         <div class="col-xs-9 pull-right">
+            <div class="col-xs-6">
+                <div ng-if="alert" class="alert-danger alert">{{alert}}</div>
+            </div>
             <div class="" ng-repeat="icon in notificationIcons">
                 <a class="col-xs-1 pull-right"><i class="fa fa-{{icon.icon}} btn btn-lg center"></i></a>
             </div>
