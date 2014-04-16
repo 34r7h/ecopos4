@@ -39,25 +39,9 @@
 /* Required for Angular UI Bootstrap */
 .nav, .pagination, .carousel a { cursor: pointer; }
 
-/* Personal preference for BS modal.  The LESS below makes the backdrop white and
-   causes the modal to fade in rather than slide in. */
-//@modal-backdrop-bg: white;
-//.modal {
-//	&.fade {
-//		.transition(opacity .3s);
-//	}
-//	&.fade .modal-dialog {
-//		.translate(0,0);
-//	}
-//}
-
-html, body, .background-img {
-
-}
+html, body, .background-img {}
 .app {
-  background: none;
-  border: none;
-  box-shadow: none;
+  background: none;border: none;box-shadow: none;
 }
 
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
@@ -66,11 +50,7 @@ html, body, .background-img {
 
 // textarea full-width
 textarea {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-
-  width: 100%;
+  -webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;width: 100%;
 }
 .footer-nav {
   position: fixed; bottom: 0; z-index:9991; float: right;
@@ -125,39 +105,23 @@ input:-moz-placeholder::before  { font-family: fontAwesome; content:'\f002  '; 
 
 // infinite scroll
 .scroll-loader {
-  min-height: 300px;
-  height: 400px;
-  overflow: auto;
-
+  min-height: 300px;height: 400px;overflow: auto;
 }
 
 .scroll-loader li,  {
-  list-style: none;
-  border-bottom: 1px solid #aaa;
-  padding: 5px;
-  margin-bottom: 3px;
+  list-style: none;border-bottom: 1px solid #aaa;padding: 5px;margin-bottom: 3px;
 }
 
 .resize-content {
-
-  padding:1em;
-  resize: both;
-  overflow: auto;
+  padding:1em;resize:both;overflow:auto;
 }
 
 .navbar {
-  margin-bottom:0px;
-  overflow: auto;
-  max-height: 75px;
+  margin-bottom:0px;overflow: auto;max-height: 75px;
 }
 
 .bs-callout-info {
-  padding: 1em;
-  background-color: rgba(255,255,255,.8);
-
-  margin: 1em 0;
-
-  border-left: 3px solid white;
+  padding: 1em;background-color: rgba(255,255,255,.8);margin: 1em 0;border-left: 3px solid white;
 }
 
 body { margin: 0; overflow:hidden;box-sizing: border-box;}
@@ -172,16 +136,14 @@ body { margin: 0; overflow:hidden;box-sizing: border-box;}
 .scroll-y { overflow-y: auto; }
 .no-scroll {overflow: hidden}
 .left.col {
-  left: 1%;
-  width: 18%;
-  bottom: 96px;
-  top: 75px;
-  background: RGBA(137.00, 151.00, 117.00, .62);
-  opacity: .9;
-  box-shadow: 1px 10px 21px rgba(0, 0, 0, .38);
-  border: 1px solid rgba(250, 250, 250, .38);
-  border-left: 2px solid rgba(0, 0, 0, .38);
+  left: 1%;width: 18%;bottom: 96px;top: 75px;
+  background:RGBA(38.00, 19.00, 13.00, .62) ;box-shadow: 1px 10px 21px rgba(0, 0, 0, .38);border: 1px solid rgba(250, 250, 250, .38);border-left: 2px solid rgba(0, 0, 0, .38);
   z-index:100;
+}
+.left.col.open {
+  left: 1%;width: 79%;bottom: 96px;top: 75px;
+  background:RGBA(38.00, 19.00, 13.00, .91);box-shadow: 1px 10px 21px rgba(0, 0, 0, .38);border: 1px solid rgba(250, 250, 250, .18);border-left: 4px solid rgba(0, 0, 0, .38);
+  z-index:200;
 }
 .middle.col {
   width: 62%;
@@ -190,16 +152,26 @@ body { margin: 0; overflow:hidden;box-sizing: border-box;}
 
 .right.col {
   width:18%; left: 81%; right: 1%; bottom: 96px; top:75px;
-  background:RGBA(137.00, 151.00, 117.00, .62); opacity:.9;
-  box-shadow: -1px 10px 21px rgba(0,0,0,.38);
-  border: 1px solid rgba(250, 250, 250, .38);
-  border-right: 2px solid rgba(0, 0, 0, .38);
+  background:RGBA(137.00, 151.00, 117.00, .62); box-shadow: -1px 10px 21px rgba(0,0,0,.38);border: 1px solid rgba(250, 250, 250, .38);border-right: 2px solid rgba(0, 0, 0, .38);
   z-index:100;
 }
-.header.rowz { width:101%; height: 62px; max-height: 62px; line-height: 62px; overflow: scroll; z-index: 100!important; opacity:.9; background:RGBA(232.00, 231.00, 231.00, 1.00);border-top: 2px solid rgba(250,250,250,.25);box-shadow: 0px 1px 2px rgba(0,0,0,.38);}
+.right.col.open{
+  width: 79%;
+  left: inherit;
+  right: 1%;
+  bottom: 96px;
+  top: 75px;
+  background: RGBA(137.00, 151.00, 117.00, .91);
+
+  box-shadow: -1px 10px 25px rgba(0, 0, 0, 0.38);
+  border: 1px solid rgba(250, 250, 250, 0.18);
+  border-right: 4px solid rgba(0, 0, 0, 0.38);
+  z-index: 200;
+}
+.header.rowz { width:101%; height: 62px; max-height: 62px; line-height: 62px; overflow: visible; z-index: 350!important; background:RGBA(232.00, 231.00, 231.00, .98);border-top: 2px solid rgba(250,250,250,.25);box-shadow: 0px 1px 2px rgba(0,0,0,.38);}
 
 
-.footer.rowz { overflow:hidden;max-height: 81px; height: 81px; bottom: 0; line-height: 81px;  opacity:.9; background:RGBA(237.00, 239.00, 240.00, .98); width: 101%;border-bottom: 3px solid rgba(0,0,0,.38);border-top: 1px solid rgba(250,250,250,.19);}
+.footer.rowz { overflow:visible;max-height: 81px; height: 81px; bottom: 0; line-height: 81px; background:RGBA(237.00, 239.00, 240.00, .91); width: 101%;border-bottom: 3px solid rgba(0,0,0,.38);border-top: 1px solid rgba(250,250,250,.19);z-index: 300}
 .footer div {
   max-height: 71px;
   margin: 2px 0;
@@ -230,7 +202,7 @@ body { margin: 0; overflow:hidden;box-sizing: border-box;}
 }
 .footnav {
   line-height: 25px !important;
-  margin-top: 16px !important;
+  margin-top: 8px !important;
 }
 
 .main {

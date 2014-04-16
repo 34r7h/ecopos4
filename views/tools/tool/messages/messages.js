@@ -1,6 +1,6 @@
 angular.module('ecoposApp').directive('messages', function(system, syncData, $timeout, $log) {
 	return {
-		restrict: 'E',
+		restrict: 'EA',
 		replace: true,
 
 		templateUrl: 'views/tools/tool/messages/messages.html',
