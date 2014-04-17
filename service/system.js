@@ -353,12 +353,19 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                 foulChar.push(']');
             }
 
+            // firebase banned characters
             safeKey = safeKey.replace(/\./g, '');
             safeKey = safeKey.replace(/#/g, 'No_');
             safeKey = safeKey.replace(/\$/g, '');
             safeKey = safeKey.replace(/\//g, '-');
             safeKey = safeKey.replace(/\[/g, '(');
             safeKey = safeKey.replace(/\]/g, ')');
+
+            // URL banned characters
+            safeKey = safeKey.replace(/ /g, '-');
+            safeKey = safeKey.replace(/\?/g, '_');
+            safeKey = safeKey.replace(/[^a-zA-Z0-9-_]/g, '');
+            safeKey = safeKey.replace(/--*/g, '-'); // take out multiple consecutive --
 
             if(!safeKey){
                 safeKey = 'Unknown';
@@ -540,7 +547,7 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                             }
                             zCat = zCat[catKey].children;
                         });
-                        zCat[prodID] = nameComp;
+                        zCat[prodID] = {name: nameComp};
                     });
 
                     if(idx % 100 === 0){
