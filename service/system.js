@@ -190,6 +190,18 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
             return defer.promise;
         },
 
+        // use as a callback for an on('value') for an item in catalog tree
+        // this allows for data-binding on the breadcrumb items in catalog.browse.path
+        setCatalogBreadcrumbName: function(snapName){
+            if(snapName.ref().parent() && snapName.val()){
+                angular.forEach(data.catalog.browse.path, function(entry, idx){
+                    if(entry.fbRef && snapName.ref().parent().toString() === entry.fbRef.toString()){
+                        data.catalog.browse.path[idx].name = snapName.val();
+                    }
+                });
+            }
+        },
+
         loadCatalogPath: function(catalog, path, productName){
             var defer = $q.defer();
             var pathParts = [];
@@ -224,20 +236,12 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                             }
                         }
 
+                        // load the breadcrumbs by traversing up from the lowest level child
                         var catTrace = catChild;
-                        // load the breadcrumb
                         do{
                             var cPathEntry = {name: catTrace.name(), path: (catTrace !== catChild || (productName && data.catalog.browse.product))?pathParts.join('/'):'', fbRef: catTrace};
                             data.catalog.browse.path.unshift(cPathEntry);
-                            catTrace.child('name').on('value', function(snapName){
-                                if(snapName.ref().parent() && snapName.val()){
-                                    angular.forEach(data.catalog.browse.path, function(entry, idx){
-                                        if(entry.fbRef && snapName.ref().parent().toString() === entry.fbRef.toString()){
-                                            data.catalog.browse.path[idx].name = snapName.val();
-                                        }
-                                    });
-                                }
-                            });
+                            catTrace.child('name').on('value', api.setCatalogBreadcrumbName); // data-binding for the name
                             pathParts.pop();
                             catTrace = catTrace.parent().parent();
                         }while(catTrace && pathParts.length);
@@ -273,7 +277,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                 if(category.children.$on){
                     category.children.$on('loaded', function(){
                         angular.forEach(category.children, function(child, childID){
-                            if(!child.children && childID.charAt(0) != '$'){
+                            if(!child.children && childID.charAt(0) !== '$'){
                                 var loadChild = syncData('product/'+childID);
                                 loadChild.$on('loaded', function(){
                                     data.catalog.products[childID] = loadChild;
