@@ -211,10 +211,9 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                     if(snap.val()){
                         data.catalog.browse.product = null;
                         if(productName) {
-                            //console.log('donkey rider:'+productName+':'+JSON.stringify(snap.val()));
                             if(snap.val().children){
                                 angular.forEach(snap.val().children, function(child, childId){
-                                    if(!child.children && child === productName && !data.catalog.browse.product){
+                                    if(!child.children && child.name === productName && !data.catalog.browse.product){
                                         data.catalog.browse.product = syncData('product/'+childId);
                                         data.catalog.browse.path.unshift({name: productName, path: '', fbRef: data.catalog.browse.product.$getRef()});
                                     }
