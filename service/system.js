@@ -193,9 +193,17 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
         // use as a callback for an on('value') for an item in catalog tree
         // this allows for data-binding on the breadcrumb items in catalog.browse.path
         setCatalogBreadcrumbName: function(snapName){
-            if(snapName.ref().parent() && snapName.val()){
-                var snapVal = snapName.val();
-                var snapRef = snapName.ref();
+            var snapVal = null;
+            var snapRef = null;
+            if(typeof snapName.ref === 'function'){
+                snapVal = snapName.val();
+                snapRef = snapName.ref();
+            }
+            else if(typeof snapName.$getRef === 'function'){
+                snapVal = snapName;
+                snapRef = snapName.$getRef();
+            }
+            if(snapVal && snapRef){
                 var newName = '';
 
                 if(typeof snapVal === 'string' || snapVal instanceof String){
@@ -271,8 +279,6 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                                         });
                                         breadCrumbEntry.fbRef.push(data.catalog.browse.product.$getRef());
                                         data.catalog.browse.product.$getRef().on('value', api.setCatalogBreadcrumbName);
-//                                        breadCrumbEntry.fbRef.push(data.catalog.browse.product.$getRef());
-  //                                      data.catalog.browse.product.$getRef().child('name').on('value', api.setCatalogBreadcrumbName);
 
                                         var cProdEntry = catChild.child('children/'+childID+'/name');
                                         breadCrumbEntry.fbRef.push(cProdEntry.parent());
