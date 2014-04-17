@@ -203,7 +203,6 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                     snapRef = snapRef.parent();
                 }
 
-
                 if(!newName){
                     newName = snapVal.name;
                     if(snapVal.brand){
