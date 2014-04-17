@@ -547,7 +547,7 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                             }
                             zCat = zCat[catKey].children;
                         });
-                        zCat[prodID] = {name: nameComp};
+                        zCat[prodID] = {name: nameComp, url: api.fbSafeKey(nameComp)};
                     });
 
                     if(idx % 100 === 0){
