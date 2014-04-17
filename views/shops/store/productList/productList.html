@@ -7,6 +7,18 @@
     </ul>
     <input type="text" ng-model="shopState.search" />
     <div>
+        <h4>Products</h4>
+        <ul ng-if="shopState.category && !shopState.product">
+            <li ng-repeat="(childName,child) in shopState.category.children | orderByPriority | filter:isProduct | filter:shopState.search track by $index">
+                <a ng-if="!child.children" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shopState.categoryID+'/'+child.url))">{{child.name}}</a>
+                <div ng-show="inventory[child.$id]">
+                    werd:{{inventory[child.$id]}}
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <div>
         <h4>Sub-Categories</h4>
         <ul ng-if="shopState.category && !shopState.product">
             <li ng-repeat="(childName,child) in shopState.category.children | orderByPriority | filter:isCategory | filter:shopState.search track by $index">
@@ -14,14 +26,7 @@
             </li>
         </ul>
     </div>
-    <div>
-        <h4>Products</h4>
-        <ul ng-if="shopState.category && !shopState.product">
-            <li ng-repeat="(childName,child) in shopState.category.children | orderByPriority | filter:isProduct | filter:shopState.search track by $index">
-                <a ng-if="!child.children" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shopState.categoryID+'/'+child.name))">{{child.name}}</a>
-            </li>
-        </ul>
-    </div>
+
 
     <div ng-if="shopState.product">
         id#{{shopState.product.$id}}

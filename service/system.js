@@ -212,10 +212,13 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                         data.catalog.browse.product = null;
                         if(productName) {
                             if(snap.val().children){
-                                angular.forEach(snap.val().children, function(child, childId){
-                                    if(!child.children && child.name === productName && !data.catalog.browse.product){
-                                        data.catalog.browse.product = syncData('product/'+childId);
-                                        data.catalog.browse.path.unshift({name: productName, path: '', fbRef: data.catalog.browse.product.$getRef()});
+                                angular.forEach(snap.val().children, function(child, childID){
+                                    if(!child.children && child.url === productName && !data.catalog.browse.product){
+                                        data.catalog.browse.product = syncData('product/'+childID);
+                                        data.catalog.browse.product.$on('loaded', function(){
+                                            data.catalog.products[childID] = data.catalog.browse.product;
+                                        });
+                                        data.catalog.browse.path.unshift({name: child.name, path: '', fbRef: data.catalog.browse.product.$getRef()});
                                     }
                                 });
                             }
@@ -263,6 +266,24 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
             }
 
             return defer.promise;
+        },
+
+        loadCategoryProducts: function(category){
+            if(category.children){
+                if(category.children.$on){
+                    category.children.$on('loaded', function(){
+                        angular.forEach(category.children, function(child, childID){
+                            if(!child.children && childID.charAt(0) != '$'){
+                                var loadChild = syncData('product/'+childID);
+                                loadChild.$on('loaded', function(){
+                                    data.catalog.products[childID] = loadChild;
+                                });
+                            }
+                        });
+                    });
+                }
+            }
+
         },
 
         saveProduct: function(product){

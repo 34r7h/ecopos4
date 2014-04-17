@@ -79,11 +79,12 @@ angular.module('ecoposApp')
         // handle catalog browsing
 
         $scope.stateParams = system.data.params;
+        $scope.inventory = system.data.catalog.products;
         $scope.shopState = system.data.catalog.browse;
         system.api.loadCatalog($scope.shopName).then(function(catalog) {
             if (system.data.catalog.browse.categoryID) {
                 system.api.loadCatalogPath(catalog, system.data.catalog.browse.categoryID).then(function(category){
-                    //category.$on('loaded', function(){});
+                    system.api.loadCategoryProducts(category);
                 });
             }
         });
