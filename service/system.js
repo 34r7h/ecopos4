@@ -194,11 +194,44 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
         // this allows for data-binding on the breadcrumb items in catalog.browse.path
         setCatalogBreadcrumbName: function(snapName){
             if(snapName.ref().parent() && snapName.val()){
-                angular.forEach(data.catalog.browse.path, function(entry, idx){
-                    if(entry.fbRef && snapName.ref().parent().toString() === entry.fbRef.toString()){
-                        data.catalog.browse.path[idx].name = snapName.val();
+                var snapVal = snapName.val();
+                var snapRef = snapName.ref();
+                var newName = '';
+
+                if(typeof snapVal === 'string' || snapVal instanceof String){
+                    newName = snapVal;
+                    snapRef = snapRef.parent();
+                }
+
+
+                if(!newName){
+                    newName = snapVal.name;
+                    if(snapVal.brand){
+                        newName = snapVal.brand+' '+newName;
                     }
-                });
+                    if(snapVal.size){
+                        newName += ' ('+snapVal.size+')';
+                    }
+                }
+
+                var snapRefStr = snapRef.toString();
+
+                if(snapRefStr && newName){
+                    angular.forEach(data.catalog.browse.path, function(entry, idx){
+                        if(entry.fbRef){
+                            if(entry.fbRef instanceof Array){
+                                angular.forEach(entry.fbRef, function(cRef, refIdx) {
+                                    if(snapRefStr === cRef.toString()){
+                                        data.catalog.browse.path[idx].name = newName;
+                                    };
+                                });
+                            }
+                            else if(snapRefStr === entry.fbRef.toString()) {
+                                data.catalog.browse.path[idx].name = newName;
+                            }
+                        }
+                    });
+                }
             }
         },
 
@@ -226,11 +259,21 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                             if(snap.val().children){
                                 angular.forEach(snap.val().children, function(child, childID){
                                     if(!child.children && child.url === productName && !data.catalog.browse.product){
+                                        var breadCrumbEntry = {name: child.name, path: '', fbRef: []};
+
                                         data.catalog.browse.product = syncData('product/'+childID);
                                         data.catalog.browse.product.$on('loaded', function(){
                                             data.catalog.products[childID] = data.catalog.browse.product;
                                         });
-                                        data.catalog.browse.path.unshift({name: child.name, path: '', fbRef: data.catalog.browse.product.$getRef()});
+                                        breadCrumbEntry.fbRef.push(data.catalog.browse.product.$getRef());
+                                        data.catalog.browse.product.$getRef().on('value', api.setCatalogBreadcrumbName);
+//                                        breadCrumbEntry.fbRef.push(data.catalog.browse.product.$getRef());
+  //                                      data.catalog.browse.product.$getRef().child('name').on('value', api.setCatalogBreadcrumbName);
+
+                                        var cProdEntry = catChild.child('children/'+childID+'/name');
+                                        breadCrumbEntry.fbRef.push(cProdEntry.parent());
+                                        cProdEntry.on('value', api.setCatalogBreadcrumbName); // data-binding for the name
+                                        data.catalog.browse.path.unshift(breadCrumbEntry);
                                     }
                                 });
                             }
