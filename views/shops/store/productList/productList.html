@@ -45,7 +45,7 @@
         <div ng-show="user.activeRole==='admin'" ng-if="shopState.product.bulk">$<input ng-model="shopState.product.price" type="text" />/<input ng-model="shopState.product.size" type="text" /><select ng-model="shopState.product.unit"><option value="lb">lb</option><option value="g">g</option></select></div>
 
         <div ng-show="user.activeRole==='admin'">
-            <button ng-click="saveProduct(shopState.product.fullData)" class="btn-danger">Save Product</button>
+            <button ng-click="saveProduct(shopState.product)" class="btn-danger">Save Product</button>
         </div>
 
         <div>{{shopState.product}}</div>
