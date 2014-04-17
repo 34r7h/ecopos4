@@ -208,8 +208,13 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                     if(snapVal.brand){
                         newName = snapVal.brand+' '+newName;
                     }
-                    if(snapVal.size){
-                        newName += ' ('+snapVal.size+')';
+                    if(!snapVal.bulk){
+                        if(snapVal.size){
+                            newName += ' ('+snapVal.size+')';
+                        }
+                    }
+                    else{
+                        newName += ' (Bulk)';
                     }
                 }
 
