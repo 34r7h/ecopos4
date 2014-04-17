@@ -368,8 +368,10 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
             safeKey = safeKey.replace(/--*/g, '-'); // take out multiple consecutive --
 
             if(!safeKey){
-                safeKey = 'Unknown';
+                safeKey = 'unknown';
             }
+
+            safeKey = safeKey.toLowerCase();
 
             return safeKey;
         },
