@@ -7,6 +7,7 @@ angular.module("ecoposApp").directive("prefs", function(){
 				var domElement = document.createElement(scope.element);
 				domElement.type = scope.type;
 				iElem.append(domElement);
+
 			}
 		};
 	}

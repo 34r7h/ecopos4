@@ -21,4 +21,16 @@ angular.module('ecoposApp').directive('helper', function() {
 			return "<div><div class=\"panel\">\n  " + heading + "\n  <div class=\"panel-body well scrollable side-panels\">\n     <div class=\"scrollable-content\"><div ng-transclude></div></div>\n  </div>\n</div></div>";
 		}
 	};
-});
+}).directive("notify", function($compile){
+		return {
+			restrict:"EA",
+			scope:{element2:"="},
+			controller:'MainCtrl',
+			link:function(scope, iElem, $scope) {
+				iElem.append('<'+scope.element2+'/>');
+				$compile(iElem.contents())($scope);
+
+			}
+		};
+	}
+);
