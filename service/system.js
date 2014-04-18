@@ -562,7 +562,7 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
                 $q.all(prodProms).then(function(res){
                     $log.debug('added '+prodz.length+' products!');
                     $log.debug('adding shop categories');
-                    syncData('shop').$set(data.treasure.shop);
+                    syncData('shop').$set({name: 'Ecossentials', children: data.treasure.shop});
                     $log.debug(catCount+' shop categories added!');
                 });
 
