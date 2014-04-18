@@ -1,0 +1,23 @@
+<div class="footer rowz col-xs-12">
+    <div class="col-xs-4">
+        <img ng-src="images/eco-logo.png" style="position:absolute;bottom:0px;width: 70%; margin:.62% 10%">
+
+    </div>
+    <div class="col-xs-4">
+        <div class="search pull-right">
+            <input ng-model="shopState.search" placeholder="Search">
+        </div>
+
+    </div>
+    <div class="col-xs-4">
+        <div class="col-xs-12 btn-group">
+            <div class="col-xs-4 text-center footnav fa-lg" ng-repeat="icon in navigationIcons">
+                <a class="btn">
+                    <i class="fa fa-circle fa-stack-2x fa-inverse"></i>
+                    <i class="fa fa-{{icon.icon}} fa-2x fa-fw fa-stack-1x "> </i>
+                    <p>{{icon.name}}</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

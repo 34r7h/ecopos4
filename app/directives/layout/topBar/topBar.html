@@ -1,0 +1,98 @@
+<div class="header rowz">
+    <div class="col-xs-12">
+        <div class="col-xs-3">
+            <div class="foots breadcrumbs">
+                    <span ng-repeat="cPath in shopState.path">
+                        <a ng-if="cPath.path" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(cPath.path))">/ {{cPath.name}}</a>
+                        <strong ng-if="!cPath.path"><br> {{cPath.name}}</strong>
+                    </span>
+            </div>
+        </div>
+        <div class="col-xs-9 pull-right">
+            <div class="col-xs-7">
+                <div ng-if="alert" class="alert-danger alert">{{alert}}</div>
+            </div>
+
+            <div class="col-xs-1">
+                <div>
+                    <a ng-click="msgs=!msgs; nots=false; evts=false; cart=false; userx=false;">
+                        <i class="fa fa-2x fa-envelope"></i>
+                    </a>
+                    <div ng-show="msgs" class="my-dropdown-menu"  ng-animate="'animate'" ng-style="dirDim">
+                    <ul>
+                        <li><div eco-panel title="Messages" iconz="iconx">
+                            <messages></messages>
+                        </div></li>
+                    </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-1">
+                <div>
+                    <a ng-click="evts=!evts; msgs=false; nots=false; cart=false; userx=false;">
+                        <i class="fa fa-2x fa-calendar"></i>
+                    </a>
+                    <div ng-show="evts" class="my-dropdown-menu" ng-style="dirDim">
+                        <ul>
+                            <li><div eco-panel title="Events" iconz="iconx">
+                                <events></events>
+                            </div></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-1">
+                <div>
+                    <a ng-click="cart=!cart; msgs=false; evts=false; nots=false; userx=false;">
+                        <i class="fa fa-2x fa-shopping-cart"></i>
+                    </a>
+                    <div ng-show="cart" class="my-dropdown-menu" ng-style="dirDim">
+                        <ul>
+                            <li><div eco-panel title="Shopping Cart" iconz="iconx">
+                                <cart></cart>
+                            </div></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-1">
+                <div>
+                    <a ng-click="nots=!nots; msgs=false; evts=false; cart=false; userx=false;">
+                        <i class="fa fa-2x fa-globe"></i>
+                    </a>
+                    <div ng-show="nots" class="my-dropdown-menu" ng-style="dirDim">
+                        <ul>
+                            <li><div eco-panel title="Notifications" iconz="iconx">
+                                <notifications></notifications>
+                            </div></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-1">
+                <div>
+                    <button class="btn btn-small" style="margin-bottom: 11px;" ng-click="userx=!userx; nots=false; msgs=false; evts=false; cart=false">
+                        <i class="fa fa-user"></i>
+                    </button>
+                    <div ng-show="userx" class="my-dropdown-menu" ng-style="dirDim">
+                        <ul>
+                            <li><div eco-panel title="User" iconz="iconx">
+                                <user-info></user-info>
+                            </div></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+
+    </div>
+
+</div>

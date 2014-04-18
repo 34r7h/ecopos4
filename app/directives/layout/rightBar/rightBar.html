@@ -1,0 +1,45 @@
+<div class="right col col-xs-12" ng-class="{open: right}" ng-animate="'animate'" >
+    <ul class="nav nav-tabs">
+        <li><a href="#Tab1" toggle="on" parent-active-class="active">Calendar</a></li>
+        <li><a href="#Tab2" toggle="on" parent-active-class="active">Maps</a></li>
+        <li><a href="#Tab3" toggle="on" parent-active-class="active">Orders</a></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane" toggleable active-class="active" default="active" id="Tab1" exclusion-group="myTabs">
+
+            <h3 class="page-header">Calendar</h3>
+            <calendar></calendar>
+        </div>
+
+        <div class="tab-pane" toggleable active-class="active" id="Tab2" exclusion-group="myTabs">
+            <h3 class="page-header">Map</h3>
+            <map></map>
+        </div>
+
+        <div class="tab-pane" toggleable active-class="active" id="Tab3" exclusion-group="myTabs">
+            <h3 class="page-header">Orders</h3>
+            <orders></orders>
+        </div>
+    </div>
+
+    <div class="btn-group justified nav-tabs">
+        <a class="btn btn-default" href="#Tab1" toggle="on" active-class="active">Tab 1
+        </a>
+
+        <a class="btn btn-default" href="#Tab2" toggle="on" active-class="active">Tab 2
+        </a>
+
+        <a class="btn btn-default" href="#Tab3" toggle="on" active-class="active">Tab 3
+        </a>
+
+    </div>
+
+    <input type="checkbox" class="col-xs-1" ng-model="right" ng-click="left=false;right=true" ng-animate="'animate'"> Open Big!<br>
+    <input type="checkbox" ng-model="evtsChecked" ng-click="evtsChecked=true"> Open Msgs!<br>
+
+    <div ng-show="evtsChecked" eco-panel title="Events" iconz="iconz">
+        <events></events>
+    </div>
+    <div ui-view="2@ecoApp.nav.not"></div>
+</div>
+
