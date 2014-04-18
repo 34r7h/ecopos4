@@ -19,7 +19,7 @@ angular.module('ecoposApp', [
 	'ngAnimate'
 ]);
 
-angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, $anchorScrollProvider) {
+angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) {
 
 	$stateProvider.
 		state('ecoApp', {
