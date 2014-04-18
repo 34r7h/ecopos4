@@ -12,7 +12,7 @@
     "browser": true,
     "smarttabs": true,
     "globals": {
-	    "google": true,
+        "google": true,
         "jQuery": true,
         "angular": true,
         "console": true,
