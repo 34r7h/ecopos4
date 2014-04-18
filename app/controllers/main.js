@@ -100,8 +100,11 @@ angular.module('ecoposApp')
 		$scope.manager = system.data.manager;
 		//$scope.activeRole = 'anonymous';
 
+        $scope.breadcrumb = system.data.breadcrumb;
+        $scope.search = system.data.search;
+
         // SHOP SELECTION - could be ecossentials or sunshine-organics - whatever we name the catalog/category tree in firebase
-        $scope.shopName = 'pat';
+        $scope.shopName = 'shop';
 
         // handle catalog browsing
         $scope.stateParams = system.data.params;
@@ -109,7 +112,6 @@ angular.module('ecoposApp')
 
         // load the catalog for the main CatalogBrowser
         system.api.loadCatalog($scope.shopName).then(function(catalog){
-            console.log('loaded catalog:'+catalog.name());
             system.data.store.browser['shop'].setCatalog(catalog);
         });
 
