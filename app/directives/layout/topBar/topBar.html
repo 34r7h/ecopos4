@@ -81,7 +81,8 @@
                     <div ng-show="userx" class="my-dropdown-menu" ng-style="dirDim">
                         <ul>
                             <li><div eco-panel title="User" iconz="iconx">
-                                <user-info></user-info>
+                                <div ng-if="!user.id"><login></login></div>
+                                <div ng-if="user.id"><user-info></user-info></div>
                             </div></li>
                         </ul>
                     </div>

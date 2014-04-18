@@ -1,6 +1,7 @@
 <div class="left col col-xs-12" ng-class="{open: left}">
     <input class="col-xs-1" type="checkbox" ng-model="left" ng-click="right=false;left=true">
     <div ui-view="{{ user.activeRole }}"></div>
+    <user-info></user-info>
     <span ui-view="1@ecoApp.nav.not.tools"></span>
     <span ui-view="2@ecoApp.nav.not.tools"></span>
 
