@@ -1,14 +1,16 @@
 angular.module('ecoposApp')
 	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, system, firebaseRef) {
+		$scope.msgOpen = false;
 		$scope.viewHeight = window.innerHeight;
 		$scope.viewWidth = window.innerWidth;
 		$scope.width = (window.innerWidth / 3);
-		$scope.height = (window.innerHeight - 147);
+		$scope.maxHeight = (window.innerHeight - 144);
 		$scope.dirDim = {
 			'width': $scope.width +"px",
-			'height': $scope.height +"px",
-			'panelBodyHeight': $scope.height - 95+"px"
-
+			'max-height': $scope.maxHeight +"px",
+			'panelBodyHeight': $scope.maxHeight - 74+"px",
+			'panelBodyMinHeight': "100%",
+			'border-radius': '0 0 5px 5px'
 		};
 
 		console.log($scope.dirDim);

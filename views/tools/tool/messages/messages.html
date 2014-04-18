@@ -1,6 +1,6 @@
 <div>
-    <div class="">
-        <div ng-show="newMsg" class="">
+
+        <div ng-show="newMsg" class="msgs">
             <h4>Start Conversation</h4>
 
             <fieldset>
@@ -32,34 +32,48 @@
 
         </div>
         <div style="clear: both" ng-repeat="(messageID, message) in user.messages.unseen track by $index">
-            <div class="col-xs-12" style="padding:0;margin:0;height: inherit;overflow-y: scroll">
-                <button style="width: 100%" class="btn btn-small" ng-click="msgChecked=!msgChecked" ng-hide="msgChecked">
-                    <span><b>{{ message.subject }}</b></span>  <span ng-repeat="(user,boo) in message.users">{{ user }} </span></button>
-                <button style="width: 100%" class="btn btn-small" ng-click="msgChecked=!msgChecked" ng-show="msgChecked">Hide Conversation</button>
+            <div class="msg-btn">
+                <button ng-model="msgOpen" style="width: 100%; text-align: left;box-shadow: 1px 1px 10px rgba(0,0,0,.18);" toggle="on" target="{{messageID}}" class="btn btn-small"  ng-hide="msgOpen" ng-click="msgOpen = true">
+                    <span>
+                        <b>{{ message.subject }}</b>
+                    </span> |
+                    <span ng-repeat="(user,boo) in message.users">
+                        {{ user }}
+                    </span>
+            </button>
+
+                <button ng-model="msgOpen" style="width: 100%; text-align: left;box-shadow: 1px 1px 6px rgba(0,0,0,.18) inset;" toggle="off" target="{{messageID}}" class="btn btn-small"  ng-show="msgOpen" ng-click="msgOpen = false; $scope.msgOpen = msgOpen;">
+                    <span>
+                        <b>{{ message.subject }}</b>
+                    </span> |
+                    <span ng-repeat="(user,boo) in message.users">
+                        {{ user }}
+                    </span>
+                </button>
             </div>
-            <div class="col-xs-12">
-                <div ng-show="msgChecked">
-                    <div  ng-init="{timestamp:null}" style="max-height: 200px; overflow-y: scroll">
-                        <div class="col-xs-12" ng-repeat="(timestamp, contrib) in message.conversation" >
-                            <p class="col-xs-12 text-center">
-                                {{ timestamp | date:'shortDate'  }} - {{ timestamp | date:'shortTime'  }}
-                            </p>
-                            <span class="well"><code>{{ contrib.user }}:</code> <b>{{ contrib.text }}</b></span><hr>
+
+            <div toggleable exclusion-group="msgs" id="{{messageID}}" class="gn-hide" inactive-class="gn-hide" active-class="gn-show">
+
+                    <div class="msg-box">
+                        <div ng-repeat="(timestamp, contrib) in message.conversation" >
+
+
+                                <div style="margin: 0 0 21px;">
+                                    <b>{{ contrib.user }}:</b> - {{ timestamp | date:'shortDate'  }} - {{ timestamp | date:'shortTime'  }}
+                                </div>
+                                <p class="bubble">{{ contrib.text }}</p>
+
                         </div>
                     </div>
-                    <h4 id="msgHeader">Add Message:</h4>
-                    <div class="form-group col-xs-10">
-                        <textarea ng-model="text[$index]"></textarea>
+
+                    <div class="add-msg form-group col-xs-10">
+                        <textarea ng-model="text[$index]" placeholder="Reply"></textarea>
                     </div>
 
-                    <button class="col-xs-2" ng-show="text[$index]" ng-click="sendMessage(messageID, $index)">Send</button>
-                </div>
+                    <a class="col-xs-2 msg-snd" ng-show="text[$index]" ng-click="sendMessage(messageID, $index)"><i class="fa fa-2x fa-comment"></i> </a>
+
             </div>
 
         </div>
-
-    </div>
-
-
 
 </div>

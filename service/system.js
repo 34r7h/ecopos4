@@ -235,7 +235,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                                 angular.forEach(entry.fbRef, function(cRef, refIdx) {
                                     if(snapRefStr === cRef.toString()){
                                         data.catalog.browse.path[idx].name = newName;
-                                    };
+                                    }
                                 });
                             }
                             else if(snapRefStr === entry.fbRef.toString()) {

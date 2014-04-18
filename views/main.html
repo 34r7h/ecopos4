@@ -1,11 +1,14 @@
-<top-bar></top-bar>
+<top-bar></top-bar>{{test}}
 <left-bar></left-bar>
 
-<div class="middle col">
+<div class="middle col">{{test}}
     <div class="body rowz col-xs-12">
         <div class="scroll-x">
-                <div ui-view="{{view}}"></div>
+                <div ui-view="{{view}}">{{test}}</div>
+                <div ui-view="1@ecoApp">yo{{test}}</div>
+                <div ui-view="admin@ecoApp">yo{{test}}</div>
         </div>
+
     </div>
 </div>
 

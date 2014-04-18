@@ -32,8 +32,14 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			}
 		}).
 		state('ecoApp.nav',{
+			template:'hello main nav template<ui-view></ui-view>',
 
 			views:{
+				admin:{
+					controller:function($scope,system,$state){
+						$scope.test = "Sup admin?";
+					}
+				},
 				1:{
 					controller: function($scope,system,$state){
 						$scope.params = system.data.params;
@@ -41,14 +47,10 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 						$scope.reload = function() {
 							$state.reload();
 						};
-					},
-					template:'<p ng-click="reload()">{{params}}</p><h2 href ng-click="$state.go(\'^\')">Nav Yolo 1</h2>'
-				},
+					}				},
 				2:{
-					template:'<h2 href ng-click="$state.go(\'^\')">Nav Yolo 2</h2><p>{{test}}</p>'
 				},
 				shop: {
-					templateUrl: 'views/shops/store/store.html'
 				}
 			},
 			onEnter: function(){
