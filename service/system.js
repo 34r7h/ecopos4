@@ -1,10 +1,10 @@
-angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, $timeout, $log, cart) {
+angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $firebase, $q, $rootScope, $timeout, $log, cart) {
 
     var data = {
         user: {id: null, profile: null, activeRole: 'anonymous', messages: {}, events: {}, calendar: {}, session: {firstActiveRole: true, calendarEvents: {}}},
         employee: {shiftType: null},
         manager: {orders: {}},
-        catalog: {browse: {categoryID: '', path: [], search: ''}},
+        catalog: {products: {}, browse: {category: {}, categoryID: '', path: [], search: ''}},
 	    params:{},
         view:''
     };
@@ -50,6 +50,7 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
 			return total;
 		},
 
+        /**
         loadCategory: function(category, loadInto){
             var defer = $q.defer();
 
@@ -102,14 +103,22 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
 
             return defer.promise;
         },
-
+         */
+/**
         loadCategoryProducts: function(category){
-            angular.forEach(category, function(child, childID){
-                if(child.product){
-                    var product = syncData('product/'+childID);
+            angular.forEach(category.children, function(child, childID){
+                if(child.name && child.price){
+                    if(!data.catalog.products[childID]){
+                        data.catalog.products[childID] = syncData('product/'+childID);
+                    }
+
+
+                    /**var product = syncData('product/'+childID);
                     product.$on('loaded', function(){
-                        category[childID].fullData = product;
+                        category.children[childID].fullData = product;
                     });
+                     */
+                    /**
                 }
             });
         },
@@ -121,12 +130,221 @@ angular.module('ecoposApp').factory('system',function(syncData, $q, $rootScope, 
             }
             $log.debug('loading \''+shopName+'\' catalog...');
             var catalog = syncData(shopName);
+
+            catalog.$on('loaded', function(){
+                data.catalog[shopName] = catalog.$getRef();
+                defer.resolve(true);
+            });
+
+
+            /**
+            var catalog = syncData(shopName);
             catalog.$on('loaded', function(){
                 api.loadCategory({$id: shopName, name: shopName, children: catalog}, data.catalog).then(function(){
                     defer.resolve(true);
                 });
             });
+            */
+//            return defer.promise;
+//        },
+
+        loadCatalog: function(shopName, forceReload){
+            var defer = $q.defer();
+            if(typeof shopName === 'undefined'){
+                shopName = 'shop';
+            }
+            if(typeof forceReload === 'undefined'){
+                forceReload = false;
+            }
+
+            if(!data.catalog[shopName] || forceReload){
+                data.catalog[shopName] = firebaseRef(shopName);
+                defer.resolve(data.catalog[shopName]);
+
+                /**
+                var catRef = firebaseRef(shopName);
+                catRef.once('value', function(snap){
+                    var catSnap = snap.val();
+                    //console.log('what:'+JSON.stringify(catSnap));
+                    console.log('got:'+snap.name()+':'+snap.numChildren());
+                    snap.forEach(function(childSnap){
+                        console.log('child:'+childSnap.name()+':'+childSnap.numChildren());
+                        childSnap.child('children').forEach(function(subChildSnap){
+                            console.log('grandChild:'+subChildSnap.name()+':'+subChildSnap.numChildren());
+                        });
+                    });
+
+                });
+                     */
+                /**var catalog = syncData(shopName);
+                catalog.$on('loaded', function(){
+                    data.catalog[shopName] = catalog.$getRef();
+                    data.catalog.browse.category = {name: shopName, children: catalog};
+                    defer.resolve(data.catalog[shopName]);
+                });
+                 */
+            }
+            else{
+                defer.resolve(data.catalog[shopName]);
+            }
             return defer.promise;
+        },
+
+        // use as a callback for an on('value') for an item in catalog tree
+        // this allows for data-binding on the breadcrumb items in catalog.browse.path
+        setCatalogBreadcrumbName: function(snapName){
+            var snapVal = null;
+            var snapRef = null;
+            if(typeof snapName.ref === 'function'){
+                snapVal = snapName.val();
+                snapRef = snapName.ref();
+            }
+            else if(typeof snapName.$getRef === 'function'){
+                snapVal = snapName;
+                snapRef = snapName.$getRef();
+            }
+            if(snapVal && snapRef){
+                var newName = '';
+
+                if(typeof snapVal === 'string' || snapVal instanceof String){
+                    newName = snapVal;
+                    snapRef = snapRef.parent();
+                }
+
+                if(!newName){
+                    newName = snapVal.name;
+                    if(snapVal.brand){
+                        newName = snapVal.brand+' '+newName;
+                    }
+                    if(!snapVal.bulk){
+                        if(snapVal.size){
+                            newName += ' ('+snapVal.size+')';
+                        }
+                    }
+                    else{
+                        newName += ' (Bulk)';
+                    }
+                }
+
+                var snapRefStr = snapRef.toString();
+
+                if(snapRefStr && newName){
+                    angular.forEach(data.catalog.browse.path, function(entry, idx){
+                        if(entry.fbRef){
+                            if(entry.fbRef instanceof Array){
+                                angular.forEach(entry.fbRef, function(cRef, refIdx) {
+                                    if(snapRefStr === cRef.toString()){
+                                        data.catalog.browse.path[idx].name = newName;
+                                    };
+                                });
+                            }
+                            else if(snapRefStr === entry.fbRef.toString()) {
+                                data.catalog.browse.path[idx].name = newName;
+                            }
+                        }
+                    });
+                }
+            }
+        },
+
+        loadCatalogPath: function(catalog, path, productName){
+            var defer = $q.defer();
+            var pathParts = [];
+            console.log('load catalog path \''+path+'\'');
+            if(path){
+                pathParts = path.split('/');
+            }
+            while(pathParts.length && pathParts[0] === ''){
+                pathParts = pathParts.slice(1);
+            }
+
+            // reset breadcrumbs
+            data.catalog.browse.path.length = 0;
+
+            // initialize browsing state
+            if(pathParts.length){
+                var catChild = catalog.child(pathParts.join('/children/'));
+                catChild.once('value', function(snap){
+                    if(snap.val()){
+                        data.catalog.browse.product = null;
+                        if(productName) {
+                            if(snap.val().children){
+                                angular.forEach(snap.val().children, function(child, childID){
+                                    if(!child.children && child.url === productName && !data.catalog.browse.product){
+                                        var breadCrumbEntry = {name: child.name, path: '', fbRef: []};
+
+                                        data.catalog.browse.product = syncData('product/'+childID);
+                                        data.catalog.browse.product.$on('loaded', function(){
+                                            data.catalog.products[childID] = data.catalog.browse.product;
+                                        });
+                                        breadCrumbEntry.fbRef.push(data.catalog.browse.product.$getRef());
+                                        data.catalog.browse.product.$getRef().on('value', api.setCatalogBreadcrumbName);
+
+                                        var cProdEntry = catChild.child('children/'+childID+'/name');
+                                        breadCrumbEntry.fbRef.push(cProdEntry.parent());
+                                        cProdEntry.on('value', api.setCatalogBreadcrumbName); // data-binding for the name
+                                        data.catalog.browse.path.unshift(breadCrumbEntry);
+                                    }
+                                });
+                            }
+                        }
+
+                        // load the breadcrumbs by traversing up from the lowest level child
+                        var catTrace = catChild;
+                        do{
+                            var cPathEntry = {name: catTrace.name(), path: (catTrace !== catChild || (productName && data.catalog.browse.product))?pathParts.join('/'):'', fbRef: catTrace};
+                            data.catalog.browse.path.unshift(cPathEntry);
+                            catTrace.child('name').on('value', api.setCatalogBreadcrumbName); // data-binding for the name
+                            pathParts.pop();
+                            catTrace = catTrace.parent().parent();
+                        }while(catTrace && pathParts.length);
+
+                        data.catalog.browse.path.unshift({name: catalog.name(), path: '/', fbRef: catalog});
+                        data.catalog.browse.categoryID = path;
+                        data.catalog.browse.category = {name: catChild.name(), children: $firebase(catChild.child('children'))};
+                        defer.resolve(data.catalog.browse.category);
+                    }
+                    else{
+                        // invalid category path, check if it's a product
+                        var productCheck = pathParts.pop();
+                        // take a piece off and try to load - this will repeat until a valid category is loaded
+                        api.loadCatalogPath(catalog, pathParts.join('/'), productCheck).then(function(category){
+                            defer.resolve(category);
+                        });
+                    }
+                });
+            }
+            else{
+                data.catalog.browse.categoryID = '';
+                data.catalog.browse.category = {name: catalog.name(), children: $firebase(catalog)};
+                data.catalog.browse.product = null;
+                data.catalog.browse.path.push({name: catalog.name(), path: '/', fbRef: catalog});
+                defer.resolve(data.catalog.browse.category);
+            }
+
+            return defer.promise;
+        },
+
+        loadCategoryProducts: function(category){
+            if(category.children){
+                if(category.children.$on){
+                    category.children.$on('loaded', function(){
+                        angular.forEach(category.children, function(child, childID){
+                            if(!child.children && childID.charAt(0) !== '$'){
+                                var loadChild = syncData('product/'+childID);
+                                loadChild.$on('loaded', function(){
+                                    data.catalog.products[childID] = loadChild;
+                                });
+                            }
+                        });
+                    });
+                }
+            }
+
+        },
+
+        saveProduct: function(product){
+            product.$save();
         },
 
         // Utility API
