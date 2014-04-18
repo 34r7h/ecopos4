@@ -25,5 +25,10 @@
         "inject": true,
         "it": true,
         "expect": true
-    }
+    },
+	// Custom globals.
+	"predef"        : [
+		"define",
+		"require"
+	]
 }

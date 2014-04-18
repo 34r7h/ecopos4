@@ -1,0 +1,79 @@
+<div>
+
+        <div ng-show="newMsg" class="msgs">
+            <h4>Start Conversation</h4>
+
+            <fieldset>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <div class="form-group">
+                            <label>To:</label>
+                            <select ng-model="sendTo" multiple="multiple">
+                                <option ng-repeat="username in users" value="{{ username }}">{{ username }}</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Subject:</label>
+                            <input type="text" ng-model="subject" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Message:</label>
+                            <textarea ng-model="text.new"></textarea>
+                        </div>
+
+                        <button ng-click="startConversation()">Send</button>
+                    </div>
+                </div>
+
+
+            </fieldset>
+
+        </div>
+        <div style="clear: both" ng-repeat="(messageID, message) in user.messages.unseen track by $index">
+            <div class="msg-btn">
+                <button ng-model="msgOpen" style="width: 100%; text-align: left;box-shadow: 1px 1px 10px rgba(0,0,0,.18);" toggle="on" target="{{messageID}}" class="btn btn-small"  ng-hide="msgOpen" ng-click="msgOpen = true; goToBottom();">
+                    <span>
+                        <b>{{ message.subject }}</b>
+                    </span> |
+                    <span ng-repeat="(user,boo) in message.users">
+                        {{ user }}
+                    </span>
+            </button>
+
+                <button ng-model="msgOpen" style="width: 100%; text-align: left;box-shadow: 1px 1px 6px rgba(0,0,0,.18) inset;" toggle="off" target="{{messageID}}" class="btn btn-small"  ng-show="msgOpen" ng-click="msgOpen =! msgOpen">
+                    <span>
+                        <b>{{ message.subject }}</b>
+                    </span> |
+                    <span ng-repeat="(user,boo) in message.users">
+                        {{ user }}
+                    </span>
+                </button>
+            </div>
+
+            <div toggleable exclusion-group="msgs" id="{{messageID}}" class="gn-hide" inactive-class="gn-hide" active-class="gn-show">
+
+                    <div class="msg-box" id="bottoms">
+                        <div ng-repeat="(timestamp, contrib) in message.conversation" >
+
+
+                                <div style="margin: 0 0 21px;">
+                                    <b>{{ contrib.user }}:</b> - {{ timestamp | date:'shortDate'  }} - {{ timestamp | date:'shortTime'  }}
+                                </div>
+                                <p class="bubble">{{ contrib.text }}</p>
+
+                        </div>
+                    </div>
+
+                    <div class="add-msg form-group col-xs-10">
+                        <textarea ng-model="text[$index]" placeholder="Reply"></textarea>
+                    </div>
+
+                    <a class="col-xs-2 msg-snd" ng-show="text[$index]" ng-click="sendMessage(messageID, $index)"><i class="fa fa-2x fa-comment"></i> </a>
+
+            </div>
+
+        </div>
+
+</div>
