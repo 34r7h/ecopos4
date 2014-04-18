@@ -37,9 +37,30 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			views:{
 				admin:{
 					controller:function($scope,system,$state){
-						$scope.test = "Sup admin?";
+						$scope.test = "";
 					}
 				},
+				customer:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
+				manager:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
+				employee:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
+				supplier:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
+
 				1:{
 					controller: function($scope,system,$state){
 						$scope.params = system.data.params;
@@ -62,6 +83,31 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 		}).
 		state('ecoApp.nav.not',{
 			views:{
+				admin:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
+				customer:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
+				manager:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
+				employee:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
+				supplier:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
 				1:{
 					template:'<h3 href ng-click="$state.go(\'^\')">Notifications Yolo 1</h3><cart></cart>'
 				},
@@ -79,6 +125,31 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 		state('ecoApp.nav.not.tools',{
 
 			views:{
+				admin:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
+				customer:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
+				manager:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
+				employee:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
+				supplier:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
 				1:{
 					template: '<h4 href ng-click="$state.go(\'^\')">Tools Yolo 1</h4><calendar calendar-content="user.calendar"></calendar>'
 				},
@@ -96,6 +167,31 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 		state('ecoApp.nav.not.tools.settings',{
 			url:'*path?access_level&preferences&history',
 			views: {
+				admin:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
+				customer:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
+				manager:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
+				employee:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
+				supplier:{
+					controller:function($scope,system,$state){
+						$scope.test = "";
+					}
+				},
 				1:{
 					controller: function($scope,$stateParams,$log,system, $state, cart, syncData){
 
