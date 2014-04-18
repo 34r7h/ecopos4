@@ -1,6 +1,6 @@
 <div>
     Product
-    <div ng-repeat="(key,category) in inventory | orderByPriority | filter:searchText"> <h1 style="clear: both">{{ $key | uppercase }}</h1>
+    <div ng-repeat="category in inventory | orderByPriority"> <h1 style="clear: both">key: {{ $key }}</h1>
         <div  ng-repeat="(item,product) in category | orderByPriority | filter:searchText">
 
             <div class="col-xs-5">

@@ -1,5 +1,21 @@
 angular.module('ecoposApp')
 	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, system, firebaseRef) {
+		$scope.viewHeight = window.innerHeight;
+		$scope.viewWidth = window.innerWidth;
+		$scope.width = (window.innerWidth / 3);
+		$scope.height = (window.innerHeight - 147);
+		$scope.dirDim = {
+			'width': $scope.width +"px",
+			'height': $scope.height +"px",
+			'panelBodyHeight': $scope.height - 95+"px"
+
+		};
+
+		console.log($scope.dirDim);
+		$scope.inventory = {
+			'thing':'beauty',
+			'of': "sexy"
+		};
 		$scope.view = system.data.view;
 		$scope.notificationIcons=[ {icon:'globe',name:'notifications'}, {icon:'shopping-cart',name:'cart'}, {icon:'envelope',name:'messages'}, {icon:'calendar',name:'events'}];
 		$scope.navigationIcons=[ {icon: 'gear',name:'Settings'}, {icon: 'magic',name:'Tools'}, {icon: 'leaf',name:'Shop'} ];
@@ -66,7 +82,6 @@ angular.module('ecoposApp')
 
 
 		$scope.users = system.api.getUsersFlat();
-
 
 		$scope.user = system.data.user;
 		$scope.employee = system.data.employee;

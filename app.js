@@ -124,7 +124,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
                         system.data.catalog.browse['categoryID'] = system.data.params.data['path'];
 					},
-					template:'<h6 ng-repeat="(key,param) in help.data">{{key}}: {{param}}</h6><a ng-cloak class="list-group-item" ng-show-auth="login" ng-controller="LoginController" href="#" ng-click="logout()"><i class="fa fa-unlock"></i> Log Out <i class="fa fa-chevron-right pull-right"></i></a><a ng-cloak class="list-group-item " ng-show-auth="[\'logout\',\'error\']" href="#loginOverlay" toggle="on"><i class="fa fa-lock"></i> Cloverleaf Industries <i class="fa fa-chevron-right pull-right"></i></a><a href="/#/settings">Settings Yolo 1</a><p ng-repeat="(key,settings) in dashStuff2 | orderBy:key:reverse">{{ key }}: <prefs type="settings.type" element="settings.elementual"></prefs></p></div>'
+					template:'<h6 ng-repeat="(key,param) in help.data">{{key}}: {{param}}</h6><a href="/#/settings">Settings Yolo 1</a><p ng-repeat="(key,settings) in dashStuff2 | orderBy:key:reverse">{{ key }}: <prefs type="settings.type" element="settings.elementual"></prefs></p></div>'
 				},
 				2:{
 					controller: function($scope,system){
@@ -167,6 +167,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 	// $anchorScrollProvider.disableAutoScrolling();
 
     $urlRouterProvider.otherwise('/');
+
 /*
     $stateProvider.state('test', {
         url: '/test',
