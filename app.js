@@ -223,7 +223,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 						$scope.invoice = cart.invoice;
 						$scope.items = cart.invoice.items;
 
-                        system.data.catalog.browse['categoryID'] = system.data.params.data['path'];
+                        system.data.store.browser['shop'].setCategory(system.data.params.data['path']);
 					},
 					template:'<h6 ng-repeat="(key,param) in help.data">{{key}}: {{param}}</h6><a href="/#/settings">Settings Yolo 1</a><p ng-repeat="(key,settings) in dashStuff2 | orderBy:key:reverse">{{ key }}: <prefs type="settings.type" element="settings.elementual"></prefs></p></div>'
 				},
