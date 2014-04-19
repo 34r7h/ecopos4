@@ -1,12 +1,29 @@
 <div>
     <h3>Product-List</h3>
-    <div ng-show="shop.product">
-        <h4>Product</h4>
-        {{shop.product}}
+    <div ng-show="shop">
+        <div>
+            <ul class="breadcrumb">
+                <li ng-repeat="cPath in shop.path">
+                    <a ng-if="!$last" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(cPath.path))">{{cPath.name}}</a>
+                    <strong ng-if="$last">{{cPath.name}}</strong>
+                </li>
+            </ul>
+        </div>
+        <div ng-show="shop.product">
+            <h3>Product</h3>
+            <h4>{{shop.product.name}}</h4>
+            {{shop.product}}
+        </div>
+        <div ng-show="shop.category">
+            <h3>Category</h3>
+            <h4>{{shop.category.name}}</h4>
+            {{shop.category}}
+        </div>
     </div>
-    <div ng-show="shop.category">
-        <h4>Category</h4>
-        {{shop.category}}
+
+    <div ng-hide="shop">
+        Shop is not initialized.
     </div>
+
 
 </div>

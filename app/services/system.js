@@ -1,4 +1,4 @@
-angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $firebase, $q, $rootScope, $timeout, $log, cart) {
+angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $firebase, FBURL, $q, $rootScope, $timeout, $log, cart) {
 
     var data = {
         user: {id: null, profile: null, activeRole: 'anonymous', messages: {}, events: {}, calendar: {}, session: {firstActiveRole: true, calendarEvents: {}}},
@@ -12,8 +12,9 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
     };
 
     var CatalogBrowser = function(newCatalog){
-        var catalog = (typeof newCatalog !== 'undefined') ? newCatalog : null;
-        var categoryID = '/';
+        $log.debug('browser:'+newCatalog);
+        var catalog = null; //(typeof newCatalog !== 'undefined') ? newCatalog : null;
+        var currentPath = '/';
         var search = '';
 
         var categoryLoaded = function(catObj, prodURL){
@@ -56,6 +57,8 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                 if(catRef){
                     var afCategory = $firebase(catRef);
                     afCategory.$on('value', function(){
+                        //console.log('can we breadcrumb that?'+afCategory.name+':'+afCategory.$id+':');
+
                         // is there a category loaded? or is this the catalog?
                         // this check ensures catalog is first to load into category
                         if(public.category || afCategory.$getRef().toString()===catalog.toString()){
@@ -63,7 +66,31 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                             if(afCategory.name && afCategory.children){
                                 // good to go...
                                 public.category = afCategory;
+                                public.product = null;
+
                                 $log.debug('loaded category:'+public.category.name+' with '+Object.keys(public.category.children).length+' children');
+
+                                // reset breadcrumb
+                                if(!public.path){
+                                    public.path = [];
+                                }
+                                public.path.length = 0;
+
+                                var i = 0;
+                                var bcTrace = public.category.$getRef();
+                                currentPath = getPathForCatalogRef(bcTrace);
+                                // maximum breadcrumbs is 10 (this is mostly a safety on unlikely chance of bcTrace.parent() causing infinite)
+                                while(bcTrace && i < 10){
+                                    var cPath = getPathForCatalogRef(bcTrace); //bcTrace.toString().replace(catalog.toString(), '').replace(/children\//g, '');
+                                    if(!cPath){ cPath = '/'; }
+
+                                    addBreadcrumb(bcTrace.name(), cPath, bcTrace, true);
+                                    bcTrace = bcTrace.parent();
+                                    if(bcTrace){
+                                        bcTrace = bcTrace.parent();
+                                    }
+                                    i++;
+                                }
 
                                 var childProduct = null;
                                 // was a productURL requested?
@@ -76,19 +103,16 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                                         }
                                     });
                                     if(childProduct && childProductID){
-                                        $log.debug('loading product:'+childProductID+':'+JSON.stringify(childProduct));
+                                        $log.debug('product found \''+prodURL+'\' ['+childProductID+'] in \''+public.category.name+'\'');
+                                        currentPath += ((currentPath.charAt(currentPath.length-1)!=='/' && prodURL.charAt(0) !=='/')?'/':'')+prodURL;
                                         public.setProduct(childProductID);
-
                                     }
                                     else{
-                                        $log.error('could not load product \''+prodURL+'\' in category \''+public.category.name+'\'');
+                                        $log.debug('could not load product \''+prodURL+'\' in category \''+public.category.name+'\'');
                                     }
                                 }
 
-                                // reset breadcrumb
-                                public.path.length = 0;
                             }
-
                         }
                         else{
                             // for some reason the sub-category came through while there is an outstanding request for the catalog $firebase
@@ -104,6 +128,47 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
             }
         };
 
+        var getPathForCatalogRef = function(fbRef){
+            var path = ''+fbRef;
+            if(path){
+                if(catalog){
+                    path = path.replace(catalog.toString(), '');
+                }
+                if(FBURL){
+                    path = path.replace(FBURL, '');
+                }
+                path = path.replace(/children\//g, '');
+            }
+            return path;
+        };
+
+        var addBreadcrumb = function(name, path, fbRef, atStart){
+            var newBC = {name: name, path: path, refPath: ''+fbRef}; // will toString() fbRef if possible
+            if(atStart){
+                public.path.unshift(newBC);
+            }
+            else{
+                public.path.push(newBC);
+            }
+            if(fbRef && typeof fbRef.child === 'function'){
+                fbRef.child('name').on('value', function(snap){
+                    if(snap && snap.val()){
+                        setBreadcrumbName(snap.val(), snap.ref().parent().toString());
+                    }
+                });
+            }
+        };
+
+        var setBreadcrumbName = function(name, refPath){
+            if(refPath && public.path.length){
+                angular.forEach(public.path, function(cPath, idx){
+                    if(cPath.refPath === refPath){
+                        public.path[idx].name = name;
+                    }
+                });
+            }
+        };
+
         var public = {
             category: null,
             product: null,
@@ -112,20 +177,19 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
             setCatalog: function(newCatalog){
                 if(newCatalog !== catalog){
                     catalog = newCatalog;
-                    return public.loadPath(categoryID);
+                    return public.loadPath(currentPath);
                 }
                 var defer = $q.defer();
                 defer.resolve(public.category);
                 return defer.promise;
             },
 
-            setCategory: function(newCategoryID){
-                if (newCategoryID === '') {
-                    newCategoryID = '/';
+            setPath: function(newPath){
+                if (newPath === '') {
+                    newPath = '/';
                 }
-                if (newCategoryID !== categoryID) {
-                    categoryID = newCategoryID;
-                    return public.loadPath(categoryID);
+                if (newPath !== currentPath) {
+                    return public.loadPath(newPath);
                 }
                 var defer = $q.defer();
                 defer.resolve(public.category);
@@ -135,7 +199,12 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
             setProduct: function(productID){
                 api.loadCatalogProduct(productID).then(function(product){
                     public.product = product;
-                    $log.debug('product loaded:'+JSON.stringify(public.product));
+                    if(!product){
+                        $log.error('Could not find product \''+productID+'\' in store inventory.');
+                    }
+                    if(product && product.$getRef()){
+                        addBreadcrumb(product.name, currentPath, product.$getRef());
+                    }
                 });
             },
 
@@ -176,15 +245,12 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                 }
                 return defer.promise;
             }
-
-
         };
+
+        public.setCatalog(newCatalog);
 
         return public;
     };
-
-    data.store.browser['shop'] = new CatalogBrowser(); // this is the main shop browser and we always want it to exist
-
 
     var api = {
 
@@ -226,16 +292,16 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
             return total;
         },
 
-
         addCatalogBrowser: function(name, catalogName){
-            var defer = $q.defer;
+            var defer = $q.defer();
             if(!data.store.browser[name]){
                 api.loadCatalog(catalogName).then(function(catalog){
                     data.store.browser[name] = new CatalogBrowser(catalog);
+                    defer.resolve(data.store.browser[name]);
                 });
             }
             else{
-                defer.resolve(data.browser[name]);
+                defer.resolve(data.store.browser[name]);
             }
             return defer.promise;
         },
