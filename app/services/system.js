@@ -58,16 +58,16 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                     afCategory.$on('value', function(){
                         // is there a category loaded? or is this the catalog?
                         // this check ensures catalog is first to load into category
-                        if(public.category.children || afCategory.$getRef().toString()===catalog.toString()){
+                        if(public.category || afCategory.$getRef().toString()===catalog.toString()){
                             // legit category has a name and children
                             if(afCategory.name && afCategory.children){
                                 // good to go...
                                 public.category = afCategory;
                                 $log.debug('loaded category:'+public.category.name+' with '+Object.keys(public.category.children).length+' children');
 
+                                var childProduct = null;
                                 // was a productURL requested?
                                 if(prodURL){
-                                    var childProduct = null;
                                     var childProductID = null;
                                     angular.forEach(public.category.children, function(child, childID){
                                         if(child.url && child.url === prodURL){
@@ -77,6 +77,8 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                                     });
                                     if(childProduct && childProductID){
                                         $log.debug('loading product:'+childProductID+':'+JSON.stringify(childProduct));
+                                        public.setProduct(childProductID);
+
                                     }
                                     else{
                                         $log.error('could not load product \''+prodURL+'\' in category \''+public.category.name+'\'');
@@ -103,7 +105,8 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
         };
 
         var public = {
-            category: {},
+            category: null,
+            product: null,
             path: [],
 
             setCatalog: function(newCatalog){
@@ -127,6 +130,13 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                 var defer = $q.defer();
                 defer.resolve(public.category);
                 return defer.promise;
+            },
+
+            setProduct: function(productID){
+                api.loadCatalogProduct(productID).then(function(product){
+                    public.product = product;
+                    $log.debug('product loaded:'+JSON.stringify(public.product));
+                });
             },
 
             loadPath: function(path) {
@@ -246,6 +256,24 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
             else{
                 defer.resolve(data.store.catalogs[name]);
             }
+            return defer.promise;
+        },
+
+        loadCatalogProduct: function(productID){
+            var defer = $q.defer();
+            if(!data.store.products[productID]){
+                data.store.products[productID] = syncData('product/'+productID);
+                data.store.products[productID].$on('loaded', function(){
+                    if(data.store.products[productID].$value === null){
+                        data.store.products[productID] = null;
+                    }
+                    defer.resolve(data.store.products[productID]);
+                });
+            }
+            else{
+                defer.resolve(data.store.products[productID]);
+            }
+
             return defer.promise;
         },
 
