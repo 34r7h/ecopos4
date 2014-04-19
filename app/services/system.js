@@ -56,30 +56,35 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                 if(catRef){
                     var afCategory = $firebase(catRef);
                     afCategory.$on('value', function(){
+                        // is there a category loaded? or is this the catalog?
+                        // this check ensures catalog is first to load into category
                         if(public.category.children || afCategory.$getRef().toString()===catalog.toString()){
+                            // legit category has a name and children
                             if(afCategory.name && afCategory.children){
-                                // legit category
+                                // good to go...
                                 public.category = afCategory;
+                                $log.debug('loaded category:'+public.category.name+' with '+Object.keys(public.category.children).length+' children');
 
-                                // what about children?
-                                if(public.category.children){
-                                    // check for that product URL
-                                    if(prodURL){
-                                        var childProduct = null;
-                                        angular.forEach(public.category.children, function(child, childID){
-                                            if(child.url && child.url === prodURL){
-                                                childProduct = child;
-                                                $log.debug('got product:'+childID+':'+JSON.stringify(child)+':');
-                                            }
-                                        });
-                                        if(!childProduct){
-                                            $log.error('could not load product \''+prodURL+'\' in category \''+public.category.name+'\'');
+                                // was a productURL requested?
+                                if(prodURL){
+                                    var childProduct = null;
+                                    var childProductID = null;
+                                    angular.forEach(public.category.children, function(child, childID){
+                                        if(child.url && child.url === prodURL){
+                                            childProductID = childID;
+                                            childProduct = child;
                                         }
+                                    });
+                                    if(childProduct && childProductID){
+                                        $log.debug('loading product:'+childProductID+':'+JSON.stringify(childProduct));
+                                    }
+                                    else{
+                                        $log.error('could not load product \''+prodURL+'\' in category \''+public.category.name+'\'');
                                     }
                                 }
-                                else{
-                                    $log.error('no children found in category \''+public.category.name+'\'');
-                                }
+
+                                // reset breadcrumb
+                                public.path.length = 0;
                             }
 
                         }
@@ -124,7 +129,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                 return defer.promise;
             },
 
-            loadPath: function(path, productName) {
+            loadPath: function(path) {
                 var defer = $q.defer();
 
                 if(catalog){
@@ -145,14 +150,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                         pathParts.splice(emptyIdx, 1);
                     }
 
-                    // reset breadcrumb
-                    path.length = 0;
-                    if (productName) {
-                        console.log('load product:\'' + productName + '\'');
-                    }
-
                     var catChild = catalog;
-
                     if(pathParts.length) {
                         catChild = catalog.child('children/' + pathParts.join('/children/'));
                         catChild.once('value', categoryLoaded);
