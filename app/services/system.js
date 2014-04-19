@@ -56,19 +56,29 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
 
                 if(catRef){
                     var afCategory = $firebase(catRef);
-                    afCategory.$on('value', function(){
-                        //console.log('can we breadcrumb that?'+afCategory.name+':'+afCategory.$id+':');
-
+                    catRef.child('children').on('child_added', function(childSnap){
+                        if(childSnap && childSnap.val()){
+                            if(!childSnap.val().children){
+                                api.loadInventoryProduct(childSnap.name());
+                            }
+                        }
+                    });
+                    afCategory.$on('loaded', function(){
                         // is there a category loaded? or is this the catalog?
                         // this check ensures catalog is first to load into category
                         if(public.category || afCategory.$getRef().toString()===catalog.toString()){
                             // legit category has a name and children
                             if(afCategory.name && afCategory.children){
                                 // good to go...
+                                if(public.category && typeof public.category.$getRef === 'function'){
+                                    public.category.$getRef().child('children').off('child_added');
+                                }
                                 public.category = afCategory;
                                 public.product = null;
 
                                 $log.debug('loaded category:'+public.category.name+' with '+Object.keys(public.category.children).length+' children');
+
+                                //api.loadInventoryProducts(afCategory.children); // instead handled by the children.on('child_added')
 
                                 // reset breadcrumb
                                 if(!public.path){
@@ -197,12 +207,13 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
             },
 
             setProduct: function(productID){
-                api.loadCatalogProduct(productID).then(function(product){
+                $log.debug('set product:'+productID);
+                api.loadInventoryProduct(productID).then(function(product){
                     public.product = product;
                     if(!product){
                         $log.error('Could not find product \''+productID+'\' in store inventory.');
                     }
-                    if(product && product.$getRef()){
+                    if(product && typeof product.$getRef === 'function' && product.$getRef()){
                         addBreadcrumb(product.name, currentPath, product.$getRef());
                     }
                 });
@@ -235,12 +246,12 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                         catChild.once('value', categoryLoaded);
                     }
                     else {
-                        console.log('cat is catalog:'+catalog);
+                        $log.debug('category is catalog:'+catalog);
                         categoryLoaded(catalog);
                     }
                 }
                 else{
-                    console.log('no catalog');
+                    $log.debug('no catalog');
                     defer.reject('No catalog to load from');
                 }
                 return defer.promise;
@@ -325,21 +336,47 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
             return defer.promise;
         },
 
-        loadCatalogProduct: function(productID){
+        loadInventoryProduct: function(productID){
             var defer = $q.defer();
             if(!data.store.products[productID]){
-                data.store.products[productID] = syncData('product/'+productID);
-                data.store.products[productID].$on('loaded', function(){
-                    if(data.store.products[productID].$value === null){
+                var productLoad = syncData('product/'+productID);
+                productLoad.$on('loaded', function(){
+                    data.store.products[productID] = productLoad;
+                    if(data.store.products[productID].$value === null || !data.store.products[productID].name){
                         data.store.products[productID] = null;
                     }
                     defer.resolve(data.store.products[productID]);
                 });
             }
             else{
-                defer.resolve(data.store.products[productID]);
+                defer.resolve(data.store.products[productID].name?data.store.products[productID]:null);
             }
+            return defer.promise;
+        },
 
+        /**
+         * loads a list of inventory products
+         * productList should be of format:
+         *  [productID] = product
+         *
+         * if product has a property 'children', it will be skipped
+         */
+        loadInventoryProducts: function(productList){
+            var defer = $q.defer();
+            var productLoads = [];
+            angular.forEach(productList, function(product, productID){
+                if(product && !product.children){
+                    productLoads.push(api.loadInventoryProduct(productID));
+                }
+            });
+            if(productLoads.length){
+                $q.all(productLoads).then(function(results){
+                    defer.resolve();
+                });
+            }
+            else{
+                defer.resolve();
+            }
             return defer.promise;
         },
 
