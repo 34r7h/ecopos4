@@ -14,8 +14,6 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
     var CatalogBrowser = function(newCatalog){
         $log.debug('browser:'+newCatalog);
         var catalog = null; //(typeof newCatalog !== 'undefined') ? newCatalog : null;
-        var currentPath = '/';
-        var search = '';
 
         var categoryLoaded = function(catObj, prodURL){
             var catRef = null;
@@ -75,6 +73,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                                 }
                                 public.category = afCategory;
                                 public.product = null;
+                                public.productURI = '';
 
                                 $log.debug('loaded category:'+public.category.name+' with '+Object.keys(public.category.children).length+' children');
 
@@ -88,7 +87,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
 
                                 var i = 0;
                                 var bcTrace = public.category.$getRef();
-                                currentPath = getPathForCatalogRef(bcTrace);
+                                public.pathStr = getPathForCatalogRef(bcTrace);
                                 // maximum breadcrumbs is 10 (this is mostly a safety on unlikely chance of bcTrace.parent() causing infinite)
                                 while(bcTrace && i < 10){
                                     var cPath = getPathForCatalogRef(bcTrace); //bcTrace.toString().replace(catalog.toString(), '').replace(/children\//g, '');
@@ -114,7 +113,8 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                                     });
                                     if(childProduct && childProductID){
                                         $log.debug('product found \''+prodURL+'\' ['+childProductID+'] in \''+public.category.name+'\'');
-                                        currentPath += ((currentPath.charAt(currentPath.length-1)!=='/' && prodURL.charAt(0) !=='/')?'/':'')+prodURL;
+                                        //public.pathStr += ((public.pathStr.charAt(public.pathStr.length-1)!=='/' && prodURL.charAt(0) !=='/')?'/':'')+prodURL;
+                                        public.productURI = prodURL;
                                         public.setProduct(childProductID);
                                     }
                                     else{
@@ -184,10 +184,14 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
             product: null,
             path: [],
 
+            pathStr: '/',
+            productURI: '',
+            search: '',
+
             setCatalog: function(newCatalog){
                 if(newCatalog !== catalog){
                     catalog = newCatalog;
-                    return public.loadPath(currentPath);
+                    return public.loadPath(public.pathStr);
                 }
                 var defer = $q.defer();
                 defer.resolve(public.category);
@@ -198,7 +202,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                 if (newPath === '') {
                     newPath = '/';
                 }
-                if (newPath !== currentPath) {
+                if (newPath !== public.getPathURI()) {
                     return public.loadPath(newPath);
                 }
                 var defer = $q.defer();
@@ -207,16 +211,19 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
             },
 
             setProduct: function(productID){
-                $log.debug('set product:'+productID);
                 api.loadInventoryProduct(productID).then(function(product){
                     public.product = product;
                     if(!product){
                         $log.error('Could not find product \''+productID+'\' in store inventory.');
                     }
                     if(product && typeof product.$getRef === 'function' && product.$getRef()){
-                        addBreadcrumb(product.name, currentPath, product.$getRef());
+                        addBreadcrumb(product.name, public.pathStr, product.$getRef());
                     }
                 });
+            },
+
+            getPathURI: function(){
+                return public.pathStr+((public.pathStr.charAt(public.pathStr.length-1)!=='/' && public.productURI.charAt(0) !=='/')?'/':'')+public.productURI;
             },
 
             loadPath: function(path) {
