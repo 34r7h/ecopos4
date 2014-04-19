@@ -11,67 +11,170 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
         view:''
     };
 
-    function CatalogBrowser(catalog){
-        this.catalog = catalog;
-        this.category = {};
-        this.categoryID = '';
-        this.path = [];
-        this.search = '';
+    var CatalogBrowser = function(newCatalog){
+        var catalog = (typeof newCatalog !== 'undefined') ? newCatalog : null;
+        var categoryID = '/';
+        var search = '';
 
-        this.loadPath = function(path){
-            var defer = $q.defer();
-            if(this.catalog){
-                console.log('load catalog path \''+path+'\' in '+this.catalog.name());
-
-                var pathParts = [];
-                if(path){
-                    pathParts = path.split('/');
-                }
-                while(pathParts.length && pathParts[0] === ''){
-                    pathParts = pathParts.slice(1);
-                }
-
-                // reset breadcrumb
-                this.path.length = 0;
-
-                console.log('child:'+'children/'+pathParts.join('/children/'));
-
-                var catChild = this.catalog.child('children/'+pathParts.join('/children/'));
-                if(catChild){
-
-                    catChild.once('value', function(snap){
-                        if(snap.val()){
-                            console.log('win:'+catChild);
+        var categoryLoaded = function(catObj, prodURL){
+            var catRef = null;
+            if(catObj){
+                if(typeof catObj.val === 'function'){
+                    // if val function exists, assume it is a datasnapshot
+                    // try to get the reference
+                    if(typeof catObj.ref === 'function'){
+                        if(catObj.val() && typeof catObj.hasChild === 'function' && catObj.hasChild('children')){
+                            // has a truthy value and a reference and a child named children - this catObj is legit
+                            catRef = catObj.ref();
                         }
                         else{
-                            console.log('loser:'+catChild)
+                            // apparently has a null or false value, but has a reference
+                            // check if we can get a parent
+                            if(typeof catObj.ref().parent === 'function' && typeof catObj.ref().parent().parent === 'function'){
+                                var parent = catObj.ref().parent().parent();
+                                if(parent){
+                                    var refStr = (typeof catObj.ref().name === 'function')?catObj.ref().name():'';
+                                    parent.once('value', function(snap){ categoryLoaded(snap, refStr); });
+                                }
+                            }
+                            else{
+                                // has ref and val but no children and no parent
+                                $log.error('no parent for '+catObj.ref());
+                            }
+                        }
+                    }
+                    else{
+                        // no ref, but apparently has a val
+                        $log.error('no reference for '+catObj.val());
+                    }
+                }
+                else{
+                    // no val function, let's try to use it as a reference as it is
+                    catRef = catObj;
+                }
+
+                if(catRef){
+                    var afCategory = $firebase(catRef);
+                    afCategory.$on('value', function(){
+                        if(public.category.children || afCategory.$getRef().toString()===catalog.toString()){
+                            if(afCategory.name && afCategory.children){
+                                // legit category
+                                public.category = afCategory;
+
+                                // what about children?
+                                if(public.category.children){
+                                    // check for that product URL
+                                    if(prodURL){
+                                        var childProduct = null;
+                                        angular.forEach(public.category.children, function(child, childID){
+                                            if(child.url && child.url === prodURL){
+                                                childProduct = child;
+                                                $log.debug('got product:'+childID+':'+JSON.stringify(child)+':');
+                                            }
+                                        });
+                                        if(!childProduct){
+                                            $log.error('could not load product \''+prodURL+'\' in category \''+public.category.name+'\'');
+                                        }
+                                    }
+                                }
+                                else{
+                                    $log.error('no children found in category \''+public.category.name+'\'');
+                                }
+                            }
+
+                        }
+                        else{
+                            // for some reason the sub-category came through while there is an outstanding request for the catalog $firebase
+                            // re-queue that one
+                            $log.debug('re-queue:'+afCategory.name);
+                            afCategory.$getRef().once('value', function(snap){ categoryLoaded(snap, prodURL); });
                         }
                     });
                 }
-
-                defer.resolve(this.category);
             }
             else{
-                defer.reject('No catalog to load from');
+                console.log('no catObj');
             }
-            return defer.promise;
         };
 
-        this.setCatalog = function(catalog){
-            if(catalog !== this.catalog){
-                this.catalog = catalog;
-                return this.loadPath(this.categoryID);
+        var public = {
+            category: {},
+            path: [],
+
+            setCatalog: function(newCatalog){
+                if(newCatalog !== catalog){
+                    catalog = newCatalog;
+                    return public.loadPath(categoryID);
+                }
+                var defer = $q.defer();
+                defer.resolve(public.category);
+                return defer.promise;
+            },
+
+            setCategory: function(newCategoryID){
+                if (newCategoryID === '') {
+                    newCategoryID = '/';
+                }
+                if (newCategoryID !== categoryID) {
+                    categoryID = newCategoryID;
+                    return public.loadPath(categoryID);
+                }
+                var defer = $q.defer();
+                defer.resolve(public.category);
+                return defer.promise;
+            },
+
+            loadPath: function(path, productName) {
+                var defer = $q.defer();
+
+                if(catalog){
+                    $log.debug('load catalog path \'' + path + '\' in ' + catalog.name());
+
+                    var pathParts = [];
+                    if(path.charAt(0) === '/'){
+                        path = path.substr(1);
+                    }
+                    if(path.charAt(path.length-1) === '/'){
+                        path = path.substr(0, path.length-1);
+                    }
+                    if(path){
+                        pathParts = path.split('/');
+                    }
+                    var emptyIdx;
+                    while((emptyIdx = pathParts.indexOf('')) !== -1){
+                        pathParts.splice(emptyIdx, 1);
+                    }
+
+                    // reset breadcrumb
+                    path.length = 0;
+                    if (productName) {
+                        console.log('load product:\'' + productName + '\'');
+                    }
+
+                    var catChild = catalog;
+
+                    if(pathParts.length) {
+                        catChild = catalog.child('children/' + pathParts.join('/children/'));
+                        catChild.once('value', categoryLoaded);
+                    }
+                    else {
+                        console.log('cat is catalog:'+catalog);
+                        categoryLoaded(catalog);
+                    }
+                }
+                else{
+                    console.log('no catalog');
+                    defer.reject('No catalog to load from');
+                }
+                return defer.promise;
             }
-            var defer = $q.defer();
-            defer.resolve(this.category);
-            return defer.promise;
+
+
         };
 
-        this.setCategory = function(categoryID){
-            this.categoryID = categoryID;
-            return this.loadPath(this.categoryID);
-        };
-    }
+        return public;
+    };
+
     data.store.browser['shop'] = new CatalogBrowser(); // this is the main shop browser and we always want it to exist
 
 
