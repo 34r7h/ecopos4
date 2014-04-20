@@ -77,6 +77,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
 
                                 $log.debug('loaded category:'+public.category.name+' with '+Object.keys(public.category.children).length+' children');
 
+
                                 //api.loadInventoryProducts(afCategory.children); // instead handled by the children.on('child_added')
 
                                 // reset breadcrumb
@@ -87,7 +88,11 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
 
                                 var i = 0;
                                 var bcTrace = public.category.$getRef();
-                                public.pathStr = getPathForCatalogRef(bcTrace);
+                                var newPath = getPathForCatalogRef(bcTrace);
+                                if(newPath !== public.pathStr){
+                                    api.resetInventoryCache();
+                                }
+                                public.pathStr = newPath;
                                 // maximum breadcrumbs is 10 (this is mostly a safety on unlikely chance of bcTrace.parent() causing infinite)
                                 while(bcTrace && i < 10){
                                     var cPath = getPathForCatalogRef(bcTrace); //bcTrace.toString().replace(catalog.toString(), '').replace(/children\//g, '');
@@ -341,6 +346,12 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                 defer.resolve(data.store.catalogs[name]);
             }
             return defer.promise;
+        },
+
+        resetInventoryCache: function(){
+            console.log('%chas '+Object.keys(data.store.products).length+' products $firebinded!', 'background-color:#222;color:#09f;font-size:1.75em');
+            for (var prop in data.store.products) { if (data.store.products.hasOwnProperty(prop)) { delete data.store.products[prop]; } }
+            console.log('%cnow '+Object.keys(data.store.products).length+' products $firebinded!', 'background-color:#222;color:#90f;font-size:1.24');
         },
 
         loadInventoryProduct: function(productID){

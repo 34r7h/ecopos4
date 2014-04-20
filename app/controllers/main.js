@@ -112,7 +112,7 @@ angular.module('ecoposApp')
 
         // load the catalog for the main CatalogBrowser
 
-        system.api.addCatalogBrowser('shop', 'pat').then(function(browser){
+        system.api.addCatalogBrowser('shop', 'shop').then(function(browser){
             $scope.shop = browser;
         });
 
