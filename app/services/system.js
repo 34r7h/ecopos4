@@ -130,14 +130,14 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                             }
                         }
                         else{
-<<<<<<< HEAD
+
                             console.log('loser:'+catChild);
-=======
+
                             // for some reason the sub-category came through while there is an outstanding request for the catalog $firebase
                             // re-queue that one
                             $log.debug('re-queue:'+afCategory.name);
                             afCategory.$getRef().once('value', function(snap){ categoryLoaded(snap, prodURL); });
->>>>>>> 428759b1d114abb678306f5cc6091df491a0b529
+
                         }
                     });
                 }
