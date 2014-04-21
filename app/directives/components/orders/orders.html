@@ -4,7 +4,7 @@
     <div>
         <div>
     <table>
-        <tr ng-repeat="order in orders" >
+        <tr ng-repeat="order in user.orders" >
 
                     <td data-title="'Date'">{{order.createdTime | date:'yyyy-MM-dd'}}</td>
                     <td data-title="'Items'" ><span ng-repeat="(key,item) in order.products">{{key}}, {{item.qty}}{{item.units}} - {{item.cost | currency}}<br></span></td>

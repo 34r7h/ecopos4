@@ -1,6 +1,6 @@
 var component = angular.module('ecoposApp');
 
-component.directive('map', function () {
+component.directive('maps', function () {
 	'use strict';
 
 	var directionsDisplay = new google.maps.DirectionsRenderer(),
