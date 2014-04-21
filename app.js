@@ -16,8 +16,7 @@ angular.module('ecoposApp', [
 	'mobile-angular-ui',
 	'mobile-angular-ui.touch',
 	'mobile-angular-ui.scrollable',
-	'ngAnimate',
-	'ngMap'
+	'ngAnimate'
 ]);
 
 angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) {

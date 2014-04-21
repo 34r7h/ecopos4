@@ -14,7 +14,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
     var CatalogBrowser = function(newCatalog){
         $log.debug('browser:'+newCatalog);
         var catalog = null; //(typeof newCatalog !== 'undefined') ? newCatalog : null;
-
+	    var catChild = catalog;
         var categoryLoaded = function(catObj, prodURL){
             var catRef = null;
             if(catObj){
