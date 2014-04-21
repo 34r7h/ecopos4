@@ -44,7 +44,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
                             console.log('win:'+catChild);
                         }
                         else{
-                            console.log('loser:'+catChild)
+                            console.log('loser:'+catChild);
                         }
                     });
                 }
