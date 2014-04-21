@@ -2,7 +2,8 @@
     <h3>Product-List</h3>
     <div ng-show="shop">
         <div>
-            {{shop.pathStr}}:{{shop.productURI}}
+            {{shop.pathStr}}:{{shop.productURI}}<br/>
+            {{shop.search}}
 
             <ul class="breadcrumb">
                 <li ng-repeat="cPath in shop.path">
@@ -25,7 +26,7 @@
             <h3>{{shop.category.name}}</h3>
             <h4>Products</h4>
             <ul>
-                <li ng-repeat="(childPrio,child) in shop.category.children | orderByPriority | filter:isProduct">
+                <li ng-repeat="(childPrio,child) in shop.category.children | orderByPriority | filter:isProduct | filter:shop.search">
                     <a ng-if="child.url" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr+'/'+child.url))"><span ng-if="!inventory[child.$id]">{{child.name}}</span>
                         <span ng-if="inventory[child.$id]">{{inventory[child.$id].brand}} {{inventory[child.$id].name}} {{inventory[child.$id].size}}</span></a>
                     <a ng-if="!child.url" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr+'/'+child.$id))">{{child.name}}</a>
@@ -33,7 +34,7 @@
             </ul>
             <h4>Sub-Categories</h4>
             <ul>
-                <li ng-repeat="(childPrio,child) in shop.category.children | orderByPriority| filter:isCategory">
+                <li ng-repeat="(childPrio,child) in shop.category.children | orderByPriority| filter:isCategory | filter:shop.search">
                     <a ng-if="child.url" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr+'/'+child.url))">{{child.name}}</a>
                     <a ng-if="!child.url" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr+'/'+child.$id))">{{child.name}}</a>
                 </li>
