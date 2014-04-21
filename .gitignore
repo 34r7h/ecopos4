@@ -6,3 +6,5 @@ npm-debug.log
 .*
 platforms/
 plugins/
+app/images/3drooms.psd
+app/images/logo.png

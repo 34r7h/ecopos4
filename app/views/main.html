@@ -5,10 +5,12 @@
     <div class="body rowz col-xs-12">
         <div class="scroll-x">
             <product-list></product-list>
+
             <map zoom="11" center="[40.74, -74.18]" map-type-id="MapTypeId.SATELLITE">
                 <marker position="current" centered="true"></marker>
             </map>
             <div ui-view="{{view}}">{{test}}</div>
+
         </div>
 
     </div>
