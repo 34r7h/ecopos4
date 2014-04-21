@@ -1,79 +1,50 @@
 <div>
-    {{shopName}} Products
-'{{shopState.categoryID}}'
+    <h3>Product-List</h3>
+    <div ng-show="shop">
+        <div>
+            {{shop.pathStr}}:{{shop.productURI}}
 
-    <ul class="breadcrumb">
-        <li ng-repeat="cPath in shopState.path"><a ng-if="cPath.path" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(cPath.path))">{{cPath.name}}</a><strong ng-if="!cPath.path">{{cPath.name}}</strong></li>
-    </ul>
-    <input type="text" ng-model="shopState.search" />
-    <div>
-        <h4>Products</h4>
-        <ul ng-if="shopState.category && !shopState.product">
-            <li ng-repeat="(childName,child) in shopState.category.children | orderByPriority | filter:isProduct | filter:shopState.search track by $index">
-                <a ng-if="!child.children" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shopState.categoryID+'/'+child.url))">{{child.name}}</a>
-                <div ng-show="inventory[child.$id]">
-                    werd:{{inventory[child.$id]}}
-                </div>
-            </li>
-        </ul>
-    </div>
-
-    <div>
-        <h4>Sub-Categories</h4>
-        <ul ng-if="shopState.category && !shopState.product">
-            <li ng-repeat="(childName,child) in shopState.category.children | orderByPriority | filter:isCategory | filter:shopState.search track by $index">
-                <a ng-if="child.children" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shopState.categoryID+'/'+child.$id))">{{child.name}}</a>
-            </li>
-        </ul>
-    </div>
-
-
-    <div ng-if="shopState.product">
-        id#{{shopState.product.$id}}
-        <h4>
-            <span ng-hide="user.activeRole==='admin'" ng-if="shopState.product.brand">{{shopState.product.brand}} </span>
-            <input ng-show="user.activeRole==='admin'" ng-model="shopState.product.brand" type="text" />
-
-            <span ng-hide="user.activeRole==='admin'" ng-if="shopState.product.name">{{shopState.product.name}}</span>
-            <input ng-show="user.activeRole==='admin'" ng-model="shopState.product.name" type="text" />
-
-            <span ng-if="shopState.product.size && !shopState.product.bulk"> ({{shopState.product.size}})</span>
-            <span ng-if="shopState.product.bulk"> (Bulk)</span>
-        </h4>
-        <span ng-if="shopState.product.price && !shopState.product.bulk">{{shopState.product.price | currency}}</span>
-        <span ng-if="shopState.product.price && shopState.product.bulk">{{shopState.product.price | bulkPrice:shopState.product.unit:shopState.product.size:'g':100 | currency}}/100g</span>
-        <div ng-show="user.activeRole==='admin'" ng-if="shopState.product.bulk">$<input ng-model="shopState.product.price" type="text" />/<input ng-model="shopState.product.size" type="text" /><select ng-model="shopState.product.unit"><option value="lb">lb</option><option value="g">g</option></select></div>
-
-        <div ng-show="user.activeRole==='admin'">
-            <button ng-click="saveProduct(shopState.product)" class="btn-danger">Save Product</button>
+            <ul class="breadcrumb">
+                <li ng-repeat="cPath in shop.path">
+                    <a ng-if="!$last" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(cPath.path))">{{cPath.name}}</a>
+                    <strong ng-if="$last">{{cPath.name}}</strong>
+                </li>
+            </ul>
         </div>
-
-        <div>{{shopState.product}}</div>
-    </div>
-    <!--div ng-if="shopState.product">
-        <h4 ng-hide="shopState.product.fullData">{{shopState.product.name}}</h4>
-        <div ng-show="shopState.product.fullData">
-            id#{{shopState.product.fullData.$id}}
-            <h4>
-                <span ng-hide="user.activeRole==='admin'" ng-if="shopState.product.fullData.brand">{{shopState.product.fullData.brand}} </span>
-                <input ng-show="user.activeRole==='admin'" ng-model="shopState.product.fullData.brand" type="text" />
-
-                <span ng-hide="user.activeRole==='admin'" ng-if="shopState.product.fullData.name">{{shopState.product.fullData.name}}</span>
-                <input ng-show="user.activeRole==='admin'" ng-model="shopState.product.fullData.name" type="text" />
-
-                <span ng-if="shopState.product.fullData.size && !shopState.product.fullData.bulk"> ({{shopState.product.fullData.size}})</span>
-                <span ng-if="shopState.product.fullData.bulk"> (Bulk)</span>
-            </h4>
-            <span ng-if="shopState.product.fullData.price && !shopState.product.fullData.bulk">{{shopState.product.fullData.price | currency}}</span>
-            <span ng-if="shopState.product.fullData.price && shopState.product.fullData.bulk">{{shopState.product.fullData.price | bulkPrice:shopState.product.fullData.unit:shopState.product.fullData.size:'g':100 | currency}}/100g</span>
-            <div ng-show="user.activeRole==='admin'" ng-if="shopState.product.fullData.bulk">$<input ng-model="shopState.product.fullData.price" type="text" />/<input ng-model="shopState.product.fullData.size" type="text" /><select ng-model="shopState.product.fullData.unit"><option value="lb">lb</option><option value="g">g</option></select></div>
-
-            <div ng-show="user.activeRole==='admin'">
-                <button ng-click="saveProduct(shopState.product.fullData)" class="btn-danger">Save Product</button>
+        <div ng-if="shop.productURI">
+            <div ng-show="shop.product">
+                <h3>{{shop.product.name}}</h3>
+                {{shop.product}}
             </div>
-
-            <div>{{shopState.product.fullData}}</div>
+            <div ng-show="!shop.product">
+                <p>Could not find requested product '{{shop.productURI}}'</p>
+                <p>Return to category <a ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr))"><span ng-show="shop.category">{{shop.category.name}}</span><span ng-hide="shop.category">parent</span></a>.</p>
+            </div>
         </div>
+        <div ng-show="shop.category">
+            <h3>{{shop.category.name}}</h3>
+            <h4>Products</h4>
+            <ul>
+                <li ng-repeat="(childPrio,child) in shop.category.children | orderByPriority | filter:isProduct">
+                    <a ng-if="child.url" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr+'/'+child.url))"><span ng-if="!inventory[child.$id]">{{child.name}}</span>
+                        <span ng-if="inventory[child.$id]">{{inventory[child.$id].brand}} {{inventory[child.$id].name}} {{inventory[child.$id].size}}</span></a>
+                    <a ng-if="!child.url" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr+'/'+child.$id))">{{child.name}}</a>
+                </li>
+            </ul>
+            <h4>Sub-Categories</h4>
+            <ul>
+                <li ng-repeat="(childPrio,child) in shop.category.children | orderByPriority| filter:isCategory">
+                    <a ng-if="child.url" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr+'/'+child.url))">{{child.name}}</a>
+                    <a ng-if="!child.url" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr+'/'+child.$id))">{{child.name}}</a>
+                </li>
+            </ul>
 
-    </div-->
+        </div>
+    </div>
+
+    <div ng-hide="shop">
+        Shop is not initialized.
+    </div>
+
+
 </div>

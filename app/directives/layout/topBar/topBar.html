@@ -2,15 +2,16 @@
     <div class="col-xs-12">
         <div class="col-xs-3">
             <div class="foots breadcrumbs">
-                    <span ng-repeat="cPath in shopState.path">
+                {{test}}
+                    <span ng-repeat="cPath in breadcrumb">
                         <a ng-if="cPath.path" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(cPath.path))">/ {{cPath.name}}</a>
                         <strong ng-if="!cPath.path"><br> {{cPath.name}}</strong>
                     </span>
             </div>
         </div>
-        <div class="col-xs-9 pull-right">
+        <div class="col-xs-9 pull-right" style="height: 0">
             <div class="col-xs-7">
-                <div ng-if="alert" class="alert-danger alert">{{alert}}</div>
+                <div ng-if="alertz" class="alert-danger alert">{{alertz}}</div>
             </div>
 
             <div class="col-xs-1">
@@ -35,7 +36,7 @@
                     </a>
                     <div ng-show="evts" class="my-dropdown-menu" ng-style="dirDim">
                         <ul>
-                            <li><div eco-panel title="Events" iconz="iconx">
+                            <li><div eco-panel title="Events" iconz="iconz">
                                 <events></events>
                             </div></li>
                         </ul>

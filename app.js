@@ -10,7 +10,7 @@ angular.module('ecoposApp', [
 	'angularfire.login',
 	'simpleLoginTools',
 	'angular-gestures',
-	'google-maps',
+	// 'google-maps',
 	'ui.bootstrap',
     'datePicker',
 	'mobile-angular-ui',
@@ -33,7 +33,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 			}
 		}).
 		state('ecoApp.nav',{
-			template:'<ui-view></ui-view>',
+
 			controller: function($scope){
 				$scope.navMainTest = " navMainTest";
 			},
@@ -45,22 +45,22 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 				},
 				customer:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo customer navigation!";
 					}
 				},
 				manager:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo manager navigation!";
 					}
 				},
 				employee:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo employee navigation!";
 					}
 				},
 				supplier:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo supplier navigation!";
 					}
 				},
 
@@ -88,27 +88,27 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 			views:{
 				admin:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo admin notifications!";
 					}
 				},
 				customer:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo customer notifications!";
 					}
 				},
 				manager:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo manager notifications!";
 					}
 				},
 				employee:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo employee notifications!";
 					}
 				},
 				supplier:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo supplier notifications!";
 					}
 				},
 				1:{
@@ -130,34 +130,35 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 			views:{
 				admin:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo admin tools!";
 					}
 				},
 				customer:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo customer tools!";
 					}
 				},
 				manager:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo manager tools!";
 					}
 				},
 				employee:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo employee tools!";
 					}
 				},
 				supplier:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo supplier tools!";
+						$scope.alertz = "i know you are but what am i? i know you are but what am i? i know you are but what am i? i know you are but what am i? i know you but what am i? i know you are but what am i? i know you are but what am i? i know you are but what am i? i know you are but what am i? i know you are but what am i? ";
 					}
 				},
 				1:{
 					template: '<h4 href ng-click="$state.go(\'^\')">Tools Yolo 1</h4><calendar calendar-content="user.calendar"></calendar>'
 				},
 				2:{
-					template: '<h4 href ng-click="$state.go(\'^\')">Tools Yolo 2</h4><maps></maps>'
+					template: '<h4 href ng-click="$state.go(\'^\')">Tools Yolo 2</h4>'
 				}
 			},
 			onEnter: function(){
@@ -172,35 +173,38 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 			views: {
 				admin:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo admin settings!";
 					}
 				},
 				customer:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo customer settings!";
 					}
 				},
 				manager:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo manager settings!";
 					}
 				},
 				employee:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo employee settings!";
 					}
 				},
 				supplier:{
 					controller:function($scope,system,$state){
-						$scope.test = "";
+						$scope.test = "yolo supplier settings!";
 					}
 				},
 				1:{
 					controller: function($scope,$stateParams,$log,system, $state, cart, syncData){
 
+						/*
 						$scope.reload = function() {
+
 							$state.reload();
 						};
+						*/
 						system.data.params.data = $stateParams;
 						$log.info($stateParams.params);
 						console.log('%c'+system.data.params, 'background: #222; color: #bada55');
@@ -223,7 +227,10 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 						$scope.invoice = cart.invoice;
 						$scope.items = cart.invoice.items;
 
-                        system.data.catalog.browse['categoryID'] = system.data.params.data['path'];
+                        if(system.data.store.browser['shop']){
+                            $log.debug('app load shop path:'+system.data.params.data['path']);
+                            system.data.store.browser['shop'].setPath(system.data.params.data['path']);
+                        }
 					},
 					template:'<h6 ng-repeat="(key,param) in help.data">{{key}}: {{param}}</h6><a href="/#/settings">Settings Yolo 1</a><p ng-repeat="(key,settings) in dashStuff2 | orderBy:key:reverse">{{ key }}: <prefs type="settings.type" element="settings.elementual"></prefs></p></div>'
 				},
@@ -231,7 +238,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 					controller: function($scope,system){
 						$scope.test = "2: I'm scoped from settings state!";
 					},
-					template:'<a ng-href="#/settings?access_level=admin&preferences=sunshine-organics&history=shop/baked-goods">Settings Yolo 2</a><p ng-click="reload()">Reload!</p><prefs></prefs></div>'
+					template:'<a ng-href="#/settings?access_level=admin&preferences=sunshine-organics&history=shop/baked-goods">Settings Yolo 2</a></div>'
 				}
 			},
 			onEnter: function(system,$stateParams){
@@ -241,16 +248,16 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 
 				if(/^\/notifications(\/.*)?$/.test($stateParams.path)){
 					console.log('path does = /notifications');
-					system.data.view = '1@ecoApp.nav';
+					system.data.view = system.data.params.data.access_level + '@ecoApp.nav';
 				} else if (/^\/tools(\/.*)?$/.test($stateParams.path)) {
 					console.log('path does = /tools');
-					system.data.view = '1@ecoApp.nav.not';
+					system.data.view = system.data.params.data.access_level + '@ecoApp.nav.not';
 				}  else if (/^\/settings(\/.*)?$/.test($stateParams.path)) {
 					console.log('path does = /settings');
-					system.data.view = '1@ecoApp.nav.not.tools';
+					system.data.view = system.data.params.data.access_level + '@ecoApp.nav.not.tools';
 				} else if(/^\/*(\/.*)?$/.test($stateParams.path)){
 					console.log('path does = /anything');
-					system.data.view = 'shop@ecoApp';
+					system.data.view = system.data.params.data.access_level + '@ecoApp';
 				}
 
 				var css = "color:rgba(255,255,255,.9);text-shadow: -1px -1px hsl(0,100%,50%), 1px 1px hsl(5.4, 100%, 50%), 3px 2px hsl(10.8, 100%, 50%), 5px 3px hsl(16.2, 100%, 50%), 7px 4px hsl(21.6, 100%, 50%), 9px 5px hsl(27, 100%, 50%), 11px 6px hsl(32.4, 100%, 50%), 13px 7px hsl(37.8, 100%, 50%), 14px 8px hsl(43.2, 100%, 50%), 16px 9px hsl(48.6, 100%, 50%), 18px 10px hsl(54, 100%, 50%), 20px 11px hsl(59.4, 100%, 50%), 22px 12px hsl(64.8, 100%, 50%), 23px 13px hsl(2154.6, 100%, 50%); font-size: 20px;";
@@ -292,7 +299,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 });
 
 angular.module('ecoposApp').run(function($rootScope, simpleLogin, $state, $stateParams) {
-	$rootScope.$on('$stateChangeSuccess',
+	 $rootScope.$on('$stateChangeSuccess',
 		function(event, toState, toParams, fromState, fromParams){
 			if(fromParams !== toParams || toState !== fromState){
 				$state.reload();
@@ -301,6 +308,7 @@ angular.module('ecoposApp').run(function($rootScope, simpleLogin, $state, $state
 			}
 		}
 	);
+
 	$rootScope.$state = $state;
 	$rootScope.$stateParams = $stateParams;
 	       // if there is a user authenticated with firebase, this will trigger the rest of the login sequence for them
