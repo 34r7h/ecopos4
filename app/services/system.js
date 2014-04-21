@@ -1,4 +1,4 @@
-angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $firebase, $q, $rootScope, $timeout, $log, cart) {
+angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $firebase, FBURL, $q, $rootScope, $timeout, $log, cart) {
 
     var data = {
         user: {id: null, profile: null, activeRole: 'anonymous', messages: {}, events: {}, calendar: {}, session: {firstActiveRole: true, calendarEvents: {}}},
@@ -11,69 +11,273 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
         view:''
     };
 
-    function CatalogBrowser(catalog){
-        this.catalog = catalog;
-        this.category = {};
-        this.categoryID = '';
-        this.path = [];
-        this.search = '';
+    var CatalogBrowser = function(newCatalog){
+        $log.debug('browser:'+newCatalog);
+        var catalog = null; //(typeof newCatalog !== 'undefined') ? newCatalog : null;
 
-        this.loadPath = function(path){
-            var defer = $q.defer();
-            if(this.catalog){
-                console.log('load catalog path \''+path+'\' in '+this.catalog.name());
-
-                var pathParts = [];
-                if(path){
-                    pathParts = path.split('/');
-                }
-                while(pathParts.length && pathParts[0] === ''){
-                    pathParts = pathParts.slice(1);
-                }
-
-                // reset breadcrumb
-                this.path.length = 0;
-
-                console.log('child:'+'children/'+pathParts.join('/children/'));
-
-                var catChild = this.catalog.child('children/'+pathParts.join('/children/'));
-                if(catChild){
-
-                    catChild.once('value', function(snap){
-                        if(snap.val()){
-                            console.log('win:'+catChild);
+        var categoryLoaded = function(catObj, prodURL){
+            var catRef = null;
+            if(catObj){
+                if(typeof catObj.val === 'function'){
+                    // if val function exists, assume it is a datasnapshot
+                    // try to get the reference
+                    if(typeof catObj.ref === 'function'){
+                        if(catObj.val() && typeof catObj.hasChild === 'function' && catObj.hasChild('children')){
+                            // has a truthy value and a reference and a child named children - this catObj is legit
+                            catRef = catObj.ref();
                         }
                         else{
+                            // apparently has a null or false value, but has a reference
+                            // check if we can get a parent
+                            if(typeof catObj.ref().parent === 'function' && typeof catObj.ref().parent().parent === 'function'){
+                                var parent = catObj.ref().parent().parent();
+                                if(parent){
+                                    var refStr = (typeof catObj.ref().name === 'function')?catObj.ref().name():'';
+                                    parent.once('value', function(snap){ categoryLoaded(snap, refStr); });
+                                }
+                            }
+                            else{
+                                // has ref and val but no children and no parent
+                                $log.error('no parent for '+catObj.ref());
+                            }
+                        }
+                    }
+                    else{
+                        // no ref, but apparently has a val
+                        $log.error('no reference for '+catObj.val());
+                    }
+                }
+                else{
+                    // no val function, let's try to use it as a reference as it is
+                    catRef = catObj;
+                }
+
+                if(catRef){
+                    var afCategory = $firebase(catRef);
+                    catRef.child('children').on('child_added', function(childSnap){
+                        if(childSnap && childSnap.val()){
+                            if(!childSnap.val().children){
+                                api.loadInventoryProduct(childSnap.name());
+                            }
+                        }
+                    });
+                    afCategory.$on('loaded', function(){
+                        // is there a category loaded? or is this the catalog?
+                        // this check ensures catalog is first to load into category
+                        if(public.category || afCategory.$getRef().toString()===catalog.toString()){
+                            // legit category has a name and children
+                            if(afCategory.name && afCategory.children){
+                                // good to go...
+                                if(public.category && typeof public.category.$getRef === 'function'){
+                                    public.category.$getRef().child('children').off('child_added');
+                                }
+                                public.category = afCategory;
+                                public.product = null;
+                                public.productURI = '';
+
+                                $log.debug('loaded category:'+public.category.name+' with '+Object.keys(public.category.children).length+' children');
+
+
+                                //api.loadInventoryProducts(afCategory.children); // instead handled by the children.on('child_added')
+
+                                // reset breadcrumb
+                                if(!public.path){
+                                    public.path = [];
+                                }
+                                public.path.length = 0;
+
+                                var i = 0;
+                                var bcTrace = public.category.$getRef();
+                                var newPath = getPathForCatalogRef(bcTrace);
+                                if(newPath !== public.pathStr){
+                                    api.resetInventoryCache();
+                                }
+                                public.pathStr = newPath;
+                                // maximum breadcrumbs is 10 (this is mostly a safety on unlikely chance of bcTrace.parent() causing infinite)
+                                while(bcTrace && i < 10){
+                                    var cPath = getPathForCatalogRef(bcTrace); //bcTrace.toString().replace(catalog.toString(), '').replace(/children\//g, '');
+                                    if(!cPath){ cPath = '/'; }
+
+                                    addBreadcrumb(bcTrace.name(), cPath, bcTrace, true);
+                                    bcTrace = bcTrace.parent();
+                                    if(bcTrace){
+                                        bcTrace = bcTrace.parent();
+                                    }
+                                    i++;
+                                }
+
+                                var childProduct = null;
+                                // was a productURL requested?
+                                if(prodURL){
+                                    var childProductID = null;
+                                    angular.forEach(public.category.children, function(child, childID){
+                                        if(child.url && child.url === prodURL){
+                                            childProductID = childID;
+                                            childProduct = child;
+                                        }
+                                    });
+                                    if(childProduct && childProductID){
+                                        $log.debug('product found \''+prodURL+'\' ['+childProductID+'] in \''+public.category.name+'\'');
+                                        //public.pathStr += ((public.pathStr.charAt(public.pathStr.length-1)!=='/' && prodURL.charAt(0) !=='/')?'/':'')+prodURL;
+                                        public.productURI = prodURL;
+                                        public.setProduct(childProductID);
+                                    }
+                                    else{
+                                        $log.debug('could not load product \''+prodURL+'\' in category \''+public.category.name+'\'');
+                                    }
+                                }
+
+                            }
+                        }
+                        else{
+<<<<<<< HEAD
                             console.log('loser:'+catChild);
+=======
+                            // for some reason the sub-category came through while there is an outstanding request for the catalog $firebase
+                            // re-queue that one
+                            $log.debug('re-queue:'+afCategory.name);
+                            afCategory.$getRef().once('value', function(snap){ categoryLoaded(snap, prodURL); });
+>>>>>>> 428759b1d114abb678306f5cc6091df491a0b529
                         }
                     });
                 }
-
-                defer.resolve(this.category);
             }
             else{
-                defer.reject('No catalog to load from');
+                console.log('no catObj');
             }
-            return defer.promise;
         };
 
-        this.setCatalog = function(catalog){
-            if(catalog !== this.catalog){
-                this.catalog = catalog;
-                return this.loadPath(this.categoryID);
+        var getPathForCatalogRef = function(fbRef){
+            var path = ''+fbRef;
+            if(path){
+                if(catalog){
+                    path = path.replace(catalog.toString(), '');
+                }
+                if(FBURL){
+                    path = path.replace(FBURL, '');
+                }
+                path = path.replace(/children\//g, '');
             }
-            var defer = $q.defer();
-            defer.resolve(this.category);
-            return defer.promise;
+            return path;
         };
 
-        this.setCategory = function(categoryID){
-            this.categoryID = categoryID;
-            return this.loadPath(this.categoryID);
+        var addBreadcrumb = function(name, path, fbRef, atStart){
+            var newBC = {name: name, path: path, refPath: ''+fbRef}; // will toString() fbRef if possible
+            if(atStart){
+                public.path.unshift(newBC);
+            }
+            else{
+                public.path.push(newBC);
+            }
+            if(fbRef && typeof fbRef.child === 'function'){
+                fbRef.child('name').on('value', function(snap){
+                    if(snap && snap.val()){
+                        setBreadcrumbName(snap.val(), snap.ref().parent().toString());
+                    }
+                });
+            }
         };
-    }
-    data.store.browser['shop'] = new CatalogBrowser(); // this is the main shop browser and we always want it to exist
 
+        var setBreadcrumbName = function(name, refPath){
+            if(refPath && public.path.length){
+                angular.forEach(public.path, function(cPath, idx){
+                    if(cPath.refPath === refPath){
+                        public.path[idx].name = name;
+                    }
+                });
+            }
+        };
+
+        var public = {
+            category: null,
+            product: null,
+            path: [],
+
+            pathStr: '/',
+            productURI: '',
+            search: '',
+
+            setCatalog: function(newCatalog){
+                if(newCatalog !== catalog){
+                    catalog = newCatalog;
+                    return public.loadPath(public.pathStr);
+                }
+                var defer = $q.defer();
+                defer.resolve(public.category);
+                return defer.promise;
+            },
+
+            setPath: function(newPath){
+                if (newPath === '') {
+                    newPath = '/';
+                }
+                if (newPath !== public.getPathURI()) {
+                    return public.loadPath(newPath);
+                }
+                var defer = $q.defer();
+                defer.resolve(public.category);
+                return defer.promise;
+            },
+
+            setProduct: function(productID){
+                api.loadInventoryProduct(productID).then(function(product){
+                    public.product = product;
+                    if(!product){
+                        $log.error('Could not find product \''+productID+'\' in store inventory.');
+                    }
+                    if(product && typeof product.$getRef === 'function' && product.$getRef()){
+                        addBreadcrumb(product.name, public.pathStr, product.$getRef());
+                    }
+                });
+            },
+
+            getPathURI: function(){
+                return public.pathStr+((public.pathStr.charAt(public.pathStr.length-1)!=='/' && public.productURI.charAt(0) !=='/')?'/':'')+public.productURI;
+            },
+
+            loadPath: function(path) {
+                var defer = $q.defer();
+
+                if(catalog){
+                    $log.debug('load catalog path \'' + path + '\' in ' + catalog.name());
+
+                    var pathParts = [];
+                    if(path.charAt(0) === '/'){
+                        path = path.substr(1);
+                    }
+                    if(path.charAt(path.length-1) === '/'){
+                        path = path.substr(0, path.length-1);
+                    }
+                    if(path){
+                        pathParts = path.split('/');
+                    }
+                    var emptyIdx;
+                    while((emptyIdx = pathParts.indexOf('')) !== -1){
+                        pathParts.splice(emptyIdx, 1);
+                    }
+
+                    var catChild = catalog;
+                    if(pathParts.length) {
+                        catChild = catalog.child('children/' + pathParts.join('/children/'));
+                        catChild.once('value', categoryLoaded);
+                    }
+                    else {
+                        $log.debug('category is catalog:'+catalog);
+                        categoryLoaded(catalog);
+                    }
+                }
+                else{
+                    $log.debug('no catalog');
+                    defer.reject('No catalog to load from');
+                }
+                return defer.promise;
+            }
+        };
+
+        public.setCatalog(newCatalog);
+
+        return public;
+    };
 
     var api = {
 
@@ -115,16 +319,16 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
             return total;
         },
 
-
         addCatalogBrowser: function(name, catalogName){
-            var defer = $q.defer;
+            var defer = $q.defer();
             if(!data.store.browser[name]){
                 api.loadCatalog(catalogName).then(function(catalog){
                     data.store.browser[name] = new CatalogBrowser(catalog);
+                    defer.resolve(data.store.browser[name]);
                 });
             }
             else{
-                defer.resolve(data.browser[name]);
+                defer.resolve(data.store.browser[name]);
             }
             return defer.promise;
         },
@@ -144,6 +348,56 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $fi
             }
             else{
                 defer.resolve(data.store.catalogs[name]);
+            }
+            return defer.promise;
+        },
+
+        resetInventoryCache: function(){
+            console.log('%chas '+Object.keys(data.store.products).length+' products $firebinded!', 'background-color:#222;color:#09f;font-size:1.75em');
+            for (var prop in data.store.products) { if (data.store.products.hasOwnProperty(prop)) { delete data.store.products[prop]; } }
+            console.log('%cnow '+Object.keys(data.store.products).length+' products $firebinded!', 'background-color:#222;color:#90f;font-size:1.24');
+        },
+
+        loadInventoryProduct: function(productID){
+            var defer = $q.defer();
+            if(!data.store.products[productID]){
+                var productLoad = syncData('product/'+productID);
+                productLoad.$on('loaded', function(){
+                    data.store.products[productID] = productLoad;
+                    if(data.store.products[productID].$value === null || !data.store.products[productID].name){
+                        data.store.products[productID] = null;
+                    }
+                    defer.resolve(data.store.products[productID]);
+                });
+            }
+            else{
+                defer.resolve(data.store.products[productID].name?data.store.products[productID]:null);
+            }
+            return defer.promise;
+        },
+
+        /**
+         * loads a list of inventory products
+         * productList should be of format:
+         *  [productID] = product
+         *
+         * if product has a property 'children', it will be skipped
+         */
+        loadInventoryProducts: function(productList){
+            var defer = $q.defer();
+            var productLoads = [];
+            angular.forEach(productList, function(product, productID){
+                if(product && !product.children){
+                    productLoads.push(api.loadInventoryProduct(productID));
+                }
+            });
+            if(productLoads.length){
+                $q.all(productLoads).then(function(results){
+                    defer.resolve();
+                });
+            }
+            else{
+                defer.resolve();
             }
             return defer.promise;
         },
