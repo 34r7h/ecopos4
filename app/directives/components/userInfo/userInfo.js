@@ -1,10 +1,10 @@
-angular.module('ecoposApp').directive('userInfo', function() {
+angular.module('ecoposApp').directive('userInfo', function(system) {
 	return {
 		restrict: 'E',
 		replace: true,
 
 		templateUrl: 'app/directives/components/userInfo/userInfo.html',
-		link: function(scope, element, attrs, fn, $rootScope) {
+		link: function(scope, element, attrs, fn, $rootScope, $log) {
 
 			scope.$watch('user.activeRole', function(value){
 				if(value){
