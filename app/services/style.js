@@ -9,7 +9,7 @@ angular.module('ecoposApp').factory('style',function() {
 		'panelBodyHeight': maxHeight - 74 + "px",
 		'panelBodyMinHeight': "100%",
 		'border-radius': '0 0 3px 3px'
-	}
+	};
 
 	return style;
 });

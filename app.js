@@ -95,12 +95,12 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 		state('ecoApp.nav.not.tools.settings',{
 			url:'*path?role&preferences&history&store&overlay&mainview',
 			resolve: {
-				resolution: function($stateParams,$log,system){
+				resolution: function($stateParams,$log,system,shop){
 					system.data.params.data = $stateParams;
 
-					if(system.data.store.browser['shop']){
+					if(shop.data.store.browser['shop']){
 						$log.debug('app load shop path:'+system.data.params.data['path']);
-						system.data.store.browser['shop'].setPath(system.data.params.data['path']);
+						shop.data.store.browser['shop'].setPath(system.data.params.data['path']);
 					}
 
 					if(/^\/*(\/.*)?$/.test($stateParams.path)) {

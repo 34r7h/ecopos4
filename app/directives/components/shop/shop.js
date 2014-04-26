@@ -1,4 +1,4 @@
-angular.module('ecoposApp').directive('shop', function(system, $rootScope) {
+angular.module('ecoposApp').directive('shop', function(system, $rootScope, shop) {
 	return {
 		restrict: 'E',
 		replace: true,
@@ -9,7 +9,7 @@ angular.module('ecoposApp').directive('shop', function(system, $rootScope) {
 			// handle catalog browsing
 			scope.inventory = system.data.store.products;
 			// load the catalog for the main CatalogBrowser
-			system.api.addCatalogBrowser('shop', 'shop').then(function(browser){
+			shop.api.addCatalogBrowser('shop', 'shop').then(function(browser){
 				scope.shop = browser;
 			});
             scope.saveProduct = system.api.saveProduct;

@@ -1,17 +1,17 @@
-angular.module('ecoposApp').directive('cart', function(system, cart) {
+angular.module('ecoposApp').directive('cart', function(shop) {
 	return {
 		restrict: 'E',
 		replace: true,
 
 		templateUrl: 'app/directives/components/cart/cart.html',
 		link: function($scope, element, attrs, fn) {
-			$scope.addProduct = system.api.addProduct;
-			$scope.removeItem = system.api.removeItem;
-			$scope.total = system.api.total;
+			$scope.addProduct = shop.api.addProduct;
+			$scope.removeItem = shop.api.removeItem;
+			$scope.total = shop.api.cartTotal;
 
-			$scope.cart = cart.cart;
-			$scope.invoice = cart.invoice;
-			$scope.items = cart.invoice.items;
+			$scope.cart = shop.data.cart;
+			$scope.invoice = shop.data.invoice;
+			$scope.items = shop.data.invoice.items;
 
 		}
 	};
