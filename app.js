@@ -173,10 +173,9 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 					}
 				}
 			},
-			onEnter: function(system,$stateParams){
+			onEnter: function(system,$stateParams,$state){
 				console.log('%c Settings State', 'color:#888;background:#333;','http://ecossentials.ca');
-				// SHOP SELECTION - could be ecossentials or sunshine-organics - whatever we name the catalog/category tree in firebase
-
+				system.data.params.data = $stateParams;
 
 			},
 			onExit: function(){
@@ -190,6 +189,9 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 
 angular.module('ecoposApp').run(function($rootScope, simpleLogin, $state, $stateParams) {
 	       // if there is a user authenticated with firebase, this will trigger the rest of the login sequence for them
+
+	$rootScope.$state = $state;
+	$rootScope.$stateParams = $stateParams;
 	simpleLogin.activateCurrent();
     $rootScope.safeApply = function(fn) {
         var phase = $rootScope.$$phase;
