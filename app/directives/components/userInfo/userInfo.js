@@ -4,7 +4,7 @@ angular.module('ecoposApp').directive('userInfo', function(system) {
 		replace: true,
 
 		templateUrl: 'app/directives/components/userInfo/userInfo.html',
-		link: function(scope, element, attrs, fn, $rootScope, $log) {
+		link: function(scope, element, attrs, fn, $rootScope, $log, $scope) {
 
 			scope.$watch('user.activeRole', function(value){
 				if(value){
