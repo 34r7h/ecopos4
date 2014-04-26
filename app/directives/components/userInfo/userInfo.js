@@ -4,9 +4,9 @@ angular.module('ecoposApp').directive('userInfo', function(system) {
 		replace: true,
 
 		templateUrl: 'app/directives/components/userInfo/userInfo.html',
-		link: function(scope, element, attrs, fn, $rootScope, $log, $scope) {
-
-			scope.$watch('user.activeRole', function(value){
+		link: function(scope, element, attrs, fn, $rootScope, $log) {
+			/**
+			 scope.$watch('user.activeRole', function(value){
 				if(value){
 					// don't reload state if they just logged in - routesecurity is taking care of that
 					if(!$scope.user.session.firstActiveRole){
@@ -18,7 +18,7 @@ angular.module('ecoposApp').directive('userInfo', function(system) {
 				}
 			});
 
-			scope.$on('$simpleLogin:profile:loaded', function(event, user){
+			 scope.$on('$simpleLogin:profile:loaded', function(event, user){
 				system.api.setUser(user);
 				system.api.setUserActiveRole();
 
@@ -29,15 +29,16 @@ angular.module('ecoposApp').directive('userInfo', function(system) {
 				system.api.loadUserData();
 			});
 
-			scope.$on('$firebaseSimpleLogin:logout', function(event){
+			 scope.$on('$firebaseSimpleLogin:logout', function(event){
 				$log.debug('simpleLogin:logout:');
 				system.api.endUserSession();
 				system.api.setUser(null);
 			});
 
-			scope.$on('$firebaseSimpleLogin:error', function(event, error){
+			 scope.$on('$firebaseSimpleLogin:error', function(event, error){
 				$log.error('simpleLogin:error:'+error);
 			});
+			 */
 
 		}
 	};
