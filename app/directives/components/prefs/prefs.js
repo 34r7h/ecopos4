@@ -1,12 +1,13 @@
 angular.module("ecoposApp").directive("prefs", function(){
 		return {
 			restrict:"E",
-			scope:{element:"=", type:"=", name:"="},
+			scope:{element:"=", type:"=", model:"=ngModel"},
 			link:function(scope, iElem, iAttrs) {
-				console.log(scope.element,scope.type);
 				var domElement = document.createElement(scope.element);
 				domElement.type = scope.type;
+				domElement.ngModel = scope.name;
 				iElem.append(domElement);
+				console.log(iAttrs);
 
 			}
 		};

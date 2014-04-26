@@ -71,7 +71,7 @@
                     event.preventDefault();
                     this._redirect(this._rootState);
                 }
-                this._rootScope.toggle('loginOverlay', 'on');
+                this._rootScope.toggle('overlay', 'on');
                 //this._redirect(loginState);
             }
 		}
