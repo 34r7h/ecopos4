@@ -1,11 +1,11 @@
-angular.module('ecoposApp').directive('productList', function(system) {
+angular.module('ecoposApp').directive('productList', function(shop) {
 	return {
 		restrict: 'E',
 		replace: true,
 
 		templateUrl: 'app/directives/components/productList/productList.html',
 		link: function(scope, element, attrs, fn) {
-            scope.saveProduct = system.api.saveProduct;
+            scope.saveProduct = shop.api.saveProduct;
             scope.isCategory = function(item){
                 return (item.name && item.children);
             };

@@ -1,5 +1,5 @@
 angular.module('ecoposApp')
-	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, system, firebaseRef, $location, $anchorScroll) {
+	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, system, shop, firebaseRef, $location, $anchorScroll) {
 		$scope.qty = 1;
 		$scope.orders = system.data.user.orders;
 		$scope.goToBottom = function (){
@@ -108,18 +108,12 @@ angular.module('ecoposApp')
 
         // handle catalog browsing
         $scope.stateParams = system.data.params;
-        $scope.inventory = system.data.store.products;
+        $scope.inventory = shop.data.store.products;
 
         // load the catalog for the main CatalogBrowser
-
-        system.api.addCatalogBrowser('shop', 'shop').then(function(browser){
+        shop.api.addCatalogBrowser('shop', $scope.shopName).then(function(browser){
             $scope.shop = browser;
         });
-
-        /**system.api.loadCatalog($scope.shopName).then(function(catalog){
-            data.store.browser['shop'] = new CatalogBrowser(); // this is the main shop browser and we always want it to exist
-            system.data.store.browser['shop'].setCatalog(catalog);
-        });*/
 
 
         $scope.stateParamsSetPath = function(path, append){
@@ -136,14 +130,6 @@ angular.module('ecoposApp')
             }
         };
 
-
-
-        /**$scope.shopBrowse = function(categoryName){
-            var newParams = system.data.params.data;
-            newParams.path += '/'+categoryName;
-            $state.go('ecoApp.nav.not.tools.settings', newParams, {reload: true});
-        };
-         */
 
 
 

@@ -2,12 +2,10 @@
     <h3>Product-List</h3>
     <div ng-show="shop">
         <div>
-            {{shop.pathStr}}:{{shop.productURI}}
-
             <ul class="breadcrumb">
                 <li ng-repeat="cPath in shop.path">
-                    <a ng-if="!$last" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(cPath.path))">{{cPath.name}}</a>
-                    <strong ng-if="$last">{{cPath.name}}</strong>
+                    <a ng-if="!$last" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(cPath.path))">{{cPath.name.$value}}</a>
+                    <strong ng-if="$last">{{cPath.name.$value}}</strong>
                 </li>
             </ul>
         </div>

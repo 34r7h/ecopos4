@@ -197,7 +197,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 					}
 				},
 				1:{
-					controller: function($scope,$stateParams,$log,system, $state, cart, syncData){
+					controller: function($scope,$stateParams,$log,system, shop, $state, syncData, $timeout){
 
 						/*
 						$scope.reload = function() {
@@ -223,13 +223,16 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 						$scope.removeItem = system.api.removeItem;
 						$scope.total = system.api.total;
 
-						$scope.cart = cart.cart;
-						$scope.invoice = cart.invoice;
-						$scope.items = cart.invoice.items;
-
-                        if(system.data.store.browser['shop']){
-                            $log.debug('app load shop path:'+system.data.params.data['path']);
-                            system.data.store.browser['shop'].setPath(system.data.params.data['path']);
+                        if(shop.data.store.browser['shop']){
+                            shop.data.store.browser['shop'].setPath(system.data.params.data['path']).then(
+                                function(category){},
+                                function(error){
+                                    if(error === 'No Catalog'){
+                                        $timeout(function(){
+                                            shop.data.store.browser['shop'].setPath(system.data.params.data['path']);
+                                        }, 1000);
+                                    }
+                                });
                         }
 					},
 					template:'<h6 ng-repeat="(key,param) in help.data">{{key}}: {{param}}</h6><a href="/#/settings">Settings Yolo 1</a><p ng-repeat="(key,settings) in dashStuff2 | orderBy:key:reverse">{{ key }}: <prefs type="settings.type" element="settings.elementual"></prefs></p></div>'
