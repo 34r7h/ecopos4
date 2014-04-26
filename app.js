@@ -95,16 +95,26 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 		state('ecoApp.nav.not.tools.settings',{
 			url:'*path?role&preferences&history&store&overlay&mainview',
 			resolve: {
-				/*
-				system.data.params.data = $stateParams;
-				if(/^\/*(\/.*)?$/.test($stateParams.path)) {
-					system.data.view = system.data.user.activeRole + '@ecoApp.nav.not.tools';
+				resolution: function($stateParams,$log,system,shop){
+					system.data.params.data = $stateParams;
+
+					if(shop.data.store.browser['shop']){
+						$log.debug('app load shop path:'+system.data.params.data['path']);
+						shop.data.store.browser['shop'].setPath(system.data.params.data['path']);
+					}
+
+					if(/^\/*(\/.*)?$/.test($stateParams.path)) {
+						system.data.view = system.data.user.activeRole + '@ecoApp.nav.not.tools';
+					}
+					return [system.data.view, system.data.params.data];
 				}
+				/*
+
 				*/
 			},
 			views: {
 				admin:{
-					controller:function($scope,system,$state){
+					controller:function($scope,system,$state,resolution){
 						$scope.orders = system.data.user.orders;
 						$scope.settings = {};
 						$scope.notifications = {};
@@ -118,7 +128,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 					}
 				},
 				customer:{
-					controller:function($scope,system,$state){
+					controller:function($scope,system,$state,resolution){
 						$scope.orders = system.data.user.orders;
 						$scope.settings = {};
 						$scope.notifications = {};
@@ -128,7 +138,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 					}
 				},
 				manager:{
-					controller:function($scope,system,$state){
+					controller:function($scope,system,$state,resolution){
 						$scope.orders = system.data.user.orders;
 						$scope.settings = {};
 						$scope.notifications = {};
@@ -140,7 +150,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 					}
 				},
 				employee:{
-					controller:function($scope,system,$state){
+					controller:function($scope,system,$state,resolution){
 						$scope.orders = system.data.user.orders;
 						$scope.settings = {};
 						$scope.notifications = {};
@@ -151,7 +161,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 					}
 				},
 				supplier:{
-					controller:function($scope,system,$state){
+					controller:function($scope,system,$state,resolution){
 						$scope.orders = system.data.user.orders;
 						$scope.settings = {};
 						$scope.notifications = {};
