@@ -5,7 +5,7 @@ angular.module('ecoposApp').directive('userInfo', function(system) {
 
 		templateUrl: 'app/directives/components/userInfo/userInfo.html',
 		link: function(scope, element, attrs, fn, $rootScope, $log) {
-
+/**
 			scope.$watch('user.activeRole', function(value){
 				if(value){
 					// don't reload state if they just logged in - routesecurity is taking care of that
@@ -38,6 +38,7 @@ angular.module('ecoposApp').directive('userInfo', function(system) {
 			scope.$on('$firebaseSimpleLogin:error', function(event, error){
 				$log.error('simpleLogin:error:'+error);
 			});
+ */
 
 		}
 	};

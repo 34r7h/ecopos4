@@ -7,11 +7,11 @@ angular.module('ecoposApp').directive('shop', function(system, $rootScope, shop)
 		link: function(scope, element, attrs, fn) {
 			scope.qty = 1;
 			// handle catalog browsing
-			scope.inventory = system.data.store.products;
+			//scope.inventory = system.data.store.products;
 			// load the catalog for the main CatalogBrowser
-			shop.api.addCatalogBrowser('shop', 'shop').then(function(browser){
-				scope.shop = browser;
-			});
+
+            scope.shop = shop.data.store.browser['shop'];
+
             scope.saveProduct = system.api.saveProduct;
             scope.isCategory = function(item){
                 return (item.name && item.children);
