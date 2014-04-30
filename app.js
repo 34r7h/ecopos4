@@ -106,7 +106,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 
 					if(/^\/*(\/.*)?$/.test($stateParams.path)) {
 						system.data.view = system.data.user.activeRole + '@ecoApp.nav.not.tools';
-					}
+						}
 					return [system.data.view, system.data.params.data];
 				}
 				/*
@@ -115,11 +115,17 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 			},
 			views: {
 				admin:{
-					controller:function($scope,system,$state,resolution){
+					controller:function($scope,system,$state,resolution,syncData,firebaseRef,FBURL){
+						$scope.overlay = system.data.params.data.overlay;
+						console.log($scope.overlay);
 						$scope.orders = system.data.user.orders;
 						$scope.settings = {};
-						$scope.notifications = {};
-						$scope.navigation = {};
+//						system.ui.navify = syncData(FBURL+'/ui/'+ system.data.user.activeRole + '/notifications');
+//						system.ui.notify = syncData(FBURL+'/ui/'+ system.data.user.activeRole + '/navigation');
+						var notif = '/ui/admin/notifications';
+						$scope.notify = syncData(notif);
+						var navifyRef = '/ui/admin/navigation';
+						$scope.navify = syncData(navifyRef);
 						$scope.user = system.data.user;
 						$scope.employee = system.data.employee;
 						$scope.manager = system.data.manager;
@@ -173,9 +179,10 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 					}
 				}
 			},
-			onEnter: function(system,$stateParams,$state){
+			onEnter: function(system,$stateParams){
 				console.log('%c Settings State', 'color:#888;background:#333;','http://ecossentials.ca');
-				system.data.params.data = $stateParams;
+				// SHOP SELECTION - could be ecossentials or sunshine-organics - whatever we name the catalog/category tree in firebase
+
 
 			},
 			onExit: function(){
@@ -189,9 +196,6 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 
 angular.module('ecoposApp').run(function($rootScope, simpleLogin, $state, $stateParams) {
 	       // if there is a user authenticated with firebase, this will trigger the rest of the login sequence for them
-
-	$rootScope.$state = $state;
-	$rootScope.$stateParams = $stateParams;
 	simpleLogin.activateCurrent();
     $rootScope.safeApply = function(fn) {
         var phase = $rootScope.$$phase;

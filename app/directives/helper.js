@@ -1,12 +1,24 @@
-angular.module('ecoposApp').directive('helper', function() {
+angular.module('ecoposApp').directive('comp', function() {
 	return {
-		restrict: 'A',
+		restrict: 'EA',
+		replace: true,
+		scope: false,
+		transclude: true,
+		template: function(elems, attrs) {
+			var heading;
+			heading = "";
+			if (attrs.title || attrs.component) {
+				heading = attrs.component;
+			}
+			return "<div><"+heading+"/></div>";
+		},
 		link: function(scope, element, attrs, fn) {
-
+			$scope.apply();
 
 		}
 	};
 }).directive('ecoPanel', function() {
+	// ecoPanel is used to create component containers
 	return {
 		restrict: 'EA',
 		replace: true,

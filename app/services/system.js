@@ -307,7 +307,12 @@ angular.module('ecoposApp').factory('system',function(syncData) {
 
     };
 
+	var ui = {
+		navify:{},
+		notify:{}
+	};
     return {
+	    ui: ui,
         api: api,
         data: data
     };

@@ -14,7 +14,25 @@
                 <div ng-if="alertz" class="alert-danger alert">{{alertz}}</div>
             </div>
 
-            <div class="col-xs-1">
+            <div ng-repeat="notification in notify">
+                <div class="col-xs-1">
+                    <a ng-click="msgs=false; nots=false; evts=false; cart=false; userx=false;popDown=!popDown; ">
+                        <i class="fa fa-2x fa-{{notification.icon}}"></i>
+                    </a>
+                    <div ng-if="popDown" class="my-dropdown-menu"  ng-animate="'animate'" ng-style="dirDim">
+                        <ul>
+                            <li>
+                                <comp component="{{notification.name}}">
+                                    <{{notification.name}}/>
+                                </comp>
+
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- <div class="col-xs-1">
                 <div>
                     <a ng-click="msgs=!msgs; nots=false; evts=false; cart=false; userx=false;">
                         <i class="fa fa-2x fa-envelope"></i>
@@ -73,7 +91,7 @@
                     </div>
                 </div>
             </div>
-
+-->
             <div class="col-xs-1">
                 <div>
                     <button class="btn btn-small" style="margin-bottom: 11px;" ng-click="userx=!userx; nots=false; msgs=false; evts=false; cart=false">
@@ -89,6 +107,12 @@
                     </div>
                 </div>
             </div>
+
+
+
         </div>
+
+
     </div>
+
 </div>
