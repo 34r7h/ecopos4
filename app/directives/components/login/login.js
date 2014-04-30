@@ -8,12 +8,56 @@ angular.module('ecoposApp').directive('login', function(system, simpleLogin, pro
             scope.err = null;
             scope.email = null;
             scope.confirm = null;
+            scope.loginMode = true;
             scope.createMode = false;
             scope.passwordMode = false;
             scope.profileMode = false;
             scope.userAuth = null;
             scope.username = null;
             scope.displayName = null;
+
+            scope.setMode = function(mode){
+                if(scope.profileMode && mode !== 'profile'){
+                    scope.cancelProfile();
+                }
+
+                switch(mode){
+                    case 'login':
+                        scope.loginMode = true;
+                        scope.createMode = false;
+                        scope.passwordMode = false;
+                        scope.profileMode = false;
+                        break;
+
+                    case 'password':
+                        scope.loginMode = false;
+                        scope.createMode = false;
+                        scope.passwordMode = true;
+                        scope.profileMode = false;
+                        break;
+
+                    case 'register':
+                        scope.loginMode = false;
+                        scope.createMode = true;
+                        scope.passwordMode = false;
+                        scope.profileMode = false;
+                        break;
+
+                    case 'profile':
+                        scope.loginMode = false;
+                        scope.createMode = false;
+                        scope.passwordMode = false;
+                        scope.profileMode = true;
+                        break;
+
+                    default:
+                        scope.loginMode = false;
+                        scope.createMode = false;
+                        scope.passwordMode = false;
+                        scope.profileMode = false;
+                        break;
+                }
+            };
 
             scope.login = function(service) {
                 simpleLogin.login(service, function(err, user) {
@@ -31,7 +75,7 @@ angular.module('ecoposApp').directive('login', function(system, simpleLogin, pro
                                 scope.email = user.email; // no such luck from twitter
                                 scope.displayName = user.displayName;
                             }
-                            scope.profileMode = true; // trigger the ng-show
+                            scope.setMode('profile');
                         });
                     }
                     scope.userAuth = user;
@@ -58,7 +102,7 @@ angular.module('ecoposApp').directive('login', function(system, simpleLogin, pro
                                     scope.username = user.email.split('@', 2)[0];
                                     scope.email = user.email;
                                     scope.displayName = scope.username;
-                                    scope.profileMode = true; // trigger the ng-show
+                                    scope.setMode('profile');
                                 });
                             }
                         }
@@ -113,7 +157,7 @@ angular.module('ecoposApp').directive('login', function(system, simpleLogin, pro
                                     scope.username = user.email.split('@', 2)[0];
                                     scope.email = user.email;
                                     scope.displayName = scope.username;
-                                    scope.profileMode = true; // trigger the ng-show
+                                    scope.setMode('profile');
                                 });
                             }
                         }
@@ -136,6 +180,7 @@ angular.module('ecoposApp').directive('login', function(system, simpleLogin, pro
                 scope.displayName = null;
                 scope.pass = null;
                 scope.profileMode = false;
+                scope.setMode('login');
             };
 
             scope.createProfile = function(){
@@ -148,6 +193,7 @@ angular.module('ecoposApp').directive('login', function(system, simpleLogin, pro
                     scope.pass = null;
                     scope.displayName = null;
                     scope.profileMode = false;
+                    scope.setMode('login');
                 }, function(err){
                     scope.err = err;
                 });
