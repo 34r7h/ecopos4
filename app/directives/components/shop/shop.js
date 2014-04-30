@@ -5,13 +5,15 @@ angular.module('ecoposApp').directive('shop', function(system, $rootScope, shop)
 
 		templateUrl: 'app/directives/components/shop/shop.html',
 		link: function(scope, element, attrs, fn) {
-			scope.qty = 1;
-			// handle catalog browsing
-			//scope.inventory = system.data.store.products;
-			// load the catalog for the main CatalogBrowser
-
+            // catalog browsing
             scope.shop = shop.data.store.browser['shop'];
 
+            // shopping
+            scope.qty = 1;
+            scope.addProduct = shop.api.addProduct;
+
+
+            // management
             scope.saveProduct = system.api.saveProduct;
             scope.isCategory = function(item){
                 return (item.name && item.children);

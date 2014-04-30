@@ -1,9 +1,8 @@
-angular.module('ecoposApp').factory('shop',function($q, syncData, firebaseRef, $filter, FBURL, $log) {
+angular.module('ecoposApp').factory('shop',function($q, system, syncData, firebaseRef, $firebase, $filter, FBURL, $log) {
     var data = {
         store: {products: {}, catalogs: {}, browser: {}},
 
-        cart: {},
-        invoice: { items:{} }
+        invoice: { order: {}, items:{} }
     };
 
     var CatalogBrowser = function(newCatalog){
@@ -220,32 +219,63 @@ angular.module('ecoposApp').factory('shop',function($q, syncData, firebaseRef, $
 
     var api = {
         // Cart API
-        addProduct: function(sku, qty,unitType,name,price,img) {
-            if(data.invoice.items[sku]){
-                data.invoice.items[sku].qty += qty;
+        addProduct: function(product, qty) {
+            /**
+             *
+             * productID, qty, unitType, name, price, img
+             */
+            var productID = product.$id?product.$id:0;
+            var name = product.name?product.name:'Unknown';
+            var price = product.price?product.price:'0';
+
+            if(product.stock){
+                product.$update({stock: (product.stock-qty)});
+            }
+
+            if(data.invoice.items[productID]){
+                data.invoice.items[productID].qty += parseInt(qty);
             } else {
-                data.invoice.items[sku] = {
-                    sku: sku,
-                    qty: qty,
-                    unitType: unitType,
+                data.invoice.items[productID] = {
+                    qty: parseInt(qty),
                     name: name,
-                    price: price,
-                    img: img
+                    price: price
                 };
             }
 
+            if(!data.invoice.order.$id){
+                api.createOrder().then(function(){
+                    data.invoice.order.$update({items: data.invoice.items});
+                });
+            }
+            else{
+                data.invoice.order.$update({items: data.invoice.items});
+            }
+
         },
-        addItem: function() {
-            data.invoice.items.push({
-                qty: 1,
-                unitType:'',
-                name: '',
-                price: 0,
-                img: ''
-            });
+        removeItem: function(productID) {
+            if(data.invoice.items[productID]){
+                api.loadInventoryProduct(productID).then(function(product){
+                    if(product) {
+                        product.$update({stock: product.stock + data.invoice.items[productID].qty});
+
+                        delete data.invoice.items[productID];
+                        data.invoice.order.$update({items: data.invoice.items});
+                    }
+                });
+
+
+            }
         },
-        removeItem: function(sku) {
-            delete data.invoice.items[sku];
+        changeProductQty: function(productID){
+            if(data.invoice.items[productID] && data.invoice.order.items[productID]){
+                api.loadInventoryProduct(productID).then(function(product) {
+                    if(product){
+                        var qtyDiff = (data.invoice.items[productID].qty-data.invoice.order.items[productID].qty);
+                        data.invoice.order.$update({items: data.invoice.items});
+                        product.$update({stock: product.stock - qtyDiff});
+                    }
+                });
+            }
         },
         cartTotal: function() {
             var total = 0;
@@ -254,6 +284,22 @@ angular.module('ecoposApp').factory('shop',function($q, syncData, firebaseRef, $
             });
 
             return total;
+        },
+
+        createOrder: function(){
+            var defer = $q.defer();
+            var newOrder = {
+                createdTime: system.api.currentTime(),
+                status: 0
+            };
+            if(system.data.user.id){
+                newOrder.user = system.data.user.id;
+            }
+            var orderRef = firebaseRef('order').push(newOrder, function(){
+                data.invoice.order = $firebase(orderRef);
+                defer.resolve(true);
+            });
+            return defer.promise;
         },
 
         // Catalog API

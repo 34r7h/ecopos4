@@ -1,113 +1,104 @@
 <div>
-    <!-- wait for auth to resolve (avoid flashing login page before redirect -->
     <div class="row">
-        <div class="col-sm-12" ng-hide="profileMode || passwordMode">
+        <div class="well">
+            <ul class="nav nav-tabs">
+                <li ng-class="{active:loginMode||passwordMode}"><a ng-click="setMode('login')">Login</a></li>
+                <li ng-class="{active:createMode||profileMode}"><a ng-click="setMode('register')">Register</a></li>
+            </ul>
 
-            <!-- examples for fun and profit -->
-            <!--<div ng-show-auth="login">{{auth.user|json}}</div>-->
-            <!--<div ng-show-auth="error,logout">Logged out</div>-->
-            <!--<div ng-show-auth="error">{{auth.error}}</div>-->
-            <fieldset>
-                <legend>Oauth</legend>
-                <p>
-                    <button class="btn btn-lg btn-primary" ng-click="login('facebook')">Facebook</button>
-                    <button class="btn btn-lg btn-primary" ng-click="login('twitter')">Twitter</button>
-                </p>
-            </fieldset>
+            <div ng-if="loginMode || createMode" class="col-sm-12">
+                <form role="form">
+                    <fieldset>
+                        <legend>Email/Password</legend>
 
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>email</label>
+                                    <input class="form-control" type="email" ng-model="email" />
+                                </div>
 
-            <p>&nbsp;</p>
-            <form role="form">
-                <fieldset>
-                    <legend>Email/Password</legend>
+                                <div class="form-group">
+                                    <label>password</label>
+                                    <input class="form-control" type="password" ng-model="pass" />
+                                </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>email</label>
-                                <input class="form-control" type="email" ng-model="email" />
+                                <div class="form-group" ng-show="createMode">
+                                    <label>confirm pass</label>
+                                    <input class="form-control" type="password" ng-model="confirm" />
+                                </div>
+
+                                <button ng-if="loginMode" class="btn btn-primary" ng-click="loginPassword()">Log In</button>
+                                <button ng-if="loginMode" class="btn btn-warning btn-sm" ng-click="setMode('password')">Forgot Password</button>
+                                <button ng-if="createMode" class="btn btn-success" ng-click="createAccount()">Create Account</button>
+                                <button ng-if="createMode" class="btn btn-default btn-sm" ng-click="setMode('login')">Cancel</button>
                             </div>
+                        </div>
+                    </fieldset>
 
-                            <div class="form-group">
-                                <label>password</label>
-                                <input class="form-control" type="password" ng-model="pass" />
+                    <div ng-show="err" class="alert alert-danger"><strong>{{err}}</strong></div>
+
+                </form>
+            </div>
+
+            <div ng-if="passwordMode" class="col-sm-12">
+                <form role="form">
+                    <fieldset>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p>Please enter your email address to continue...</p>
+
+                                <div class="form-group">
+                                    <label>email</label>
+                                    <input class="form-control" type="text" ng-model="email" />
+                                </div>
+
+                                <button class="btn btn-success" ng-click="recoverPassword()">Recover Password</button>
+                                <button class="btn btn-default btn-sm" ng-click="setMode('login')">Cancel</button>
                             </div>
+                        </div>
+                    </fieldset>
 
-                            <div class="form-group" ng-show="createMode">
-                                <label>confirm pass</label>
-                                <input class="form-control" type="password" ng-model="confirm" />
+                    <br />
+                    <div ng-show="err" class="alert alert-danger"><strong>{{err}}</strong></div>
+                </form>
+            </div>
+
+            <div ng-if="profileMode" class="col-sm-12">
+                <form role="form">
+                    <fieldset>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p>Please confirm your username to continue...</p>
+
+                                <div class="form-group">
+                                    <label>uid</label>
+                                    {{ userAuth.uid }}
+                                </div>
+                                <div class="form-group">
+                                    <label>display name</label>
+                                    {{ displayName }}
+                                </div>
+
+                                <div class="form-group">
+                                    <label>username</label>
+                                    <input class="form-control" type="text" ng-model="username" />
+                                </div>
+                                <div class="form-group">
+                                    <label>email</label>
+                                    <input class="form-control" type="email" ng-model="email" />
+                                </div>
+
+                                <button class="btn btn-success" ng-click="createProfile()">Create Account</button>
+                                <button class="btn btn-default btn-sm" ng-click="cancelProfile()">Cancel</button>
                             </div>
-
-                            <button class="btn btn-primary" ng-click="loginPassword()" ng-hide="createMode">Log In</button>
-                            <button class="btn btn-default" ng-click="createMode = true" ng-hide="createMode">Register</button>
-                            <button class="btn btn-default" ng-click="passwordMode = true" ng-hide="createMode">Forgot Password</button>
-                            <button class="btn btn-success" ng-show="createMode" ng-click="createAccount()">Create Account</button>
-                            <button class="btn btn-default" ng-show="createMode" ng-click="createMode = false">Cancel</button>
                         </div>
-                    </div>
-                </fieldset>
-            </form>
+                    </fieldset>
 
-
-            <br />
-            <div ng-show="err" class="alert alert-danger"><strong>{{err}}</strong></div>
-
-        </div>
-
-        <div class="col-sm-12" ng-show="passwordMode">
-            <fieldset>
-                <div class="row">
-                    <div class="col-md-6">
-                        <p>Please enter your email address to continue...</p>
-
-                        <div class="form-group">
-                            <label>email</label>
-                            <input class="form-control" type="text" ng-model="email" />
-                        </div>
-
-                        <button class="btn btn-primary" ng-click="recoverPassword()">Recover Password</button>
-                        <button class="btn btn-default" ng-click="passwordMode = false">Cancel</button>
-                    </div>
-                </div>
-            </fieldset>
-
-            <br />
-            <div ng-show="err" class="alert alert-danger"><strong>{{err}}</strong></div>
-        </div>
-
-        <div class="col-sm-12" ng-show="profileMode">
-            <fieldset>
-                <div class="row">
-                    <div class="col-md-6">
-                        <p>Please confirm your username to continue...</p>
-
-                        <div class="form-group">
-                            <label>uid</label>
-                            {{ userAuth.uid }}
-                        </div>
-                        <div class="form-group">
-                            <label>display name</label>
-                            {{ displayName }}
-                        </div>
-
-                        <div class="form-group">
-                            <label>username</label>
-                            <input class="form-control" type="text" ng-model="username" />
-                        </div>
-                        <div class="form-group">
-                            <label>email</label>
-                            <input class="form-control" type="email" ng-model="email" />
-                        </div>
-
-                        <button class="btn btn-success" ng-click="createProfile()">Create Account</button>
-                        <button class="btn btn-default" ng-click="cancelProfile()">Cancel</button>
-                    </div>
-                </div>
-            </fieldset>
-
-            <br />
-            <div ng-show="err" class="alert alert-danger"><strong>{{err}}</strong></div>
+                    <br />
+                    <div ng-show="err" class="alert alert-danger"><strong>{{err}}</strong></div>
+                </form>
+            </div>
         </div>
     </div>
-
 </div>

@@ -12,6 +12,16 @@
         <div ng-if="shop.productURI">
             <div ng-show="shop.product">
                 <h3>{{shop.product.name}}</h3>
+                <div>
+                    <div class="price">{{shop.product.price | currency}}</div>
+                    <div class="stock"><strong>{{shop.product.stock}}</strong> in stock</div>
+                </div>
+                <div>
+                    <input type="number" ng-model="qty" />
+                    <button ng-click="addProduct(shop.product, qty)">Add to Cart</button>
+                </div>
+
+                {{shop.product.$id}}
                 {{shop.product}}
             </div>
             <div ng-show="!shop.product">

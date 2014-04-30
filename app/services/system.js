@@ -1,7 +1,7 @@
-angular.module('ecoposApp').factory('system',function(syncData) {
+angular.module('ecoposApp').factory('system',function(syncData, firebaseRef) {
 
     var data = {
-        user: {id: null, profile: null, activeRole: 'anonymous', messages: {}, events: {}, calendar: {}, session: {firstActiveRole: true, calendarEvents: {}}},
+        user: {id: null, profile: null, activeRole: 'anonymous', notifications: {}, messages: {}, events: {}, calendar: {}, session: {firstActiveRole: true, calendarEvents: {}}},
         employee: {shiftType: null},
         manager: {orders: {}},
         params:{},
@@ -13,15 +13,21 @@ angular.module('ecoposApp').factory('system',function(syncData) {
     var api = {
         // Utility API
 
+        currentTime: function(){
+            return new Date().getTime();
+        },
+
         // gets a flattened user list with no duplicates
-        getUsersFlat: function(){
+        getUsersFlat: function(fromRoles){
+            if(typeof fromRoles === 'undefined'){ fromRoles = ['manager']; }
+            else if(!(fromRoles instanceof Array)){ fromRoles = fromRoles.split(','); }
+
             var users = [];
-            // TODO: angularfire bug: instead of $getRef(), we should be able to do $on('value',... bug - https://github.com/firebase/angularFire/issues/272
-            syncData('role').$getRef().on('value', function(snap){
+            firebaseRef('role').on('value', function(snap){
                 var roleTree = snap.val();
                 users.splice(0, users.length); // reset the users array in case some were removed
                 angular.forEach(roleTree, function(role, rolename){
-                    if(role.users){
+                    if(role.users && fromRoles.indexOf(rolename) !== -1){
                         angular.forEach(role.users, function(user, username){
                             if(users.indexOf(username) === -1){
                                 users.push(username);
@@ -48,6 +54,7 @@ angular.module('ecoposApp').factory('system',function(syncData) {
             if(end){
                 newEvent.end = end;
             }
+
             syncData('event').$add(newEvent).then(function(eventRef){
                 angular.forEach(users, function(active, username){
                     syncData('user/'+username+'/events/'+eventRef.name()).$set(active);
@@ -59,7 +66,7 @@ angular.module('ecoposApp').factory('system',function(syncData) {
         completeEvent: function(eventID){
             if(data.user.events[eventID]){
                 if(!data.user.events[eventID].completeFlag){
-                    data.user.events[eventID].$update({completed: {user: data.user.id, time: new Date().getTime()}});
+                    data.user.events[eventID].$update({completed: {user: data.user.id, time: api.currentTime()}});
                 }
                 else{
                     data.user.events[eventID].$update({completed: null});
@@ -82,7 +89,7 @@ angular.module('ecoposApp').factory('system',function(syncData) {
             });
 
             var conversation = {};
-            conversation[new Date().getTime()] = {user: fromUser, text: text};
+            conversation[api.currentTime()] = {user: fromUser, text: text};
 
             syncData('message').$add({
                 subject: subject,
@@ -97,10 +104,39 @@ angular.module('ecoposApp').factory('system',function(syncData) {
 
         sendMessage: function(message, fromUser, text){
             if(message !== null){
-                var newID = new Date().getTime();
+                var newID = api.currentTime();
                 message.conversation[newID] = {user: fromUser, text: text};
                 message.$save();
             }
+        },
+
+        // Notification API
+        sendNotification: function(toUsers, type, content, time){
+            if(typeof time === 'undefined'){
+                time = api.currentTime();
+            }
+            toUsers = (toUsers instanceof Array)?toUsers:[toUsers];
+
+            var users = {};
+            angular.forEach(toUsers, function(username, index){
+                if(!users[username]){
+                    users[username] = true;
+                }
+            });
+
+            var newNotification = {
+                type: type,
+                content: content,
+                time: time,
+                users: users,
+                sender: data.user.id
+            };
+
+            syncData('notification').$add(newNotification).then(function(notificationRef){
+                angular.forEach(users, function(active, username){
+                    syncData('user/'+username+'/notifications/'+notificationRef.name()).$set(active);
+                });
+            });
         },
 
         // Calendar API
@@ -154,6 +190,7 @@ angular.module('ecoposApp').factory('system',function(syncData) {
                 data.user.activeRole = 'anonymous';
                 data.user.id = null;
                 data.user.profile = null;
+                data.user.notifications = {};
                 data.user.messages = {};
                 data.user.events = {};
                 data.user.calendar = {};
@@ -190,7 +227,7 @@ angular.module('ecoposApp').factory('system',function(syncData) {
 
         startUserSession: function(){
             if(data.user.id){
-                data.user.session.loginTime = new Date().getTime();
+                data.user.session.loginTime = api.currentTime();
                 data.user.session.bind = syncData('session/'+data.user.session.loginTime+'-'+data.user.id);
                 data.user.session.bind.$set({ start: data.user.session.loginTime });
             }
@@ -198,12 +235,13 @@ angular.module('ecoposApp').factory('system',function(syncData) {
 
         endUserSession: function(){
             if(data.user.session.bind){
-                data.user.session.bind.$update({end: new Date().getTime()});
+                data.user.session.bind.$update({end: api.currentTime()});
             }
 
         },
 
         loadUserData: function(){
+            api.loadUserNotifications();
             api.loadUserEvents();
             api.loadUserMessages();
             api.loadUserOrders();
@@ -218,7 +256,7 @@ angular.module('ecoposApp').factory('system',function(syncData) {
         loadUserEvents: function(){
             data.user.events = {};
             if(data.user.id){
-                var eventBind = syncData('user/'+data.user.id+'/events').$getRef();
+                var eventBind = firebaseRef('user/'+data.user.id+'/events');
                 eventBind.on('child_added', function(childSnapshot, prevChildName){
                     var cEvent = syncData('event/'+childSnapshot.name());
                     data.user.events[childSnapshot.name()] = cEvent;
@@ -259,8 +297,7 @@ angular.module('ecoposApp').factory('system',function(syncData) {
                 data.user.messages.seen = {};
                 data.user.messages.unseen = {};
 
-                // angularfire bug: need to use $getRef() to bind core Firebase events. src: https://github.com/firebase/angularFire/issues/272
-                var unseenMsgsBind = syncData('user/'+data.user.id+'/messages/unseen').$getRef();
+                var unseenMsgsBind = firebaseRef('user/'+data.user.id+'/messages/unseen');
                 unseenMsgsBind.on('child_added', function(childSnapshot, prevChildName){
                     data.user.messages.unseen[childSnapshot.name()] = syncData('message/'+childSnapshot.name());
                 });
@@ -273,8 +310,7 @@ angular.module('ecoposApp').factory('system',function(syncData) {
                     delete data.user.messages.unseen[oldChildSnapshot.name()];
                 });
 
-                // angularfire bug: need to use $getRef() to bind core Firebase events. src: https://github.com/firebase/angularFire/issues/272
-                var seenMsgBind = syncData('user/'+data.user.id+'/messages/seen').$getRef();
+                var seenMsgBind = firebaseRef('user/'+data.user.id+'/messages/seen');
                 seenMsgBind.on('child_added', function(childSnapshot, prevChildName){
                     data.user.messages.seen[childSnapshot.name()] = syncData('message/'+childSnapshot.name());
                 });
@@ -283,10 +319,24 @@ angular.module('ecoposApp').factory('system',function(syncData) {
                 });
             }
         },
+        loadUserNotifications: function(){
+            if(data.user.id) {
+                data.user.notifications = {};
+                if(data.user.id){
+                    var notificationBind = firebaseRef('user/'+data.user.id+'/notifications');
+                    notificationBind.on('child_added', function(childSnapshot, prevChildName){
+                        data.user.notifications[childSnapshot.name()] = syncData('notification/'+childSnapshot.name());
+                    });
+                    notificationBind.on('child_removed', function(oldChildSnapshot){
+                        delete data.user.notifications[oldChildSnapshot.name()];
+                    });
+                }
+            }
+        },
         loadUserOrders: function(){
             data.user.orders = {};
             if(data.user.id){
-                var orderBind = syncData('user/'+data.user.id+'/orders').$getRef();
+                var orderBind = firebaseRef('user/'+data.user.id+'/orders');
                 orderBind.on('child_added', function(childSnapshot, prevChildName){
                     data.user.orders[childSnapshot.name()] = syncData('order/'+childSnapshot.name());
                 });
@@ -298,13 +348,12 @@ angular.module('ecoposApp').factory('system',function(syncData) {
 
         loadManagerData: function(){
             if(data.user && data.user.profile && data.user.profile.roles && (data.user.profile.roles.admin || data.user.profile.roles.manager)) {
-                var orderBind = syncData('order').$getRef();
+                var orderBind = firebaseRef('order');
                 orderBind.on('child_added', function (childSnapshot, prevChildName) {
                     data.manager.orders[childSnapshot.name()] = childSnapshot.val();
                 });
             }
         }
-
     };
 
 	var ui = {
