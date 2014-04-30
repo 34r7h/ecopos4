@@ -18,13 +18,16 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef) {
         },
 
         // gets a flattened user list with no duplicates
-        getUsersFlat: function(){
+        getUsersFlat: function(fromRoles){
+            if(typeof fromRoles === 'undefined'){ fromRoles = ['manager']; }
+            else if(!(fromRoles instanceof Array)){ fromRoles = fromRoles.split(','); }
+
             var users = [];
             firebaseRef('role').on('value', function(snap){
                 var roleTree = snap.val();
                 users.splice(0, users.length); // reset the users array in case some were removed
                 angular.forEach(roleTree, function(role, rolename){
-                    if(role.users){
+                    if(role.users && fromRoles.indexOf(rolename) !== -1){
                         angular.forEach(role.users, function(user, username){
                             if(users.indexOf(username) === -1){
                                 users.push(username);
