@@ -2,14 +2,14 @@
     <div class="">
     <table class="table">
 
-        <tr class="col-xs-12" ng-repeat="(sku, item) in items">
+        <tr class="col-xs-12" ng-repeat="(productID, item) in items">
             <td class="col-xs-2" data-title="''"><img width="50px" height="auto" src="{{item.img}}"></td>
-            <td class="col-xs-2" data-title="Qty"><input type="number" ng-model="item.qty" class="input-mini"></td>
+            <td class="col-xs-2" data-title="Qty"><input type="number" ng-model="item.qty" ng-change="productQty(productID)" class="input-mini"></td>
             <td class="col-xs-4" data-title="'Item'">{{ item.name }}</td>
             <td class="col-xs-2" data-title="'Price'">{{ item.price }} / {{ item.unitType }}</td>
             <td class="col-xs-2" data-title="'Item Total'">{{item.qty * item.price | currency}}</td>
             <td>
-                [<a href ng-click="removeItem(sku)">X</a>]
+                [<a href ng-click="removeItem(productID)">X</a>]
             </td>
         </tr>
         <tr class="col-xs-12" >
