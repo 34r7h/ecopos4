@@ -8,7 +8,6 @@ angular.module('ecoposApp', [
 	'firebase',
 	'angularfire.firebase',
 	'angularfire.login',
-	'simpleLoginTools',
 	'angular-gestures',
 	// 'google-maps',
 	'ui.bootstrap',
