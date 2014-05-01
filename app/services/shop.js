@@ -219,22 +219,6 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
     var api = {
         // Cart API
-        assertOrderOnline: function(){
-            // makes sure there is an order on the database
-            var defer = $q.defer();
-
-            if(!data.invoice.order.$id){
-                api.createOrder().then(function(){
-                    defer.resolve(data.invoice.order);
-                });
-            }
-            else{
-                defer.resolve(data.invoice.order);
-            }
-
-            return defer.promise;
-        },
-
         assertProductStock: function(product){
             var defer = $q.defer();
             if(product && product.stock){
@@ -312,6 +296,21 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             return total;
         },
 
+        assertOrderOnline: function(){
+            // makes sure there is an order on the database
+            var defer = $q.defer();
+
+            if(!data.invoice.order.$id){
+                api.createOrder().then(function(){
+                    defer.resolve(data.invoice.order);
+                });
+            }
+            else{
+                defer.resolve(data.invoice.order);
+            }
+
+            return defer.promise;
+        },
         createOrder: function(){
             var defer = $q.defer();
             var newOrder = {
@@ -328,7 +327,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             data.invoice.orderRef.once('value', function(orderSnap){
                 data.invoice.order = $firebase(data.invoice.orderRef);
                 system.api.setUserOrder(orderSnap.name());
-                defer.resolve(true);
+                defer.resolve(data.invoice.order);
             });
 
             return defer.promise;
@@ -352,7 +351,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                     });
 
                     // TODO: do we want to set the data.invoice.orderRef ?
-                    // TODO: should orderRef be an array to allow working with multiple orders at a time?
+                    // TODO: should orderRef be an array to allow working with multiple orders (carts) at a time?
                 }
                 else{
                     defer.resolve(data.invoice.order);
@@ -365,21 +364,27 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             return defer.promise;
         },
         updateOrder: function(withData){
-            // small wrapper for order.$update that appends the user object all the time
-            if(system.data.user.id){
-                withData.user = system.data.user.id;
-            }
-            else{
-                // TODO: make withData.user an array of user id's (with anon-<ip>) and timestamp as the update
-                withData.user = null;
-            }
+            api.assertOrderOnline().then(function(order) {
+                if(order) {
+                    // small wrapper for order.$update that appends the user object all the time
+                    withData.users = order.users?order.users:{};
+                    var dataProms = [];
+                    if (system.data.user.id) {
+                        withData.users[system.data.user.id] = system.api.currentTime();
+                    }
+                    else {
+                        var newProm = system.api.anonymousID();
+                        newProm.then(function (anonID) {
+                            withData.users[anonID] = system.api.currentTime();
+                        });
+                        dataProms.push(newProm);
+                    }
 
-            api.assertOrderOnline().then(function(order){
-                if(order){
-                    order.$update(withData);
+                    $q.all(dataProms).then(function () {
+                        order.$update(withData);
+                    });
                 }
             });
-
         },
 
         orderCheckout: function(){
