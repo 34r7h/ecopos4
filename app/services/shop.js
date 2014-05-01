@@ -231,58 +231,54 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         },
 
         addProduct: function(product, qty) {
-            /**
-             *
-             * productID, qty, unitType, name, price, img
-             */
             var productID = product.$id?product.$id:0;
             var name = product.name?product.name:'Unknown';
             var price = product.price?product.price:'0';
 
-            /**
-            api.assertProductStock(product, qty).then(function(qtyAvailable){
-                if(qtyAvailable >= qty){
-
-                }
-            });
-             */
-
-            if(data.invoice.items[productID]){
-                data.invoice.items[productID].qty += parseInt(qty);
-            } else {
-                data.invoice.items[productID] = {
-                    qty: parseInt(qty),
-                    name: name,
-                    price: price
-                };
+            var qtyReq = parseInt(qty);
+            if(data.invoice.items[productID] && data.invoice.items[productID].qty){
+                qtyReq += data.invoice.items[productID].qty;
             }
 
-            api.updateOrder({items: data.invoice.items});
+            if(product.stock){
+                if(product.stock < qtyReq){
+                    qtyReq = product.stock;
+                }
+                if(data.invoice.items[productID]){
+                    data.invoice.items[productID].qty = qtyReq;
+                } else {
+                    if(product.stock && product.stock > qty){
+                        data.invoice.items[productID] = {
+                            qty: qtyReq,
+                            name: name,
+                            price: price
+                        };
+                    }
+                }
+                api.updateOrder({items: data.invoice.items});
+            }
+
         },
         removeItem: function(productID) {
             if(data.invoice.items[productID]){
                 api.loadInventoryProduct(productID).then(function(product){
                     if(product) {
-                        //product.$update({stock: product.stock + data.invoice.items[productID].qty});
-
                         delete data.invoice.items[productID];
-
                         api.updateOrder({items: data.invoice.items});
                     }
                 });
-
-
             }
         },
         changeProductQty: function(productID){
             if(data.invoice.items[productID] && data.invoice.order.items[productID]){
                 api.loadInventoryProduct(productID).then(function(product) {
                     if(product){
-                        //var qtyDiff = (data.invoice.items[productID].qty-data.invoice.order.items[productID].qty);
-
+                        if(product.stock){
+                            if(product.stock < data.invoice.items[productID].qty){
+                                data.invoice.items[productID].qty = product.stock;
+                            }
+                        }
                         api.updateOrder({items: data.invoice.items});
-
-                        //product.$update({stock: product.stock - qtyDiff});
                     }
                 });
             }
