@@ -2,7 +2,7 @@ angular.module('ecoposApp').directive('shop', function(system, $rootScope, shop)
 	return {
 		restrict: 'E',
 		replace: true,
-
+		scope:'@',
 		templateUrl: 'app/directives/components/shop/shop.html',
 		link: function(scope, element, attrs, fn) {
             // catalog browsing

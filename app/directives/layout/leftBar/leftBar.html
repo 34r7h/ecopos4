@@ -1,6 +1,7 @@
 <div class="left col col-xs-12" ng-class="{open: left}">
     <button class="col-xs-12" ng-click="right=false;left=!left" ng-model="left"></button>
     'Allo {{system.data.user.profile.displayName}}
+    <comp element="settings"></comp>
     <user-info></user-info>
     <ul class="col-xs-12">
         <li ng-repeat="setting in settings | orderByPriority">

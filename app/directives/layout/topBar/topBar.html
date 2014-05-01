@@ -11,25 +11,25 @@
         </div>
         <div class="col-xs-9 pull-right" style="height: 0">
             <div class="col-xs-7">
-                <div ng-if="alertz" class="alert-danger alert">{{alertz}}</div>
+                <p ng-click="alertz = 'fun daze!'">yo</p><div ng-if="alertz" class="alert-danger alert">{{alertz}}</div>
             </div>
 
-            <!--  <div ng-repeat="notification in notify">
+          <div ng-repeat="notification in notify">
                   <div class="col-xs-1">
                       <a ng-click="msgs=false; nots=false; evts=false; cart=false; userx=false;popDown=!popDown; ">
                           <i class="fa fa-2x fa-{{notification.icon}}"></i>
                       </a>
-                      <div ng-if="popDown" class="my-dropdown-menu"  ng-animate="'animate'" ng-style="dirDim">
+                      <div ng-show="popDown" class="my-dropdown-menu"  ng-animate="'animate'" ng-style="dirDim">
                           <ul>
-                              <li>
-                                  <div element="{{notification.name}}" prefs ></div>
+                              <li eco-panel title="{{notification.name}}" iconz="iconx">
+                                  <comp element="notification.name"></comp>
 
                               </li>
                           </ul>
                       </div>
                   </div>
               </div>
-    -->
+            <!--
                <div class="col-xs-1">
                   <div>
                       <a ng-click="msgs=!msgs; nots=false; evts=false; cart=false; userx=false;">
@@ -89,7 +89,7 @@
                       </div>
                   </div>
               </div>
-
+ -->
             <div class="col-xs-1">
                 <div>
                     <button class="btn btn-small" style="margin-bottom: 11px;" ng-click="userx=!userx; nots=false; msgs=false; evts=false; cart=false">

@@ -362,7 +362,8 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef) {
 		overlay:false,
 		main:"",
 		settings:"",
-		tools:""
+		tools:"",
+		alertz:""
 
 	};
     return {

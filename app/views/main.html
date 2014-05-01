@@ -1,19 +1,21 @@
 <div ui-view="{{view}}">
     <top-bar></top-bar>
-    <left-bar>{{settings}}</left-bar>
+    <left-bar></left-bar>
     <div class="middle col">
         <div class="body rowz col-xs-12">
             <div class="scroll-x">
+                <!-- type attr used for non-repeated or directed views such as overlay. -->
                 <comp element="main"></comp>
                 <shop></shop>
             </div>
         </div>
     </div>
-    <right-bar>{{tools}}</right-bar>
+    <right-bar></right-bar>
     <bottom-bar></bottom-bar>
 
 
     <div overlay="overlay">
-        <comp element="overlay"></comp>
+        <!-- type attr used for non-repeated or directed views such as overlay. -->
+        <comp type="overlay"></comp>
     </div>
 </div>

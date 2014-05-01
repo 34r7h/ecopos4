@@ -146,6 +146,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 								$scope.newMsg = !$scope.newMsg;
 							}
 						};
+						$scope.alertz = system.ui.alertz;
 						$scope.overlay = system.ui.overlay;
 						$scope.main = system.ui.main;
 						$scope.tools = system.ui.tools;

@@ -54,7 +54,7 @@
     </fieldset>
     <h5>To-Do</h5>
     <ul>
-        <li ng-repeat="event in user.events | eventFilter:{isTodo: true}">
+        <li ng-repeat="event in (user.events || $parent.$parent.user.events) | eventFilter:{isTodo: true}">
             <input type="checkbox" ng-click="completeTodo(event.$id)" ng-checked="event.completeFlag" ng-model="event.completeFlag" />
             {{ event.title }}
             <div ng-show="event.completed">completed: {{event.completed.time | date:'shortDate'}} @ {{event.completed.time | date:'mediumTime'}} by {{event.completed.user}}</div>

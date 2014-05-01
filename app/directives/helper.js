@@ -1,14 +1,22 @@
-angular.module('ecoposApp').directive('comp', function($compile) {
+angular.module('ecoposApp').directive('comp', function($compile,$timeout) {
 	return {
 		restrict:"E",
 
 		replace:true,
-		scope:{element:"="},
-		link:function(scope, iElem, iAttrs,element, $scope) {
+		scope:{element:"=",type:"="},
+		link:function(scope, iElem, iAttrs,element, $scope, attrs) {
 
-			var domElement = document.createElement(scope.element);
-			iElem.append(domElement);
-			$compile(domElement)(scope);
+			var domElement = document.createElement(scope.type || scope.element);
+			if(scope.element){
+				iElem.append(domElement);
+				$compile(domElement)(scope);
+			} else if (scope.type){
+				iElem.append(domElement);
+			}
+
+
+
+
 			console.log(domElement);
 		}
 	};
