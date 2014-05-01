@@ -2,7 +2,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
     var data = {
         store: {products: {}, catalogs: {}, browser: {}},
 
-        invoice: { order: {}, items:{}, delivery: false }
+        invoice: { order: {}, orderRef: null, items:{}, delivery: false }
     };
 
     var CatalogBrowser = function(newCatalog){
@@ -334,10 +334,15 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             if(system.data.user.id){
                 newOrder.user = system.data.user.id;
             }
-            var orderRef = firebaseRef('order').push(newOrder, function(){
-                data.invoice.order = $firebase(orderRef);
+            if(!data.invoice.orderRef){
+                data.invoice.orderRef = firebaseRef('order').push(newOrder);
+            }
+
+            data.invoice.orderRef.once('value', function(orderSnap){
+                data.invoice.order = $firebase(data.invoice.orderRef);
                 defer.resolve(true);
             });
+
             return defer.promise;
         },
 
