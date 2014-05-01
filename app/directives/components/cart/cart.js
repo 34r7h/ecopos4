@@ -9,6 +9,7 @@ angular.module('ecoposApp').directive('cart', function(shop) {
 			$scope.removeItem = shop.api.removeItem;
             $scope.productQty = shop.api.changeProductQty;
 			$scope.total = shop.api.cartTotal;
+            $scope.checkout = shop.api.orderCheckout;
 
 			$scope.invoice = shop.data.invoice;
 			$scope.items = shop.data.invoice.items;

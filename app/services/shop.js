@@ -2,7 +2,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
     var data = {
         store: {products: {}, catalogs: {}, browser: {}},
 
-        invoice: { order: {}, items:{} }
+        invoice: { order: {}, items:{}, delivery: false }
     };
 
     var CatalogBrowser = function(newCatalog){
@@ -219,6 +219,33 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
     var api = {
         // Cart API
+        assertOrderOnline: function(){
+            // makes sure there is an order on the database
+            var defer = $q.defer();
+
+            if(!data.invoice.order.$id){
+                api.createOrder().then(function(){
+                    defer.resolve(data.invoice.order);
+                });
+            }
+            else{
+                defer.resolve(data.invoice.order);
+            }
+
+            return defer.promise;
+        },
+
+        assertProductStock: function(product){
+            var defer = $q.defer();
+            if(product && product.stock){
+                defer.resolve(product.stock);
+            }
+            else{
+                defer.resolve(0);
+            }
+            return defer.promise;
+        },
+
         addProduct: function(product, qty) {
             /**
              *
@@ -228,9 +255,13 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             var name = product.name?product.name:'Unknown';
             var price = product.price?product.price:'0';
 
-            if(product.stock){
-                product.$update({stock: (product.stock-qty)});
-            }
+            /**
+            api.assertProductStock(product, qty).then(function(qtyAvailable){
+                if(qtyAvailable >= qty){
+
+                }
+            });
+             */
 
             if(data.invoice.items[productID]){
                 data.invoice.items[productID].qty += parseInt(qty);
@@ -242,24 +273,26 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 };
             }
 
-            if(!data.invoice.order.$id){
-                api.createOrder().then(function(){
-                    data.invoice.order.$update({items: data.invoice.items});
-                });
-            }
-            else{
-                data.invoice.order.$update({items: data.invoice.items});
-            }
 
+            api.assertOrderOnline().then(function(order){
+                if(order){
+                    order.$update({items: data.invoice.items});
+                }
+            });
         },
         removeItem: function(productID) {
             if(data.invoice.items[productID]){
                 api.loadInventoryProduct(productID).then(function(product){
                     if(product) {
-                        product.$update({stock: product.stock + data.invoice.items[productID].qty});
+                        //product.$update({stock: product.stock + data.invoice.items[productID].qty});
 
                         delete data.invoice.items[productID];
-                        data.invoice.order.$update({items: data.invoice.items});
+
+                        api.assertOrderOnline().then(function(order) {
+                            if(order){
+                                order.$update({items: data.invoice.items});
+                            }
+                        });
                     }
                 });
 
@@ -270,9 +303,15 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             if(data.invoice.items[productID] && data.invoice.order.items[productID]){
                 api.loadInventoryProduct(productID).then(function(product) {
                     if(product){
-                        var qtyDiff = (data.invoice.items[productID].qty-data.invoice.order.items[productID].qty);
-                        data.invoice.order.$update({items: data.invoice.items});
-                        product.$update({stock: product.stock - qtyDiff});
+                        //var qtyDiff = (data.invoice.items[productID].qty-data.invoice.order.items[productID].qty);
+
+                        api.assertOrderOnline().then(function(order){
+                            if(order){
+                                order.$update({items: data.invoice.items});
+                            }
+                        });
+
+                        //product.$update({stock: product.stock - qtyDiff});
                     }
                 });
             }
@@ -300,6 +339,60 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 defer.resolve(true);
             });
             return defer.promise;
+        },
+
+
+        loadOrder: function(orderID, force){
+            var defer = $q.defer();
+
+            if(!data.invoice.order.$id || force){
+                var orderBind = syncData('order/'+orderID);
+                orderBind.$on('loaded', function(){
+                    data.invoice.order = orderBind;
+                    defer.resolve(data.invoice.order);
+                });
+            }
+            else{
+                defer.resolve(data.invoice.order);
+            }
+
+            return defer.promise;
+        },
+
+        orderCheckout: function(){
+            api.assertOrderOnline().then(function(order){
+                if(order){
+                    /** TODO:
+                     * - check each item's inventory level against database
+                     * - throw an error if there is not enough of the product
+                     *      (maybe someone bought it in between shop and checkout)
+                     *      - make offer of raincheck?
+                     * - adjust each item's stock level
+                     */
+
+                    var updates = {
+                        checkoutTime: system.api.currentTime(),
+                        items: data.invoice.items,
+                        paymentStatus: 'unpaid',
+                        delivery: data.invoice.delivery
+                    };
+
+                    if(data.invoice.delivery){
+                        updates.deliveryStatus = 'processing';
+                        firebaseRef('deliveryQueue/'+order.$id).setWithPriority(true, updates.checkoutTime);
+                    }
+
+                    order.$update(updates);
+                }
+            });
+        },
+
+        orderPayment: function(orderID, paymentData){
+            /** TODO:
+             * - load the order, add payments/{paymentData}
+             * - if total of order.payments >= order.total
+             *      - update order.paymentStatus as 'paid' or 'partial'
+             */
         },
 
         // Catalog API
