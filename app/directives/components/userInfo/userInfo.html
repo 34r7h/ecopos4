@@ -1,18 +1,18 @@
 <div class="bs-callout-info">
-    <a class="list-group-item" ng-show-auth="login" href="#" ng-click="logout()">
+    <a class="list-group-item" ng-if="user.id" href="#" ng-click="logout()">
         <i class="fa fa-unlock"></i> Log Out <i class="fa fa-chevron-right pull-right"></i></a>
-    <a class="list-group-item " ng-show-auth="['logout','error']" href="#overlay" toggle="on">
+
+    <a class="list-group-item " ng-if="!user.id" href="#overlay" toggle="on">
         <i class="fa fa-lock"></i> Login <i class="fa fa-chevron-right pull-right"></i></a>
-    <label>{{ role }}</label>
-    <input type="radio" name="roleSelect" value="{{ role }}" ng-model="$parent.user.activeRole" />
+
 
     <h5 >Logged in as <strong>{{ user.id }}</strong> <em>[{{ user.activeRole }}]</em></h5>
     <h5  ng-show="employee.shiftType">
         <p>scheduled as: <em>{{ employee.shiftType }}</em><span ng-show="user.session.activeShift.end"> until {{ user.session.activeShift.end | date:'shortTime' }}</span></p>
     </h5>
-    <div  >
+    <div>
             <span ng-repeat="(role, assigned) in userBind.roles" ng-if="assigned">
-
+                <input type="radio" name="roleSelect" value="{{ role }}" ng-model="user.activeRole" />
             </span>
         <h3>♥</h3>
     </div>
