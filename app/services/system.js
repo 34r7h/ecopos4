@@ -1,7 +1,7 @@
 angular.module('ecoposApp').factory('system',function(syncData, firebaseRef) {
 
     var data = {
-        user: {id: null, profile: null, activeRole: 'anonymous', notifications: {}, messages: {}, events: {}, calendar: {}, session: {firstActiveRole: true, calendarEvents: {}}},
+        user: {id: null, profile: null, activeRole: 'anonymous', activeOrder: '', notifications: {}, messages: {}, events: {}, calendar: {}, session: {firstActiveRole: true, calendarEvents: {}}},
         employee: {shiftType: null},
         manager: {orders: {}},
         params:{},
@@ -185,6 +185,9 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef) {
                 data.user.id = userProfile.$id;
                 data.user.profile = userProfile;
                 data.user.session.firstActiveRole = true;
+                if(data.user.activeOrder){
+                    data.user.profile.$update({activeOrder: data.user.activeOrder});
+                }
             }
             else{
                 data.user.activeRole = 'anonymous';
@@ -222,6 +225,20 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef) {
                 else if(data.user.profile.roles.customer){
                     data.user.activeRole = 'customer';
                 }
+            }
+        },
+
+        setUserOrder: function(orderID){
+            data.user.activeOrder = orderID;
+            // TODO: make activeOrder an array
+            // TODO: show the activeOrders as a list somewhere
+
+            if(data.user.profile){
+                data.user.profile.$update({activeOrder: data.user.activeOrder});
+            }
+            else{
+                // TODO: something like this for anonymous user cart saving
+                // $localstorage.activeOrder = orderID;
             }
         },
 

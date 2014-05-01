@@ -273,12 +273,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 };
             }
 
-
-            api.assertOrderOnline().then(function(order){
-                if(order){
-                    order.$update({items: data.invoice.items});
-                }
-            });
+            api.updateOrder({items: data.invoice.items});
         },
         removeItem: function(productID) {
             if(data.invoice.items[productID]){
@@ -288,11 +283,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
                         delete data.invoice.items[productID];
 
-                        api.assertOrderOnline().then(function(order) {
-                            if(order){
-                                order.$update({items: data.invoice.items});
-                            }
-                        });
+                        api.updateOrder({items: data.invoice.items});
                     }
                 });
 
@@ -305,11 +296,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                     if(product){
                         //var qtyDiff = (data.invoice.items[productID].qty-data.invoice.order.items[productID].qty);
 
-                        api.assertOrderOnline().then(function(order){
-                            if(order){
-                                order.$update({items: data.invoice.items});
-                            }
-                        });
+                        api.updateOrder({items: data.invoice.items});
 
                         //product.$update({stock: product.stock - qtyDiff});
                     }
@@ -340,28 +327,59 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
             data.invoice.orderRef.once('value', function(orderSnap){
                 data.invoice.order = $firebase(data.invoice.orderRef);
+                system.api.setUserOrder(orderSnap.name());
                 defer.resolve(true);
             });
 
             return defer.promise;
         },
-
-
         loadOrder: function(orderID, force){
+            if(typeof force === 'undefined'){ force = false; }
             var defer = $q.defer();
 
-            if(!data.invoice.order.$id || force){
-                var orderBind = syncData('order/'+orderID);
-                orderBind.$on('loaded', function(){
-                    data.invoice.order = orderBind;
+            if(orderID){
+                if(force || !data.invoice.order || data.invoice.order.$id !== orderID){
+                    data.invoice.orderRef = firebaseRef('order').child(orderID);
+                    data.invoice.orderRef.once('value', function(orderSnap){
+                        data.invoice.order = $firebase(data.invoice.orderRef);
+                        system.api.setUserOrder(orderSnap.name());
+
+                        angular.forEach(orderSnap.val().items, function(item, itemID){
+                            data.invoice.items[itemID] = item;
+                        });
+
+                        defer.resolve(data.invoice.order);
+                    });
+
+                    // TODO: do we want to set the data.invoice.orderRef ?
+                    // TODO: should orderRef be an array to allow working with multiple orders at a time?
+                }
+                else{
                     defer.resolve(data.invoice.order);
-                });
+                }
             }
             else{
-                defer.resolve(data.invoice.order);
+                defer.resolve(null);
             }
 
             return defer.promise;
+        },
+        updateOrder: function(withData){
+            // small wrapper for order.$update that appends the user object all the time
+            if(system.data.user.id){
+                withData.user = system.data.user.id;
+            }
+            else{
+                // TODO: make withData.user an array of user id's (with anon-<ip>) and timestamp as the update
+                withData.user = null;
+            }
+
+            api.assertOrderOnline().then(function(order){
+                if(order){
+                    order.$update(withData);
+                }
+            });
+
         },
 
         orderCheckout: function(){

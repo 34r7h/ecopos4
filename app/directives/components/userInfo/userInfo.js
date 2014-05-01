@@ -1,4 +1,4 @@
-angular.module('ecoposApp').directive('userInfo', function(system, $rootScope, $log, $state, simpleLogin) {
+angular.module('ecoposApp').directive('userInfo', function(system, $rootScope, $log, $state, simpleLogin, shop) {
 	return {
 		restrict: 'E',
 		replace: true,
@@ -22,6 +22,7 @@ angular.module('ecoposApp').directive('userInfo', function(system, $rootScope, $
 			scope.$on('$simpleLogin:profile:loaded', function(event, user){
 				system.api.setUser(user);
 				system.api.setUserActiveRole();
+                shop.api.loadOrder(user.activeOrder, true);
 
                 $state.go('.', null, {reload:true});
 
