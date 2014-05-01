@@ -1,7 +1,7 @@
-angular.module('ecoposApp').factory('system',function(syncData, firebaseRef) {
+angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q, $http) {
 
     var data = {
-        user: {id: null, profile: null, activeRole: 'anonymous', notifications: {}, messages: {}, events: {}, calendar: {}, session: {firstActiveRole: true, calendarEvents: {}}},
+        user: {id: null, anonID: '', profile: null, activeRole: 'anonymous', activeOrder: '', geoIP: {}, notifications: {}, messages: {}, events: {}, calendar: {}, session: {anonCheckTime: 0, firstActiveRole: true, calendarEvents: {}}},
         employee: {shiftType: null},
         manager: {orders: {}},
         params:{},
@@ -15,6 +15,44 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef) {
 
         currentTime: function(){
             return new Date().getTime();
+        },
+        anonymousID: function(){
+            var defer = $q.defer();
+            if(!data.user.anonID){
+                if(!data.user.session.anonCheckTime){
+                    data.user.session.anonCheckTime = api.currentTime();
+                    // TODO: we should put this in ngStorage
+                }
+                var freshID = 'anon-'+data.user.session.anonCheckTime;
+                api.userGeoIP().then(function(geoIP){
+                    if(geoIP.ip){
+                        freshID += '-'+geoIP.ip.replace(/\./g, '_');
+                    }
+                    data.user.anonID = freshID;
+                    defer.resolve(data.user.anonID);
+                });
+            }
+            else{
+                defer.resolve(data.user.anonID);
+            }
+            return defer.promise;
+        },
+        userGeoIP: function(){
+            var defer = $q.defer();
+            if(data.user.geoIP && data.user.geoIP.ip){
+                defer.resolve(data.user.geoIP);
+            }
+            else{
+                $http.get('https://freegeoip.net/json/').
+                    success(function(res) {
+                        data.user.geoIP = res;
+                        defer.resolve(data.user.geoIP);
+                    }).
+                    error(function(res, status){
+                        defer.resolve(data.user.geoIP);
+                    });
+            }
+            return defer.promise;
         },
 
         // gets a flattened user list with no duplicates
@@ -185,6 +223,9 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef) {
                 data.user.id = userProfile.$id;
                 data.user.profile = userProfile;
                 data.user.session.firstActiveRole = true;
+                if(data.user.activeOrder){
+                    data.user.profile.$update({activeOrder: data.user.activeOrder});
+                }
             }
             else{
                 data.user.activeRole = 'anonymous';
@@ -222,6 +263,20 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef) {
                 else if(data.user.profile.roles.customer){
                     data.user.activeRole = 'customer';
                 }
+            }
+        },
+
+        setUserOrder: function(orderID){
+            data.user.activeOrder = orderID;
+            // TODO: make activeOrder an array
+            // TODO: show the activeOrders as a list somewhere
+
+            if(data.user.profile){
+                data.user.profile.$update({activeOrder: data.user.activeOrder});
+            }
+            else{
+                // TODO: something like this for anonymous user cart saving
+                // $localstorage.activeOrder = orderID;
             }
         },
 

@@ -2,7 +2,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
     var data = {
         store: {products: {}, catalogs: {}, browser: {}},
 
-        invoice: { order: {}, items:{} }
+        invoice: { order: {}, orderRef: null, items:{}, delivery: false }
     };
 
     var CatalogBrowser = function(newCatalog){
@@ -219,36 +219,43 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
     var api = {
         // Cart API
+        assertProductStock: function(product){
+            var defer = $q.defer();
+            if(product && product.stock){
+                defer.resolve(product.stock);
+            }
+            else{
+                defer.resolve(0);
+            }
+            return defer.promise;
+        },
+
         addProduct: function(product, qty) {
-            /**
-             *
-             * productID, qty, unitType, name, price, img
-             */
             var productID = product.$id?product.$id:0;
             var name = product.name?product.name:'Unknown';
             var price = product.price?product.price:'0';
 
+            var qtyReq = parseInt(qty);
+            if(data.invoice.items[productID] && data.invoice.items[productID].qty){
+                qtyReq += data.invoice.items[productID].qty;
+            }
+
             if(product.stock){
-                product.$update({stock: (product.stock-qty)});
-            }
-
-            if(data.invoice.items[productID]){
-                data.invoice.items[productID].qty += parseInt(qty);
-            } else {
-                data.invoice.items[productID] = {
-                    qty: parseInt(qty),
-                    name: name,
-                    price: price
-                };
-            }
-
-            if(!data.invoice.order.$id){
-                api.createOrder().then(function(){
-                    data.invoice.order.$update({items: data.invoice.items});
-                });
-            }
-            else{
-                data.invoice.order.$update({items: data.invoice.items});
+                if(product.stock < qtyReq){
+                    qtyReq = product.stock;
+                }
+                if(data.invoice.items[productID]){
+                    data.invoice.items[productID].qty = qtyReq;
+                } else {
+                    if(product.stock && product.stock > qty){
+                        data.invoice.items[productID] = {
+                            qty: qtyReq,
+                            name: name,
+                            price: price
+                        };
+                    }
+                }
+                api.updateOrder({items: data.invoice.items});
             }
 
         },
@@ -256,23 +263,22 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             if(data.invoice.items[productID]){
                 api.loadInventoryProduct(productID).then(function(product){
                     if(product) {
-                        product.$update({stock: product.stock + data.invoice.items[productID].qty});
-
                         delete data.invoice.items[productID];
-                        data.invoice.order.$update({items: data.invoice.items});
+                        api.updateOrder({items: data.invoice.items});
                     }
                 });
-
-
             }
         },
         changeProductQty: function(productID){
             if(data.invoice.items[productID] && data.invoice.order.items[productID]){
                 api.loadInventoryProduct(productID).then(function(product) {
                     if(product){
-                        var qtyDiff = (data.invoice.items[productID].qty-data.invoice.order.items[productID].qty);
-                        data.invoice.order.$update({items: data.invoice.items});
-                        product.$update({stock: product.stock - qtyDiff});
+                        if(product.stock){
+                            if(product.stock < data.invoice.items[productID].qty){
+                                data.invoice.items[productID].qty = product.stock;
+                            }
+                        }
+                        api.updateOrder({items: data.invoice.items});
                     }
                 });
             }
@@ -286,6 +292,21 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             return total;
         },
 
+        assertOrderOnline: function(){
+            // makes sure there is an order on the database
+            var defer = $q.defer();
+
+            if(!data.invoice.order.$id){
+                api.createOrder().then(function(){
+                    defer.resolve(data.invoice.order);
+                });
+            }
+            else{
+                defer.resolve(data.invoice.order);
+            }
+
+            return defer.promise;
+        },
         createOrder: function(){
             var defer = $q.defer();
             var newOrder = {
@@ -295,11 +316,107 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             if(system.data.user.id){
                 newOrder.user = system.data.user.id;
             }
-            var orderRef = firebaseRef('order').push(newOrder, function(){
-                data.invoice.order = $firebase(orderRef);
-                defer.resolve(true);
+            if(!data.invoice.orderRef){
+                data.invoice.orderRef = firebaseRef('order').push(newOrder);
+            }
+
+            data.invoice.orderRef.once('value', function(orderSnap){
+                data.invoice.order = $firebase(data.invoice.orderRef);
+                system.api.setUserOrder(orderSnap.name());
+                defer.resolve(data.invoice.order);
             });
+
             return defer.promise;
+        },
+        loadOrder: function(orderID, force){
+            if(typeof force === 'undefined'){ force = false; }
+            var defer = $q.defer();
+
+            if(orderID){
+                if(force || !data.invoice.order || data.invoice.order.$id !== orderID){
+                    data.invoice.orderRef = firebaseRef('order').child(orderID);
+                    data.invoice.orderRef.once('value', function(orderSnap){
+                        data.invoice.order = $firebase(data.invoice.orderRef);
+                        system.api.setUserOrder(orderSnap.name());
+
+                        angular.forEach(orderSnap.val().items, function(item, itemID){
+                            data.invoice.items[itemID] = item;
+                        });
+
+                        defer.resolve(data.invoice.order);
+                    });
+
+                    // TODO: do we want to set the data.invoice.orderRef ?
+                    // TODO: should orderRef be an array to allow working with multiple orders (carts) at a time?
+                }
+                else{
+                    defer.resolve(data.invoice.order);
+                }
+            }
+            else{
+                defer.resolve(null);
+            }
+
+            return defer.promise;
+        },
+        updateOrder: function(withData){
+            api.assertOrderOnline().then(function(order) {
+                if(order) {
+                    // small wrapper for order.$update that appends the user object all the time
+                    withData.users = order.users?order.users:{};
+                    var dataProms = [];
+                    if (system.data.user.id) {
+                        withData.users[system.data.user.id] = system.api.currentTime();
+                    }
+                    else {
+                        var newProm = system.api.anonymousID();
+                        newProm.then(function (anonID) {
+                            withData.users[anonID] = system.api.currentTime();
+                        });
+                        dataProms.push(newProm);
+                    }
+
+                    $q.all(dataProms).then(function () {
+                        order.$update(withData);
+                    });
+                }
+            });
+        },
+
+        orderCheckout: function(){
+            api.assertOrderOnline().then(function(order){
+                if(order){
+                    /** TODO:
+                     * - check each item's inventory level against database
+                     * - throw an error if there is not enough of the product
+                     *      (maybe someone bought it in between shop and checkout)
+                     *      - make offer of raincheck?
+                     * - adjust each item's stock level
+                     */
+
+                    var updates = {
+                        checkoutTime: system.api.currentTime(),
+                        items: data.invoice.items,
+                        paymentStatus: 'unpaid',
+                        delivery: data.invoice.delivery
+                    };
+
+                    if(data.invoice.delivery){
+                        updates.deliveryStatus = 'processing';
+                        firebaseRef('deliveryQueue/'+order.$id).setWithPriority(true, updates.checkoutTime);
+                    }
+
+                    order.$update(updates);
+                }
+            });
+        },
+
+        orderPayment: function(orderID, paymentData){
+            /** TODO:
+             * - load the order, add payments/{paymentData}
+             * - if total of order.payments >= order.total
+             *      - update order.paymentStatus as 'paid' or 'partial'
+             */
         },
 
         // Catalog API
