@@ -31,7 +31,7 @@
             </fieldset>
 
         </div>
-        <div style="clear: both" ng-repeat="(messageID, message) in user.messages.unseen track by $index">
+        <div style="clear: both" ng-repeat="(messageID, message) in (user.messages.unseen || $parent.user.messages.unseen) track by $index">
             <div class="msg-btn">
                 <button ng-model="msgOpen" style="width: 100%; text-align: left;box-shadow: 1px 1px 10px rgba(0,0,0,.18);" toggle="on" target="{{messageID}}" class="btn btn-small"  ng-hide="msgOpen" ng-click="msgOpen = true; goToBottom();">
                     <span>

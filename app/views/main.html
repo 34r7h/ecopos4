@@ -1,20 +1,19 @@
-<div ui-view="{{view}}"><top-bar></top-bar></div>
-<div ui-view="{{view}}"><left-bar></left-bar></div>
-<div class="middle col">
-    <div class="body rowz col-xs-12">
-        <div class="scroll-x">
-            <div ui-view="{{view}}"><shop></shop></div>
-
+<div ui-view="{{view}}">
+    <top-bar></top-bar>
+    <left-bar>{{settings}}</left-bar>
+    <div class="middle col">
+        <div class="body rowz col-xs-12">
+            <div class="scroll-x">
+                <comp element="main"></comp>
+                <shop></shop>
+            </div>
         </div>
     </div>
-</div>
-<div ui-view="{{view}}"><right-bar></right-bar></div>
-<div ui-view="{{view}}"><bottom-bar></bottom-bar></div>
+    <right-bar>{{tools}}</right-bar>
+    <bottom-bar></bottom-bar>
 
-<div ui-view="{{view}}">
+
     <div overlay="overlay">
-        {{overlay}}
-
-
+        <comp element="overlay"></comp>
     </div>
 </div>

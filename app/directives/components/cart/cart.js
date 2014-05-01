@@ -13,6 +13,14 @@ angular.module('ecoposApp').directive('cart', function(shop) {
 			$scope.invoice = shop.data.invoice;
 			$scope.items = shop.data.invoice.items;
 
+			$scope.qtyCheck = function(data) {
+				console.log(data);
+				if (isNaN(data)===true) {
+					return "Quantity should be a number";
+				}
+				this.data = data;
+			};
+
 		}
 	};
 });

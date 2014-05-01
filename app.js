@@ -16,7 +16,9 @@ angular.module('ecoposApp', [
 	'mobile-angular-ui',
 	'mobile-angular-ui.touch',
 	'mobile-angular-ui.scrollable',
-	'ngAnimate'
+	'ngAnimate',
+	'ngTable',
+	'xeditable'
 ]);
 
 angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) {
@@ -93,7 +95,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 			}
 		}).
 		state('ecoApp.nav.not.tools.settings',{
-			url:'*path?role&preferences&history&store&overlay&mainview',
+			url:'*path?role&preferences&history&store&overlay&main&settings&tools',
 			resolve: {
 				resolution: function($stateParams,$log,system,shop){
 					system.data.params.data = $stateParams;
@@ -107,7 +109,10 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 					if(/^\/*(\/.*)?$/.test($stateParams.path)) {
 						system.data.view = system.data.user.activeRole + '@ecoApp.nav.not.tools';
 						}
-					return [system.data.view, system.data.params.data];
+					return {
+						view:system.data.view,
+						params:system.data.params.data
+					};
 				}
 				/*
 
@@ -115,17 +120,45 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 			},
 			views: {
 				admin:{
-					controller:function($scope,system,$state,resolution,syncData,firebaseRef,FBURL){
-						$scope.overlay = system.data.params.data.overlay;
+					controller:function($scope,system,$state,resolution,syncData){
+						$scope.resolution = resolution;
+						$scope.system = system;
+
+
+						system.ui.main = resolution.params.main;
+						system.ui.overlay = resolution.params.overlay;
+						system.ui.settings = resolution.params.settings;
+						system.ui.tools = resolution.params.tools;
+						console.log(system);
+
+						$scope.iconz = {
+							icon:"fa fa-plus",
+							fun: function(){
+								console.log("New Event Toggle");
+								$scope.newEvt = !$scope.newEvt;
+							}
+						};
+
+						$scope.iconx = {
+							icon:"fa fa-plus",
+							fun:function(){
+								console.log("x");
+								$scope.newMsg = !$scope.newMsg;
+							}
+						};
+						$scope.overlay = system.ui.overlay;
+						$scope.main = system.ui.main;
+						$scope.tools = system.ui.tools;
+						$scope.settings = system.ui.settings;
+
 						console.log($scope.overlay);
 						$scope.orders = system.data.user.orders;
-						$scope.settings = {};
-//						system.ui.navify = syncData(FBURL+'/ui/'+ system.data.user.activeRole + '/notifications');
-//						system.ui.notify = syncData(FBURL+'/ui/'+ system.data.user.activeRole + '/navigation');
-						var notif = '/ui/admin/notifications';
-						$scope.notify = syncData(notif);
+						var notifyRef = '/ui/admin/notifications';
+						$scope.notify = syncData(notifyRef);
+						console.log($scope.notify);
 						var navifyRef = '/ui/admin/navigation';
 						$scope.navify = syncData(navifyRef);
+						console.log($scope.navify);
 						$scope.user = system.data.user;
 						$scope.employee = system.data.employee;
 						$scope.manager = system.data.manager;
@@ -194,8 +227,9 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 
 });
 
-angular.module('ecoposApp').run(function($rootScope, simpleLogin, $state, $stateParams) {
+angular.module('ecoposApp').run(function($rootScope, simpleLogin, $state, $stateParams,editableOptions) {
 	       // if there is a user authenticated with firebase, this will trigger the rest of the login sequence for them
+	editableOptions.theme = 'bs3';
 	simpleLogin.activateCurrent();
     $rootScope.safeApply = function(fn) {
         var phase = $rootScope.$$phase;

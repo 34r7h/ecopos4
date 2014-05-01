@@ -1,7 +1,6 @@
 angular.module('ecoposApp')
-	.controller('MainCtrl', function ($rootScope, $scope, $log, $state, $timeout, syncData, system, Firebase, style) {
+	.controller('MainCtrl', function ($rootScope, $scope, syncData, system, style) {
 		$scope.view = system.data.view;
-
 
 		//basic stylin dimensions
 		$scope.dirDim = {

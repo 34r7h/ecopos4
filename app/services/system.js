@@ -358,7 +358,12 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef) {
 
 	var ui = {
 		navify:{},
-		notify:{}
+		notify:{},
+		overlay:false,
+		main:"",
+		settings:"",
+		tools:""
+
 	};
     return {
 	    ui: ui,
