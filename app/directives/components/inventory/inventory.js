@@ -1,10 +1,12 @@
-angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, system) {
+angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, system, shop) {
 	return {
 		restrict: 'E',
 		replace: true,
 		scope:'@',
 		templateUrl: 'app/directives/components/inventory/inventory.html',
 		link: function(scope, element, attrs, fn) {
+            scope.shops = shop.data.shops;
+            scope.importShop = '';
 
             scope.importHistory = [];
 
