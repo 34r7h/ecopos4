@@ -1,25 +1,28 @@
 <div>
-    <h3>Inventory</h3>
     <div>
-        <select ng-model="importShop" ng-options="shop.name for (shopID,shop) in shops">
-            <option value="">-- choose shop --</option>
-        </select>
-    </div>
+        <div>
+            <select ng-model="importShop" ng-disabled="importing" ng-options="shop.name for (shopID,shop) in shops">
+                <option value="">-- choose shop --</option>
+            </select>
+            <br/>
+            <select ng-model="import" ng-disabled="importing" ng-options="importer.name for (importID,importer) in importers">
+                <option value="">-- choose import --</option>
+            </select>
+        </div>
 
-    <div>
-        <select ng-model="import" ng-options="importer.name for (importID,importer) in importers">
-            <option value="">-- choose import --</option>
-        </select>
-        <div ng-show="import">
-            <h4 ng-show="import">{{import.name}}</h4>
+        <div ng-show="import && importShop">
+            <div ng-show="!importing">
+                Import <strong>{{import.name}}</strong> from <strong>{{import['raw-table']}}</strong>...<br/>
+                Into <strong>{{importShop.name}}</strong> @ <em>{{importShop.catalog}}</em><br/>
+
+                <button ng-click="startImport()" class="btn btn-warning">Import!</button>
+            </div>
 
             <div ng-show="importing">
                 Importing <strong>{{importing.import.name}}</strong> from <strong>{{importing.import['raw-table']}}</strong>...<br/>
                 Into <strong>{{importing.shop.name}}</strong> @ <em>{{importing.shop.catalog}}</em><br/>
                 Started at {{importing.startTime | date:'mediumTime'}} on {{importing.startTime | date:'shortDate'}}
             </div>
-
-            <button ng-click="startImport()" ng-show="!importing" class="btn btn-warning">Import!</button>
         </div>
     </div>
 
@@ -29,6 +32,4 @@
             <li ng-repeat="history in importHistory"><strong>{{history.name}}</strong> into <strong>{{history.shop.name}}</strong> @ {{history.start | date:'mediumTime'}} to {{history.finish | date:'mediumTime'}} ({{ (history.finish-history.start)/1000 }}s) on {{history.finish | date:'shortDate'}}</li>
         </ul>
     </div>
-
-
 </div>
