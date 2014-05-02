@@ -6,7 +6,7 @@ angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, 
 		templateUrl: 'app/directives/components/inventory/inventory.html',
 		link: function(scope, element, attrs, fn) {
 
-            scope.importHistory = new Array();
+            scope.importHistory = [];
 
             scope.startImport = function(){
                 if(!scope.importing && scope.import && scope.importers[scope.import] && typeof scope.importers[scope.import].import === 'function'){
