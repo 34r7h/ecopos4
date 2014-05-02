@@ -486,7 +486,8 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                     var shopConfig = {
                         name: name,
                         catalog: catalogPath,
-                        cache: cachePath
+                        cache: cachePath,
+                        inventory: 'product'
                     };
 
                     firebaseRef(configPath).set(shopConfig, function(error) {
