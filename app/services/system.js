@@ -37,6 +37,48 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
             }
             return defer.promise;
         },
+        fbPathExists: function(fbPath){
+            var defer = $q.defer();
+
+            firebaseRef(fbPath).once('value', function(snap){
+                defer.resolve((snap.val()!==null)?true:false);
+            });
+
+            return defer.promise;
+        },
+        fbSafePath: function(fbPath, maxCount, count){
+            var tryPath = fbPath;
+            if(typeof maxCount === 'undefined'){ maxCount = 999; }
+            if(typeof count === 'undefined'){
+                count = 0;
+                tryPath = fbPath;
+            }
+            else{
+                tryPath = fbPath+'-'+count;
+            }
+            var defer = $q.defer();
+            api.fbPathExists(tryPath).then(function(exists){
+                if(exists){
+                    if(maxCount > 0 && count >= maxCount){
+                        defer.reject('Maximum unique paths for \''+fbPath+'\' attempted and \''+tryPath+'\' exists.');
+                    }
+                    else{
+                        defer.notify('Path \''+tryPath+'\' exists...');
+                        api.fbSafePath(fbPath, maxCount, (count+1)).then(function(safePath){
+                            defer.resolve(safePath);
+                        }, function(error){
+                            defer.reject(error);
+                        }, function(notification){
+                            defer.notify(notification);
+                        });
+                    }
+                }
+                else{
+                    defer.resolve(tryPath);
+                }
+            });
+            return defer.promise;
+        },
         fbSafeKey: function(rawKey){
             var safeKey = rawKey.trim();
             var foulChar = [];
