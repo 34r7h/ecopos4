@@ -423,10 +423,10 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         createShop: function(name, catalogBranch, cacheBranch){
             var defer = $q.defer();
 
-            if(typeof catalogBranch === 'undefined'){
+            if(typeof catalogBranch === 'undefined' || !catalogBranch){
                 catalogBranch = system.api.fbSafeKey(name);
             }
-            if(typeof cacheBranch === 'undefined'){
+            if(typeof cacheBranch === 'undefined' || !cacheBranch){
                 cacheBranch = catalogBranch;
             }
 
