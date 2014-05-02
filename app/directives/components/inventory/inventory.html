@@ -1,7 +1,6 @@
 <div>
     <h3>Inventory</h3>
     <div>
-        Shop:
         <select ng-model="importShop" ng-options="shop.name for (shopID,shop) in shops">
             <option value="">-- choose shop --</option>
         </select>
@@ -11,11 +10,12 @@
         <select ng-model="import" ng-options="importer.name for (importID,importer) in importers">
             <option value="">-- choose import --</option>
         </select>
-        <div ng-show="import && importers[import]">
-            <h4 ng-show="importers[import]">{{importers[import].name}}</h4>
+        <div ng-show="import">
+            <h4 ng-show="import">{{import.name}}</h4>
 
             <div ng-show="importing">
                 Importing <strong>{{importing.import.name}}</strong> from <strong>{{importing.import['raw-table']}}</strong>...<br/>
+                Into <strong>{{importing.shop.name}}</strong> @ <em>{{importing.shop.catalog}}</em><br/>
                 Started at {{importing.startTime | date:'mediumTime'}} on {{importing.startTime | date:'shortDate'}}
             </div>
 
@@ -26,7 +26,7 @@
     <div ng-show="importHistory.length">
         <h4>History</h4>
         <ul>
-            <li ng-repeat="history in importHistory"><strong>{{history.name}}</strong> @ {{history.start | date:'mediumTime'}} to {{history.finish | date:'mediumTime'}} ({{ (history.finish-history.start)/1000 }}s) on {{history.finish | date:'shortDate'}}</li>
+            <li ng-repeat="history in importHistory"><strong>{{history.name}}</strong> into <strong>{{history.shop.name}}</strong> @ {{history.start | date:'mediumTime'}} to {{history.finish | date:'mediumTime'}} ({{ (history.finish-history.start)/1000 }}s) on {{history.finish | date:'shortDate'}}</li>
         </ul>
     </div>
 

@@ -11,13 +11,13 @@ angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, 
             scope.importHistory = [];
 
             scope.startImport = function(){
-                if(!scope.importing && scope.import && scope.importers[scope.import] && typeof scope.importers[scope.import].import === 'function'){
-                    scope.importing = {import: scope.importers[scope.import], startTime: system.api.currentTime()};
-                    $log.debug('importing \''+scope.importers[scope.import].name+'\' from \''+scope.importers[scope.import]['raw-table']+'\'');
+                if(!scope.importing && scope.import && typeof scope.import.import === 'function' && scope.importShop){
+                    scope.importing = {import: scope.import, shop: scope.importShop, startTime: system.api.currentTime()};
+                    $log.debug('importing \''+scope.import.name+'\' from \''+scope.import['raw-table']+'\' to \''+scope.importShop.name+'\' ('+scope.importShop.catalog+')');
 
-                    scope.importers[scope.import].import().then(function(){
+                    scope.import.import(scope.importShop).then(function(){
                         scope.importing.finishTime = system.api.currentTime();
-                        scope.importHistory.push({name: scope.importing.import.name, start: scope.importing.startTime, finish: scope.importing.finishTime});
+                        scope.importHistory.push({name: scope.importing.import.name, shop: scope.importing.shop, start: scope.importing.startTime, finish: scope.importing.finishTime});
                         scope.importing = false;
                     });
                 }
@@ -29,8 +29,10 @@ angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, 
                 'inventory': {
                     name: 'Inventory Sheet',
                     'raw-table': 'inventory-apr19',
-                    import: function(){
+                    import: function(intoShop){
                         var defer = $q.defer();
+
+                        console.log('import inventory into '+intoShop.name+' ('+intoShop.catalog+')');
 
                         $timeout(function(){ defer.resolve(); }, 1000);
 
@@ -40,8 +42,10 @@ angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, 
                 'horizon': {
                     'name': 'Horizon',
                     'raw-table': 'horizon-products',
-                    import: function(){
+                    import: function(intoShop){
                         var defer = $q.defer();
+
+                        console.log('import horizon into '+intoShop.name+' ('+intoShop.catalog+')');
 
                         $timeout(function(){ defer.resolve(); }, 2567);
 
