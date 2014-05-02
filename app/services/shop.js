@@ -1,6 +1,7 @@
 angular.module('ecoposApp').factory('shop',function($q, system, syncData, firebaseRef, $firebase, $filter, FBURL, $log) {
     var data = {
         store: {products: {}, catalogs: {}, browser: {}},
+        shops: {},
 
         invoice: { order: {}, orderRef: null, items:{}, delivery: false }
     };
@@ -507,6 +508,16 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
             return defer.promise;
         },
+        loadShops: function(){
+            var shopsRef = firebaseRef('shops/config');
+            shopsRef.on('child_added', function(childSnapshot){
+                data.shops[childSnapshot.name()] = childSnapshot.val();
+            });
+            shopsRef.on('child_removed', function(oldChildSnapshot){
+                delete data.shops[childSnapshot.name()];
+            });
+        },
+
 
         addCatalogBrowser: function(name, catalogName){
             var defer = $q.defer();
