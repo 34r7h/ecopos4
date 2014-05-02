@@ -7,7 +7,8 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
         params:{},
         breadcrumb:[],
         search:'',
-        view:''
+        view:'',
+	    info:''
     };
 
     var api = {
