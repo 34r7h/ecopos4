@@ -99,6 +99,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 				resolution: function($stateParams,$log,system,shop){
 					system.data.params.data = $stateParams;
 
+
+
                     shop.api.addCatalogBrowser('shop', 'shop').then(function(browser){
                         //$scope.shop = browser;
                         browser.setPath(system.data.params.data['path']);
@@ -122,6 +124,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 					controller:function($scope,system,$state,resolution,syncData){
 						$scope.resolution = resolution;
 						$scope.system = system;
+						$scope.breadcrumb = system.data.breadcrumb;
 
 
 						system.ui.main = resolution.params.main;
