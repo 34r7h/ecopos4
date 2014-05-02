@@ -423,41 +423,87 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         createShop: function(name, catalogBranch, cacheBranch){
             var defer = $q.defer();
 
-            var shopConfig = {
-                name: name,
-                catalog: catalogBranch,
-                cache: cacheBranch
-            };
+            if(typeof catalogBranch === 'undefined'){
+                catalogBranch = system.api.fbSafeKey(name);
+            }
+            if(typeof cacheBranch === 'undefined'){
+                cacheBranch = catalogBranch;
+            }
 
-            var newCatalog = {
-                name: name,
-                children: {}
-            };
+            var shopsRoot = 'shops';
+            var configPath = shopsRoot+'/config/'+system.api.fbSafeKey(name);
+            var catalogPath = shopsRoot+'/catalog/'+catalogBranch;
+            var cachePath = shopsRoot+'/cache/'+cacheBranch;
 
-            var newCache = {
-                products: {}
-            };
+            var phaseProms = [];
+            var cPhaseProm;
 
-            /**
-             * TODO:
-             * - check if those things exist
-             *  - reject if anything exists (or auto-inc/update)
-             * - create config entry in "shops" branch
-             * - create empty catalog
-             * - create empty cache
-             */
-
-            $log.debug('create a new shop looking like: '+JSON.stringify(shopConfig));
-
-            system.api.fbSafePath('test').then(function(safePath){
-                console.log('Safe Path:'+safePath);
-            }, function(error){
-                console.log('unsafe:'+error);
-            }, function(notification){
-                console.log('note:'+notification);
+            cPhaseProm = system.api.fbSafePath(configPath);
+            cPhaseProm.then(function(safePath){
+                configPath = safePath;
             });
+            phaseProms.push(cPhaseProm);
 
-            defer.resolve(true);
+            cPhaseProm = system.api.fbSafePath(catalogPath);
+            cPhaseProm.then(function(safePath){
+                catalogPath = safePath;
+            });
+            phaseProms.push(cPhaseProm);
+
+            cPhaseProm = system.api.fbSafePath(cachePath);
+            cPhaseProm.then(function(safePath){
+                cachePath = safePath;
+            });
+            phaseProms.push(cPhaseProm);
+
+            $q.all(phaseProms).then(function(){
+                phaseProms = [];
+
+                var newCatalog = {
+                    name: name,
+                    children: {}
+                };
+                var newCache = {
+                    name: name,
+                    products: {}
+                };
+
+
+                var catalogDefer = $q.defer();
+                firebaseRef(catalogPath).set(newCatalog, function(){
+                    catalogDefer.resolve(true);
+                });
+                phaseProms.push(catalogDefer.promise);
+
+                var cacheDefer = $q.defer();
+                firebaseRef(cachePath).set(newCache, function(){
+                    cacheDefer.resolve(true);
+                });
+                phaseProms.push(cacheDefer.promise);
+
+                $q.all(phaseProms).then(function(){
+                    var shopConfig = {
+                        name: name,
+                        catalog: catalogPath,
+                        cache: cachePath
+                    };
+
+                    firebaseRef(configPath).set(shopConfig, function(error) {
+                        if (!error) {
+                            defer.resolve(shopConfig);
+                        }
+                        else {
+                            defer.resolve(false);
+                        }
+                    });
+
+                }, function(error){
+                    defer.resolve(false);
+                });
+
+            }, function(error){
+                defer.resolve(false);
+            });
 
             return defer.promise;
         },
