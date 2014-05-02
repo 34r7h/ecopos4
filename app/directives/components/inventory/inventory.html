@@ -1,0 +1,28 @@
+<div>
+    <h3>Inventory</h3>
+
+    <div>
+        <select ng-model="import">
+            <option ng-repeat="(importID,importer) in importers" ng-value="importID">{{importer.name}}</option>
+        </select>
+        <div ng-show="import && importers[import]">
+            <h4 ng-show="importers[import]">{{importers[import].name}}</h4>
+
+            <div ng-show="importing">
+                Importing <strong>{{importing.import.name}}</strong> from <strong>{{importing.import['raw-table']}}</strong>...<br/>
+                Started at {{importing.startTime | date:'mediumTime'}} on {{importing.startTime | date:'shortDate'}}
+            </div>
+
+            <button ng-click="startImport()" ng-show="!importing" class="btn btn-warning">Import!</button>
+        </div>
+    </div>
+
+    <div ng-show="importHistory.length">
+        <h4>History</h4>
+        <ul>
+            <li ng-repeat="history in importHistory"><strong>{{history.name}}</strong> @ {{history.start | date:'mediumTime'}} to {{history.finish | date:'mediumTime'}} ({{ (history.finish-history.start)/1000 }}s) on {{history.finish | date:'shortDate'}}</li>
+        </ul>
+    </div>
+
+
+</div>
