@@ -37,6 +37,52 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
             }
             return defer.promise;
         },
+        fbSafeKey: function(rawKey){
+            var safeKey = rawKey.trim();
+            var foulChar = [];
+
+            //".", "#", "$", "/", "[", or "]"
+            if(safeKey.indexOf('.') >= 0){
+                foulChar.push('.');
+            }
+            if(safeKey.indexOf('#') >= 0){
+                foulChar.push('#');
+            }
+            if(safeKey.indexOf('$') >= 0){
+                foulChar.push('$');
+            }
+            if(safeKey.indexOf('/') >= 0){
+                foulChar.push('/');
+            }
+            if(safeKey.indexOf('[') >= 0){
+                foulChar.push('[');
+            }
+            if(safeKey.indexOf(']') >= 0){
+                foulChar.push(']');
+            }
+
+            // firebase banned characters
+            safeKey = safeKey.replace(/\./g, '');
+            safeKey = safeKey.replace(/#/g, 'No_');
+            safeKey = safeKey.replace(/\$/g, '');
+            safeKey = safeKey.replace(/\//g, '-');
+            safeKey = safeKey.replace(/\[/g, '(');
+            safeKey = safeKey.replace(/\]/g, ')');
+
+            // URL banned characters
+            safeKey = safeKey.replace(/ /g, '-');
+            safeKey = safeKey.replace(/\?/g, '_');
+            safeKey = safeKey.replace(/[^a-zA-Z0-9-_]/g, '');
+            safeKey = safeKey.replace(/--*/g, '-'); // take out multiple consecutive --
+
+            if(!safeKey){
+                safeKey = 'unknown';
+            }
+
+            safeKey = safeKey.toLowerCase();
+
+            return safeKey;
+        },
         userGeoIP: function(){
             var defer = $q.defer();
             if(data.user.geoIP && data.user.geoIP.ip){
