@@ -1,9 +1,15 @@
 <div>
     <h3>Inventory</h3>
+    <div>
+        Shop:
+        <select ng-model="importShop" ng-options="shop.name for (shopID,shop) in shops">
+            <option value="">-- choose shop --</option>
+        </select>
+    </div>
 
     <div>
-        <select ng-model="import">
-            <option ng-repeat="(importID,importer) in importers" ng-value="importID">{{importer.name}}</option>
+        <select ng-model="import" ng-options="importer.name for (importID,importer) in importers">
+            <option value="">-- choose import --</option>
         </select>
         <div ng-show="import && importers[import]">
             <h4 ng-show="importers[import]">{{importers[import].name}}</h4>

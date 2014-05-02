@@ -1,6 +1,7 @@
 angular.module('ecoposApp').factory('shop',function($q, system, syncData, firebaseRef, $firebase, $filter, FBURL, $log) {
     var data = {
         store: {products: {}, catalogs: {}, browser: {}},
+        shops: {},
 
         invoice: { order: {}, orderRef: null, items:{}, delivery: false }
     };
@@ -420,6 +421,104 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         },
 
         // Catalog API
+        createShop: function(name, catalogBranch, cacheBranch){
+            var defer = $q.defer();
+
+            if(typeof catalogBranch === 'undefined' || !catalogBranch){
+                catalogBranch = system.api.fbSafeKey(name);
+            }
+            if(typeof cacheBranch === 'undefined' || !cacheBranch){
+                cacheBranch = catalogBranch;
+            }
+
+            var shopsRoot = 'shops';
+            var configPath = shopsRoot+'/config/'+system.api.fbSafeKey(name);
+            var catalogPath = shopsRoot+'/catalog/'+catalogBranch;
+            var cachePath = shopsRoot+'/cache/'+cacheBranch;
+
+            var phaseProms = [];
+            var cPhaseProm;
+
+            cPhaseProm = system.api.fbSafePath(configPath);
+            cPhaseProm.then(function(safePath){
+                configPath = safePath;
+            });
+            phaseProms.push(cPhaseProm);
+
+            cPhaseProm = system.api.fbSafePath(catalogPath);
+            cPhaseProm.then(function(safePath){
+                catalogPath = safePath;
+            });
+            phaseProms.push(cPhaseProm);
+
+            cPhaseProm = system.api.fbSafePath(cachePath);
+            cPhaseProm.then(function(safePath){
+                cachePath = safePath;
+            });
+            phaseProms.push(cPhaseProm);
+
+            $q.all(phaseProms).then(function(){
+                phaseProms = [];
+
+                var newCatalog = {
+                    name: name,
+                    children: {}
+                };
+                var newCache = {
+                    name: name,
+                    products: {}
+                };
+
+
+                var catalogDefer = $q.defer();
+                firebaseRef(catalogPath).set(newCatalog, function(){
+                    catalogDefer.resolve(true);
+                });
+                phaseProms.push(catalogDefer.promise);
+
+                var cacheDefer = $q.defer();
+                firebaseRef(cachePath).set(newCache, function(){
+                    cacheDefer.resolve(true);
+                });
+                phaseProms.push(cacheDefer.promise);
+
+                $q.all(phaseProms).then(function(){
+                    var shopConfig = {
+                        name: name,
+                        catalog: catalogPath,
+                        cache: cachePath
+                    };
+
+                    firebaseRef(configPath).set(shopConfig, function(error) {
+                        if (!error) {
+                            defer.resolve(shopConfig);
+                        }
+                        else {
+                            defer.resolve(false);
+                        }
+                    });
+
+                }, function(error){
+                    defer.resolve(false);
+                });
+
+            }, function(error){
+                defer.resolve(false);
+            });
+
+            return defer.promise;
+        },
+        loadShops: function(){
+            var shopsRef = firebaseRef('shops/config');
+            shopsRef.on('child_added', function(childSnapshot){
+                data.shops[childSnapshot.name()] = childSnapshot.val();
+            });
+            shopsRef.on('child_removed', function(oldChildSnapshot){
+                delete data.shops[childSnapshot.name()];
+            });
+        },
+
+
         addCatalogBrowser: function(name, catalogName){
             var defer = $q.defer();
             if(!data.store.browser[name]){
