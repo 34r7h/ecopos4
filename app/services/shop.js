@@ -420,6 +420,48 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         },
 
         // Catalog API
+        createShop: function(name, catalogBranch, cacheBranch){
+            var defer = $q.defer();
+
+            var shopConfig = {
+                name: name,
+                catalog: catalogBranch,
+                cache: cacheBranch
+            };
+
+            var newCatalog = {
+                name: name,
+                children: {}
+            };
+
+            var newCache = {
+                products: {}
+            };
+
+            /**
+             * TODO:
+             * - check if those things exist
+             *  - reject if anything exists (or auto-inc/update)
+             * - create config entry in "shops" branch
+             * - create empty catalog
+             * - create empty cache
+             */
+
+            $log.debug('create a new shop looking like: '+JSON.stringify(shopConfig));
+
+            system.api.fbSafePath('test').then(function(safePath){
+                console.log('Safe Path:'+safePath);
+            }, function(error){
+                console.log('unsafe:'+error);
+            }, function(notification){
+                console.log('note:'+notification);
+            });
+
+            defer.resolve(true);
+
+            return defer.promise;
+        },
+
         addCatalogBrowser: function(name, catalogName){
             var defer = $q.defer();
             if(!data.store.browser[name]){
