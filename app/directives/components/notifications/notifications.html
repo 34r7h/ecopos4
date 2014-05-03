@@ -1,0 +1,19 @@
+<div class="col-xs-12">
+    <div style="border-bottom: 1px;">
+        <input ng-model="search.notifications" placeholder="Search Notifications">
+        <a>Broadcast</a> <a>Refresh</a>
+    </div>
+    <hr>
+    <ul ng-repeat="notification in $parent.user.notifications">
+        <li>
+            <div class="col-xs-3">
+                {{notification.type}}
+            </div>
+            <div class="col-xs-9">
+                <p><b>{{notification.content}}</b></p>
+                <p><code>{{notification.time | date:'shortTime'}}</code></p>
+            </div>
+        </li>
+    </ul>
+
+</div>
