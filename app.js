@@ -98,15 +98,10 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 			resolve: {
 				resolution: function($stateParams,$log,system,shop){
 					system.data.params.data = $stateParams;
-
-
-
                     shop.api.addCatalogBrowser('shop', 'shop').then(function(browser){
                         //$scope.shop = browser;
                         browser.setPath(system.data.params.data['path']);
                     });
-
-
 					if(/^\/*(\/.*)?$/.test($stateParams.path)) {
 						system.data.view = system.data.user.activeRole + '@ecoApp.nav.not.tools';
 						}
@@ -115,13 +110,24 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 						params:system.data.params.data
 					};
 				}
-				/*
-
-				*/
 			},
 			views: {
 				admin:{
-					controller:function($scope,system,$state,resolution,syncData){
+					controller:function($scope,system,$state,resolution,syncData,Firebase){
+						var info = '/info/test-cat/';
+						$scope.info = new Firebase('https://opentest.firebaseio.com/info');
+						$scope.info1 = {
+							date:1399068990,
+							media:['https://www.youtube.com/watch?v=AA0SZMZCSkM'],
+							content:'A whole paragraph',
+							categories:['test','test1'],
+							links:['http://ecossentials.com'],
+							title:"A long way together",
+							tags:['test','upcoming','valid','eat smoothies'],
+							publisher:"irth"
+						};
+					    $scope.info.push($scope.info1);
+
 						$scope.resolution = resolution;
 						$scope.system = system;
 						$scope.breadcrumb = system.data.breadcrumb;

@@ -1,4 +1,15 @@
 <div>
+    <div ng-click="newInfo=!newInfo">New Info</div>
+    <div ng-show="newInfo" class="col-xs-12">
+        <input placeholder="date">
+        <textarea placeholder="content"></textarea>
+        <input placeholder="title">
+        <input placeholder="media url">
+        <input placeholder="links">
+        <select placeholder="categories"><option>Category 1</option></select>
+        <input placeholder="tags">
+        <input placeholder="author">
+    </div>
     <div ng-repeat="info in info">
         <div>
             <div>

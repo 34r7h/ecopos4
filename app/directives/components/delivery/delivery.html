@@ -1,0 +1,27 @@
+<div>
+    <div class="col-xs-3">
+        <h5>Orders</h5>
+    </div>
+    <div class="col-xs-9">
+        <h5>
+            <a ng-click="map=!map;directions=false">Map</a> /
+            <a ng-click="directions=!directions;map=false">Directions</a>
+        </h5>
+        <form novalidate name="mapContainer" class="mapContainer well">
+            <div ng-hide="directions" id="theMap"></div>
+            <div ng-show="directions" class="directions" ng-show="directions || directions==undefined">
+                <label>Origin:</label>
+                <input type="text" ng-model="origin" name="origin"  required>
+                <small class="error" id="wrongAddress">Error:
+                    <span>Sorry this is not a valid address.</span>
+                </small>
+                <label>Destination:</label>
+                <input ng-model="endPoint" type="text" disabled>
+                <button class="getDirections btn " ng-click="getDirections()" ng-disabled="mapContainer.$invalid">Get Directions</button>
+                <button class="clearDirections btn " ng-click="clearDirections()" ng-disabled="mapContainer.$invalid">Clear</button>
+                <div id="directionsList"></div>
+            </div>
+        </form>
+    </div>
+
+</div>

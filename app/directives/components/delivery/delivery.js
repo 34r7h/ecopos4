@@ -1,6 +1,6 @@
 var component = angular.module('ecoposApp');
 
-component.directive('maps', function () {
+component.directive('delivery', function () {
 	'use strict';
 
 	var directionsDisplay = new google.maps.DirectionsRenderer(),
@@ -21,21 +21,7 @@ component.directive('maps', function () {
 			directions: '@'
 		},
 		replace: true,
-		template: '<form novalidate name="mapContainer" class="mapContainer well">' +
-			'<div id="theMap"></div>' +
-			'<div class="directions" ng-show="directions || directions==undefined">' +
-			'<label>Origin:</label>' +
-			'<input type="text" ng-model="origin" name="origin"  required>' +
-			'<small class="error" id="wrongAddress">Error: \n ' +
-			'<span>Sorry this is not a valid address.</span>' +
-			'</small>' +
-			'<label>Destination:</label>' +
-			'<input ng-model="endPoint" type="text" disabled>' +
-			'<button class="getDirections btn " ng-click="getDirections()" ng-disabled="mapContainer.$invalid">Get Directions</button> ' +
-			'<button class="clearDirections btn " ng-click="clearDirections()" ng-disabled="mapContainer.$invalid">Clear</button>' +
-			'<div id="directionsList"></div>' +
-			'</div>' +
-			'</form>', // todo: use template url and template file
+		templateUrl: 'app/directives/components/delivery/delivery.html',
 		link: function (scope, element, attrs) {
 			scope.init = function () {
 				var mapOptions = {
