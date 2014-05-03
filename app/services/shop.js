@@ -515,7 +515,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 data.shops[childSnapshot.name()] = childSnapshot.val();
             });
             shopsRef.on('child_removed', function(oldChildSnapshot){
-                delete data.shops[childSnapshot.name()];
+                delete data.shops[oldChildSnapshot.name()];
             });
         },
 

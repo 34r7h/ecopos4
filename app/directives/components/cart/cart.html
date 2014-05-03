@@ -1,6 +1,10 @@
-<span class="col-xs-12">
+<div>
+    <div class="col-xs-2"><a>Empty Cart</a></div>
+    <div class="col-xs-4"><select><option>Ecossentials</option></select></div>
+    <div class="col-xs-6"><button class="col-xs-12">Checkout</button></div>
+
     <table class="table">
-        <tr class="col-xs-12">
+        <tr >
             <th class="col-xs-1"></th>
             <th class="col-xs-2"></th>
             <th class="col-xs-3">Item</th>
@@ -9,7 +13,7 @@
             <th class="col-xs-2">Total</th>
         </tr>
 
-        <tr class="col-xs-12" ng-repeat="(productID, item) in items">
+        <tr ng-repeat="(productID, item) in items">
             <td class="col-xs-1">
                 [<a href ng-click="removeItem(productID)">X</a>]
             </td>
@@ -19,7 +23,7 @@
             <td class="col-xs-2" data-title="Qty"><a href="#" editable-text="item.qty" ng-model="item.qty" ng-change="productQty(productID)" onbeforesave="qtyCheck($data)">{{item.qty}}</a></td>
             <td class="col-xs-2" data-title="'Item Total'">{{item.qty * item.price | currency}}</td>
         </tr>
-        <tr class="col-xs-12" >
+        <tr>
             <td colspan="2" class="col-xs-3"></td>
             <td colspan="3" class="col-xs-7"><strong>Order Total:</strong></td>
             <td class="col-xs-2" data-title="'Order Total'">{{total() | currency}}</td>
@@ -31,4 +35,4 @@
     <div>
         <button class="btn-success" ng-click="checkout()">Checkout</button>
     </div>
-</span>
+</div>

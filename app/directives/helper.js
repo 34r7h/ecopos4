@@ -3,21 +3,21 @@ angular.module('ecoposApp').directive('comp', function($compile,$timeout) {
 		restrict:"E",
 
 		replace:true,
-		scope:{element:"=",type:"="},
+		scope:{element:"=",type:"=",calendar:"@calendar"},
 		link:function(scope, iElem, iAttrs,element, $scope, attrs) {
 
 			var domElement = document.createElement(scope.type || scope.element);
 			if(scope.element){
+				console.log(domElement);
 				iElem.append(domElement);
 				$compile(domElement)(scope);
+
 			} else if (scope.type){
+				console.log(domElement);
 				iElem.append(domElement);
+
 			}
 
-
-
-
-			console.log(domElement);
 		}
 	};
 }).directive('ecoPanel', function() {
