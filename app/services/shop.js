@@ -1,4 +1,4 @@
-angular.module('ecoposApp').factory('shop',function($q, system, syncData, firebaseRef, $firebase, $filter, FBURL, $log) {
+angular.module('ecoposApp').factory('shop',function($q, system, syncData, firebaseRef, $firebase, $filter, FBURL, FBSHOPSROOT, $log) {
     var data = {
         store: {products: {}, catalogs: {}, browser: {}},
         shops: {},
@@ -431,7 +431,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 cacheBranch = catalogBranch;
             }
 
-            var shopsRoot = 'shops';
+            var shopsRoot = FBSHOPSROOT;
             var configPath = shopsRoot+'/config/'+system.api.fbSafeKey(name);
             var catalogPath = shopsRoot+'/catalog/'+catalogBranch;
             var cachePath = shopsRoot+'/cache/'+cacheBranch;
@@ -521,8 +521,17 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
         setProduct: function(product){
             /**
+             missing data strategy?
+                1. require all data and save the whole product every time
+             OR
+                2. require only $id or upc and update provided fields
+                    - if no $id or upc, it is new
+             */
+
+            /**
+             product may be a $firebase object - or of the format:
              product = {
-                    id: <system product ID>
+                    $id: <system product ID>
                     upc: <universal product code>,
                     name: <product name>,
                     body: <product description>,
@@ -535,20 +544,58 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 };
              */
 
-            var upcCachePath = 'upc';
-            if(product.upc && product.upc.test(/[0-9]{12}/)){
-                firebaseRef('upc/'+product.upc).once('value', function(snap){
-                    var upcProdID = snap.val();
+            var shopsRoot = FBSHOPSROOT;
+
+            var upcProdID = '';
+            var upcCachePath = shopsRoot+'/upc';
+            var upcFound = false;
+            if(product.upc){ // && product.upc.test(/[0-9]{12}/)
+
+                // TODO: make an api.upcLookup(upc, restrictShop?) promise
+
+                firebaseRef(upcCachePath+'/'+product.upc).once('value', function(snap){
+                    upcProdID = snap.val();
                     if(upcProdID){
-                        if(upcProdID === product.id){
-                            // UPC matches productID
+                        if(upcProdID === product.$id){
+                            // UPC matches product.$id
+                            upcFound = true;
+
+                            // - this means that the product is in the catalog with a valid UPC
+                            // - match it for updating when we are handling the shops
                         }
                         else{
-                            // UPC associated to different product
+                            // UPC found, but not matching product.$id
+
+                            // - if product.$id
+                            //      - insert as array 'upc/'+product.upc = product.$id
+                            //
+                            // - else if !product.$id
+                            //      - insert it when we are handling the shops
+                            //          - insert product to generate $id
+                            //          - insert as array 'upc/'+product.upc = product.$id
+                            //      - or retrieve the upcProdID and update the product
+                            //          - make some checks to ensure it is the "same" product
+                            //              (ex. name, price, shops/categories)
+
+                            upcFound = product.$id?'multi':'new';
                         }
                     }
                     else{
-                        // new UPC
+                        // UPC not found in upc table
+
+                        // - if product.$id
+                        //      - insert 'upc/'+product.upc = product.$id
+                        // - else if !product.$id
+                        //      - insert it when we are handling the shops
+                        //          - insert product to generate $id
+                        //          - insert 'upc/'+product.upc = product.$id
+
+                        if(product.$id){
+                            //      - insert 'upc/'+product.upc = product.$id
+                        }
+                        else{
+                            upcFound = 'new';
+                        }
                     }
                 });
             }
@@ -557,11 +604,8 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 // save to upc/invalid/<(product.upc?product.upc:'undefined')>
             }
 
-            if(!product.id){
-                // new product, create it
-            }
-            else{
-                // existing product, update it
+            if(!product.$id){
+                product.new = true;
             }
 
             angular.forEach(product.shops, function(shopProduct, shopID){
@@ -569,7 +613,14 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 if(shopConfig) {
                     var inventory = firebaseRef(shopConfig.inventory);
 
-                    // add/update "shared inventory" at inventory.child(product.id)
+                    if(!product.$id){
+                        // add to "shared inventory" at inventory.push(product)
+                    }
+                    else{
+                        // update "shared inventory" at inventory.child(product.id)
+                    }
+
+
 
                     if (shopProduct.available === true || (shopProduct.available === 'stock' && product.stock > 0)) {
                         var cache = firebaseRef(shopConfig.cache);
