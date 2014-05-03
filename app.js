@@ -257,10 +257,9 @@ angular.module('ecoposApp')
 	// version of this seed app is compatible with angularFire 0.6
 	// see tags for other versions: https://github.com/firebase/angularFire-seed/tags
 	.constant('angularFireVersion', '0.7')
-	// where to redirect users if they need to authenticate (see module.routeSecurity)
-	//.constant('loginRedirectPath', '/login')
-    .constant('loginRedirectState', 'main.login')
 	// which login service we're using
 	.constant('loginProviders', 'facebook,twitter,password')
 	// your Firebase URL goes here
-	.constant('FBURL', 'https://opentest.firebaseio.com');
+	.constant('FBURL', 'https://opentest.firebaseio.com')
+    // root FB path for shops data
+    .constant('FBSHOPSROOT', 'shops');
