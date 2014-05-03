@@ -74,7 +74,6 @@ angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, 
                                     };
 
                                     shop.api.setProduct(cProd);
-
                                 });
                             }
                             defer.resolve(true);
