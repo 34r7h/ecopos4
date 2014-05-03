@@ -1,4 +1,4 @@
-angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, system, shop) {
+angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, system, shop, firebaseRef) {
 	return {
 		restrict: 'E',
 		replace: true,
@@ -11,11 +11,11 @@ angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, 
             scope.importHistory = [];
 
             scope.startImport = function(){
-                if(!scope.importing && scope.import && typeof scope.import.import === 'function' && scope.importShop){
-                    scope.importing = {import: scope.import, shop: scope.importShop, startTime: system.api.currentTime()};
-                    $log.debug('importing \''+scope.import.name+'\' from \''+scope.import['raw-table']+'\' to \''+scope.importShop.name+'\' ('+scope.importShop.catalog+')');
+                if(!scope.importing && scope.import && scope.importers[scope.import] && typeof scope.importers[scope.import].import === 'function' && scope.importShop && scope.shops[scope.importShop]){
+                    scope.importing = {import: scope.importers[scope.import], shop: scope.shops[scope.importShop], startTime: system.api.currentTime()};
+                    $log.debug('importing \''+scope.importers[scope.import].name+'\' from \''+scope.importers[scope.import]['raw-table']+'\' to \''+scope.shops[scope.importShop].name+'\' ('+scope.shops[scope.importShop].catalog+')');
 
-                    scope.import.import(scope.importShop).then(function(){
+                    scope.importers[scope.import].import(scope.importShop).then(function(){
                         scope.importing.finishTime = system.api.currentTime();
                         scope.importHistory.push({name: scope.importing.import.name, shop: scope.importing.shop, start: scope.importing.startTime, finish: scope.importing.finishTime});
                         scope.importing = false;
@@ -29,12 +29,56 @@ angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, 
                 'inventory': {
                     name: 'Inventory Sheet',
                     'raw-table': 'inventory-apr19',
-                    import: function(intoShop){
+                    import: function(shopID){
                         var defer = $q.defer();
 
-                        console.log('import inventory into '+intoShop.name+' ('+intoShop.catalog+')');
+                        var rawData = firebaseRef(this['raw-table']);
+                        rawData.once('value', function(snap) {
+                            var inv = snap.val();
+                            if(inv) {
+                                $log.debug('found '+inv.length+' products to import');
 
-                        $timeout(function(){ defer.resolve(); }, 1000);
+                                angular.forEach(inv, function(prod, prodIdx) {
+                                    var cSuppliers = [];
+
+                                    var supNum = 1;
+                                    while (supNum <= 4) {
+                                        if (prod['supplier' + supNum + ' name']) {
+                                            cSuppliers.push({
+                                                name: prod['supplier' + supNum + ' name'],
+                                                cost: prod['supplier' + supNum + ' cost'],
+                                                item: prod['supplier' + supNum + ' itemnumber']
+                                            });
+                                        }
+                                        supNum++;
+                                    }
+
+                                    var cCat = '';
+                                    cCat += prod['department'];
+                                    cCat += (cCat?'/':'')+prod['category'];
+
+                                    var cShops = {};
+                                    cShops[shopID] = {
+                                        available: 'stock',
+                                        categories: [cCat]
+                                    };
+
+                                    var cProd = {
+                                        upc: prod['upc'],
+                                        name: prod['description'],
+                                        price: prod['retail'],
+                                        taxID: prod['taxid'],
+                                        stock: prod['stock'],
+                                        suppliers: cSuppliers,
+                                        shops: cShops
+                                    };
+
+                                    shop.api.setProduct(cProd);
+
+                                });
+                            }
+                            defer.resolve(true);
+                        });
 
                         return defer.promise;
                     }
