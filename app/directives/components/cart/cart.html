@@ -1,8 +1,10 @@
 <div>
     <div class="col-xs-2"><a>Empty Cart</a></div>
-    <div class="col-xs-4"><select><option>Ecossentials</option></select></div>
+    <div class="col-xs-4"><select ng-model="user.activeOrder" ng-change="activateOrder()">
+        <option value="new">-- New Order --</option>
+        <option ng-repeat="(orderIdx,order) in orders | orderByPriority | filter:{status:0}" value="{{order.$id}}" ng-selected="order.$id===user.activeOrder">{{order.name}}</option>
+    </select></div>
     <div class="col-xs-6"><button class="col-xs-12">Checkout</button></div>
-
     <table class="table">
         <tr >
             <th class="col-xs-1"></th>
@@ -20,7 +22,7 @@
             <td class="col-xs-2" data-title="''"><img width="100%" height="auto" src="{{item.img}}"></td>
             <td class="col-xs-3" data-title="'Item'">{{ item.name }}</td>
             <td class="col-xs-2" data-title="'Price'">{{ item.price }} / {{ item.unitType }}</td>
-            <td class="col-xs-2" data-title="Qty"><a href="#" editable-text="item.qty" ng-model="item.qty" ng-change="productQty(productID)" onbeforesave="qtyCheck($data)">{{item.qty}}</a></td>
+            <td class="col-xs-2" data-title="Qty"><a href="#" editable-text="item.qty" ng-model="item.qty" ng-change="productQty(productID)" onbeforesave="qtyCheck($data, productID)">{{item.qty}}</a></td>
             <td class="col-xs-2" data-title="'Item Total'">{{item.qty * item.price | currency}}</td>
         </tr>
         <tr>

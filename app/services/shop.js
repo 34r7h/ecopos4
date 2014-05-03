@@ -27,7 +27,8 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                         crumbs.unshift(catalogRef.name());
                     }
                 }
-                public.path.length = 0;
+                //public.path.length = 0;
+                while(public.path.length > 0) { public.path.pop(); }
                 angular.forEach(crumbs, function(crumb, crumbID){
                     crumble.push(crumb);
                     var cPath = '/'+crumble.slice(1).join('/');
@@ -234,7 +235,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         addProduct: function(product, qty) {
             var productID = product.$id?product.$id:0;
             var name = product.name?product.name:'Unknown';
-            var price = product.price?product.price:'0';
+            var price = product.price?product.price:0;
 
             var qtyReq = parseInt(qty);
             if(data.invoice.items[productID] && data.invoice.items[productID].qty){
@@ -284,6 +285,11 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 });
             }
         },
+        emptyCart: function(){
+            angular.forEach(Object.keys(data.invoice.items), function(itemID, itemIdx){
+                delete data.invoice.items[itemID];
+            });
+        },
         cartTotal: function() {
             var total = 0;
             angular.forEach(data.invoice.items, function(item) {
@@ -308,22 +314,25 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
             return defer.promise;
         },
-        createOrder: function(){
+        createOrder: function(activateForUser){
+            if(typeof activateForUser === 'undefined'){
+                activateForUser = true;
+            }
             var defer = $q.defer();
             var newOrder = {
                 createdTime: system.api.currentTime(),
                 status: 0
             };
-            if(system.data.user.id){
-                newOrder.user = system.data.user.id;
-            }
+            newOrder.name = $filter('date')(newOrder.createdTime, 'EEE, MMM d')+' @ '+$filter('date')(newOrder.createdTime, 'shortTime');
             if(!data.invoice.orderRef){
                 data.invoice.orderRef = firebaseRef('order').push(newOrder);
             }
 
             data.invoice.orderRef.once('value', function(orderSnap){
                 data.invoice.order = $firebase(data.invoice.orderRef);
-                system.api.setUserOrder(orderSnap.name());
+                if(activateForUser){
+                    system.api.activateUserOrder(orderSnap.name());
+                }
                 defer.resolve(data.invoice.order);
             });
 
@@ -334,21 +343,26 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             var defer = $q.defer();
 
             if(orderID){
-                if(force || !data.invoice.order || data.invoice.order.$id !== orderID){
+                if(orderID === 'new'){
+                    data.invoice.orderRef = null;
+                    data.invoice.order = null;
+                    api.createOrder().then(function(order){
+                        api.emptyCart();
+                        api.updateOrder({status:0}); // this also binds it to user
+                        defer.resolve(data.invoice.order);
+                    });
+                }
+                else if(force || !data.invoice.order || data.invoice.order.$id !== orderID){
                     data.invoice.orderRef = firebaseRef('order').child(orderID);
                     data.invoice.orderRef.once('value', function(orderSnap){
                         data.invoice.order = $firebase(data.invoice.orderRef);
-                        system.api.setUserOrder(orderSnap.name());
-
+                        system.api.activateUserOrder(orderSnap.name());
+                        api.emptyCart();
                         angular.forEach(orderSnap.val().items, function(item, itemID){
                             data.invoice.items[itemID] = item;
                         });
-
                         defer.resolve(data.invoice.order);
                     });
-
-                    // TODO: do we want to set the data.invoice.orderRef ?
-                    // TODO: should orderRef be an array to allow working with multiple orders (carts) at a time?
                 }
                 else{
                     defer.resolve(data.invoice.order);
@@ -367,6 +381,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                     withData.users = order.users?order.users:{};
                     var dataProms = [];
                     if (system.data.user.id) {
+                        system.api.setUserOrder(order);
                         withData.users[system.data.user.id] = system.api.currentTime();
                     }
                     else {
