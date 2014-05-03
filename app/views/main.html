@@ -5,8 +5,8 @@
         <div class="body rowz col-xs-12">
             <div class="scroll-x">
                 <!-- type attr used for non-repeated or directed views such as overlay. -->
-                <comp element="main"></comp>
-                <shop></shop>
+                <div ng-if="main"><comp element="main"></comp></div>
+                <div ng-if="!main"><shop></shop></div>
             </div>
         </div>
     </div>
@@ -16,6 +16,6 @@
 
     <div overlay="overlay">
         <!-- type attr used for non-repeated or directed views such as overlay. -->
-        <comp type="overlay"></comp>
+        <comp type="overlay" calendar-content="{{user.calendar}}"></comp>
     </div>
 </div>

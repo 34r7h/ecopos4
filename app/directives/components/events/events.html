@@ -52,12 +52,31 @@
 
         <button ng-click="createEvent(); newEvt=!newEvt;">Create Event</button>
     </fieldset>
-    <h5>To-Do</h5>
-    <ul>
+    <h5><a ng-click="todo=true;events=false;">To do</a> / <a ng-click="events=true;todo=false;">Events</a></h5>
+    <ul ng-hide="events">
         <li ng-repeat="event in (user.events || $parent.$parent.user.events) | eventFilter:{isTodo: true}">
-            <input type="checkbox" ng-click="completeTodo(event.$id)" ng-checked="event.completeFlag" ng-model="event.completeFlag" />
-            {{ event.title }}
-            <div ng-show="event.completed">completed: {{event.completed.time | date:'shortDate'}} @ {{event.completed.time | date:'mediumTime'}} by {{event.completed.user}}</div>
+            <div class="col-xs-3">
+                <input type="checkbox" ng-click="completeTodo(event.$id)" ng-checked="event.completeFlag" ng-model="event.completeFlag" />
+            </div>
+            <div class="col-xs-9">
+                <h4>{{ event.title }}</h4>
+                <div ng-show="event.completed">completed: {{event.completed.time | date:'shortDate'}} @ {{event.completed.time | date:'mediumTime'}} by {{event.completed.user}}</div>
+                <p ng-hide="event.completed">{{event.description}}</p>
+            </div>
+            <div class="col-xs-12"></div>
+        </li>
+    </ul>
+    <ul ng-show="events">
+        <li ng-repeat="event in (user.events || $parent.$parent.user.events)">
+            <div class="col-xs-3">
+                <h4>{{event.date | date:'MMM d'}}</h4>
+                <p>{{event.date | date:'h:mm'}}</p>
+            </div>
+            <div class="col-xs-9">
+                <h4>{{ event.title }}</h4>
+                <p>{{event.description}}</p>
+            </div>
+            <div class="col-xs-12"></div>
         </li>
     </ul>
 <div class="col-xs-12" ng-show="cal">

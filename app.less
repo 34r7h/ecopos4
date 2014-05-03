@@ -14,7 +14,7 @@
 @import "app/directives/components/prefs/prefs.less";
 @import "app/directives/components/orders/orders.less";
 @import "app/directives/components/calendar/calendar.less";
-@import "app/directives/components/maps/maps.less";
+@import "app/directives/components/delivery/delivery";
 @import "app/directives/components/infos/infos.less";
 @import "app/directives/components/inventory/inventory.less";
 @import "app/directives/components/messages/messages.less";
@@ -27,6 +27,8 @@
 @import "app/directives/layout/bottomBar/bottomBar.less";
 @import "app/directives/layout/leftBar/leftBar.less";
 @import "app/directives/layout/rightBar/rightBar.less";
+@import "app/directives/components/breadcrumb.less";
+@import "app/directives/components/notifications/notifications.less";
 /* Add Component LESS Above */
 
 /* Required for Angular UI Bootstrap */
@@ -276,7 +278,7 @@ body { margin: 0; overflow:hidden;box-sizing: border-box;}
 
 }
 .search input {max-width:100%;min-width:100%}
-
+.category li {display: inline-block; list-style-type:none;}
 .foots {
   font-size: 1.2em;
   max-height: 71px;

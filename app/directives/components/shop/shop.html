@@ -1,4 +1,42 @@
 <div>
+    <div class="col-xs-12 category">
+        <h4>Sub-Categories</h4>
+        <ul>
+            <li ng-repeat="(childPrio,child) in shop.category.children | orderByPriority| filter:isCategory:searchx">
+                <a ng-if="child.url" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr+'/'+child.url))">{{child.name}}</a>
+                <a ng-if="!child.url" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr+'/'+child.$id))">{{child.name}}</a> /
+            </li>
+        </ul>
+    </div>
+    <div class="col-xs-3">Filters</div>
+    <div class="col-xs-3"><h3>{{shop.category.name}}</h3>
+        <h4>Products</h4>
+        <ul>
+            <li ng-repeat="(childPrio,child) in shop.category.children | orderByPriority | filter:isProduct:searchx">
+                <a ng-if="child.url" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr+'/'+child.url))"><span ng-if="!inventory[child.$id]">{{child.name}}</span>
+                    <span ng-if="inventory[child.$id]">{{inventory[child.$id].brand}} {{inventory[child.$id].name}} {{inventory[child.$id].size}}</span></a>
+                <a ng-if="!child.url" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr+'/'+child.$id))">{{child.name}}</a>
+            </li>
+        </ul></div>
+    <div class="col-xs-6"><div ng-show="shop.product">
+        <h3>{{shop.product.name}}</h3>
+        <div>
+            <div class="price">{{shop.product.price | currency}}</div>
+            <div class="stock"><strong>{{shop.product.stock}}</strong> in stock</div>
+        </div>
+        <div>
+            <input type="number" ng-model="qty" />
+            <button ng-click="addProduct(shop.product, qty)">Add to Cart</button>
+        </div>
+
+        {{shop.product.$id}}
+        {{shop.product}}
+    </div>
+        <div ng-show="!shop.product">
+            <p>Could not find requested product '{{shop.productURI}}'</p>
+            <p>Return to category <a ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr))"><span ng-show="shop.category">{{shop.category.name}}</span><span ng-hide="shop.category">parent</span></a>.</p>
+        </div></div>
+
     <h3>Product-List</h3>
     <div ng-show="shop">
         <div>
@@ -10,24 +48,7 @@
             </ul>
         </div>
         <div ng-if="shop.productURI">
-            <div ng-show="shop.product">
-                <h3>{{shop.product.name}}</h3>
-                <div>
-                    <div class="price">{{shop.product.price | currency}}</div>
-                    <div class="stock"><strong>{{shop.product.stock}}</strong> in stock</div>
-                </div>
-                <div>
-                    <input type="number" ng-model="qty" />
-                    <button ng-click="addProduct(shop.product, qty)">Add to Cart</button>
-                </div>
 
-                {{shop.product.$id}}
-                {{shop.product}}
-            </div>
-            <div ng-show="!shop.product">
-                <p>Could not find requested product '{{shop.productURI}}'</p>
-                <p>Return to category <a ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr))"><span ng-show="shop.category">{{shop.category.name}}</span><span ng-hide="shop.category">parent</span></a>.</p>
-            </div>
         </div>
         <div ng-show="shop.category">
             <h3>{{shop.category.name}}</h3>
