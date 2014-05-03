@@ -519,6 +519,82 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             });
         },
 
+        setProduct: function(product){
+            /**
+             product = {
+                    id: <system product ID>
+                    upc: <universal product code>,
+                    name: <product name>,
+                    body: <product description>,
+                    img: <product image>,
+                    price: <retail price>,
+                    taxID: <tax category ID>,
+                    stock: <stock level>,
+                    suppliers: [{name:<supplier name>, cost:<cost from supplier>, item:<supplier item ID>}],
+                    shops: {<shopID>: {available:<true|false|stock> , categories:['<path/of/category>']}}
+                };
+             */
+
+            var upcCachePath = 'upc';
+            if(product.upc && product.upc.test(/[0-9]{12}/)){
+                firebaseRef('upc/'+product.upc).once('value', function(snap){
+                    var upcProdID = snap.val();
+                    if(upcProdID){
+                        if(upcProdID === product.id){
+                            // UPC matches productID
+                        }
+                        else{
+                            // UPC associated to different product
+                        }
+                    }
+                    else{
+                        // new UPC
+                    }
+                });
+            }
+            else{
+                // no UPC or invalid UPC
+                // save to upc/invalid/<(product.upc?product.upc:'undefined')>
+            }
+
+            if(!product.id){
+                // new product, create it
+            }
+            else{
+                // existing product, update it
+            }
+
+            angular.forEach(product.shops, function(shopProduct, shopID){
+                var shopConfig = data.shops[shopID];
+                if(shopConfig) {
+                    var inventory = firebaseRef(shopConfig.inventory);
+
+                    // add/update "shared inventory" at inventory.child(product.id)
+
+                    if (shopProduct.available === true || (shopProduct.available === 'stock' && product.stock > 0)) {
+                        var cache = firebaseRef(shopConfig.cache);
+                        // cache the product
+                    }
+                    // else if(product is in store's cache and shouldn't be){
+                    //      remove it
+                    // }
+
+                    if(shopProduct.categories.length){
+                        var catalog = firebaseRef(shopConfig.catalog);
+                        angular.forEach(shopProduct.categories, function(catPath, catIdx){
+                            // insert product into catalog at catPath
+                        });
+                    }
+                }
+            });
+
+            // TODO: maybe add supplier to "suppliers" table if it doens't exist already?
+            /**
+            angular.forEach(product.suppliers, function(supplier, supplierID){
+            });
+             */
+        },
+
 
         addCatalogBrowser: function(name, catalogName){
             var defer = $q.defer();
