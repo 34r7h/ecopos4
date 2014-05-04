@@ -1,26 +1,35 @@
 <div>
     <div>
         <div>
-            <select ng-model="importShop" ng-disabled="importing" ng-options="shopID as shop.name for (shopID,shop) in shops">
+            <select ng-model="importShop" ng-disabled="importing" multiple="multiple" ng-options="shopID as shop.name for (shopID,shop) in shops">
                 <option value="">-- choose shop --</option>
             </select>
             <br/>
             <select ng-model="import" ng-disabled="importing" ng-options="importID as importer.name for (importID,importer) in importers">
                 <option value="">-- choose import --</option>
             </select>
+            {{importShop}}
         </div>
 
-        <div ng-show="import && importers[import] && importShop && shops[importShop]">
+        <div ng-show="import && importers[import] && importShop">
             <div ng-show="!importing">
                 Import <strong>{{importers[import].name}}</strong> from <strong>{{importers[import]['raw-table']}}</strong>...<br/>
-                Into <strong>{{shops[importShop].name}}</strong> @ <em>{{shops[importShop].catalog}}</em><br/>
+                <!-- Into <strong>{{shops[importShop].name}}</strong> @ <em>{{shops[importShop].catalog}}</em><br/ -->
+                Into <span ng-repeat="cShop in importShop">
+                        <span ng-if="!$first">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        <strong>{{shops[cShop].name}}</strong> @ <em>{{shops[cShop].catalog}}</em><br/>
+                    </span>
 
                 <button ng-click="startImport()" class="btn btn-warning">Import!</button>
             </div>
 
             <div ng-show="importing">
                 Importing <strong>{{importing.import.name}}</strong> from <strong>{{importing.import['raw-table']}}</strong>...<br/>
-                Into <strong>{{importing.shop.name}}</strong> @ <em>{{importing.shop.catalog}}</em><br/>
+                <!-- Into <strong>{{importing.shop.name}}</strong> @ <em>{{importing.shop.catalog}}</em><br/ -->
+                Into <span ng-repeat="cShop in importing.shop">
+                        <span ng-if="!$first">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        <strong>{{cShop.name}}</strong> @ <em>{{cShop.catalog}}</em><br/>
+                    </span>
                 Started at {{importing.startTime | date:'mediumTime'}} on {{importing.startTime | date:'shortDate'}}
             </div>
         </div>
@@ -29,7 +38,7 @@
     <div ng-show="importHistory.length">
         <h4>History</h4>
         <ul>
-            <li ng-repeat="history in importHistory"><strong>{{history.name}}</strong> into <strong>{{history.shop.name}}</strong> @ {{history.start | date:'mediumTime'}} to {{history.finish | date:'mediumTime'}} ({{ (history.finish-history.start)/1000 }}s) on {{history.finish | date:'shortDate'}}</li>
+            <li ng-repeat="history in importHistory"><strong>{{history.name}}</strong> into <strong ng-repeat="cShop in history.shop"><span ng-if="!$first">, </span>{{cShop.name}}</strong> @ {{history.start | date:'mediumTime'}} to {{history.finish | date:'mediumTime'}} ({{ (history.finish-history.start)/1000 }}s) on {{history.finish | date:'shortDate'}}</li>
         </ul>
     </div>
 </div>

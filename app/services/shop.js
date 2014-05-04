@@ -529,7 +529,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
              */
 
             /**
-             product may be a $firebase object - or of the format:
+             product should be of format:
              product = {
                     $id: <system product ID>
                     upc: <universal product code>,
@@ -544,54 +544,60 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 };
              */
 
+            var productID = product.$id;
+            if(product.$id){
+                // take it out for when we store product object in DB (we don't want to save $id as a child)
+                delete product.$id;
+            }
+
             var shopsRoot = FBSHOPSROOT;
 
             var upcProdID = '';
             var upcCachePath = shopsRoot+'/upc';
             var upcFound = false;
-            if(product.upc){ // && product.upc.test(/[0-9]{12}/)
+            if(false && product.upc){ // && product.upc.test(/[0-9]{12}/)
 
                 // TODO: make an api.upcLookup(upc, restrictShop?) promise
 
                 firebaseRef(upcCachePath+'/'+product.upc).once('value', function(snap){
                     upcProdID = snap.val();
                     if(upcProdID){
-                        if(upcProdID === product.$id){
-                            // UPC matches product.$id
+                        if(upcProdID === productID){
+                            // UPC matches productID
                             upcFound = true;
 
                             // - this means that the product is in the catalog with a valid UPC
                             // - match it for updating when we are handling the shops
                         }
                         else{
-                            // UPC found, but not matching product.$id
+                            // UPC found, but not matching productID
 
-                            // - if product.$id
-                            //      - insert as array 'upc/'+product.upc = product.$id
+                            // - if productID
+                            //      - insert as array 'upc/'+product.upc = productID
                             //
-                            // - else if !product.$id
+                            // - else if !productID
                             //      - insert it when we are handling the shops
                             //          - insert product to generate $id
-                            //          - insert as array 'upc/'+product.upc = product.$id
+                            //          - insert as array 'upc/'+product.upc = productID
                             //      - or retrieve the upcProdID and update the product
                             //          - make some checks to ensure it is the "same" product
                             //              (ex. name, price, shops/categories)
 
-                            upcFound = product.$id?'multi':'new';
+                            upcFound = productID?'multi':'new';
                         }
                     }
                     else{
                         // UPC not found in upc table
 
-                        // - if product.$id
-                        //      - insert 'upc/'+product.upc = product.$id
-                        // - else if !product.$id
+                        // - if productID
+                        //      - insert 'upc/'+product.upc = productID
+                        // - else if !productID
                         //      - insert it when we are handling the shops
                         //          - insert product to generate $id
-                        //          - insert 'upc/'+product.upc = product.$id
+                        //          - insert 'upc/'+product.upc = productID
 
-                        if(product.$id){
-                            //      - insert 'upc/'+product.upc = product.$id
+                        if(productID){
+                            //      - insert 'upc/'+product.upc = productID
                         }
                         else{
                             upcFound = 'new';
@@ -604,40 +610,78 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 // save to upc/invalid/<(product.upc?product.upc:'undefined')>
             }
 
-            if(!product.$id){
+            if(!productID){
                 product.new = true;
             }
 
-            angular.forEach(product.shops, function(shopProduct, shopID){
+            var prodSetDefer = $q.defer();
+            //var prodSetDefer = {};
+            // TODO: some magic for multiple stores with different inventories
+            angular.forEach(product.shops, function(shopProduct, shopID) {
                 var shopConfig = data.shops[shopID];
                 if(shopConfig) {
                     var inventory = firebaseRef(shopConfig.inventory);
-
-                    if(!product.$id){
+                    if(!productID){ // || !prodSetDefer[shopConfig.inventory]){
+                        //prodSetDefer[shopConfig.inventory] = $q.defer();
                         // add to "shared inventory" at inventory.push(product)
+//                        console.log('push a new one '+product.name+' into '+shopID);
+                        productID = 'loading';
+                        var newProdRef = inventory.push(product, function(error){
+                            if(error){
+//                                console.log('what:'+error);
+                            }
+                            productID = newProdRef.name();
+                            prodSetDefer.resolve();
+                        });
+                    }
+                    else if(productID === 'loading'){
+//                        console.log('waiting for one of '+product.name+' into '+shopID);
                     }
                     else{
                         // update "shared inventory" at inventory.child(product.id)
-                    }
-
-
-
-                    if (shopProduct.available === true || (shopProduct.available === 'stock' && product.stock > 0)) {
-                        var cache = firebaseRef(shopConfig.cache);
-                        // cache the product
-                    }
-                    // else if(product is in store's cache and shouldn't be){
-                    //      remove it
-                    // }
-
-                    if(shopProduct.categories.length){
-                        var catalog = firebaseRef(shopConfig.catalog);
-                        angular.forEach(shopProduct.categories, function(catPath, catIdx){
-                            // insert product into catalog at catPath
+//                        console.log('we be updatin fresh on #'+productID);
+                        inventory.child(productID).update(product, function(error){
+                            if(error){
+//                                console.log('popnlock:'+error);
+                            }
+                            prodSetDefer.resolve();
                         });
                     }
+
+                    prodSetDefer.promise.then(function(){
+
+                        //console.log('ok good to go with #'+productID+' into '+shopConfig.name);
+                        if (shopProduct.available === true || (shopProduct.available === 'stock' && product.stock > 0)) {
+                            //var cache = firebaseRef(shopConfig.cache);
+                            // cache the product
+                        }
+                        // else if(product is in store's cache and shouldn't be){
+                        //      remove it
+                        // }
+
+                        if(shopProduct.categories.length){
+                            var catalog = firebaseRef(shopConfig.catalog);
+                            angular.forEach(shopProduct.categories, function(catPath, catIdx){
+                                // insert product into catalog at catPath
+                                if(catPath.charAt(catPath.length-1) !== '/'){ catPath += '/'; } // ensure trailing /children/
+                                if(catPath.charAt(0) !== '/'){ catPath = '/'+catPath; } // ensure leading /children/
+
+                                var catParts = catPath.split('/');
+                                var fbCatPath = catParts.join('/children/')+productID;
+//                                console.log('mkultra:'+fbCatPath+':');
+                                // use .update({name: product.name, ...}) if we want to store more than just name
+                                catalog.child(fbCatPath).set(product.name);
+                            });
+                        }
+                    });
+
+
+
+
                 }
             });
+
+
 
             // TODO: maybe add supplier to "suppliers" table if it doens't exist already?
             /**
