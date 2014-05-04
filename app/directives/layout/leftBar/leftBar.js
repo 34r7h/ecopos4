@@ -15,7 +15,7 @@ angular.module('ecoposApp').directive('leftBar', function(shop, system) {
             scope.mess = '';
 
             scope.createShop = function(){
-                shop.api.createShop(scope.shopName, scope.shopCatalogBranch, scope.shopCacheBranch).then(function(success){
+                shop.api.createShop(scope.shopName).then(function(success){
                     if(success){
                         scope.mess = 'shop created successfully!';
                         scope.shopName = '';
@@ -36,7 +36,6 @@ angular.module('ecoposApp').directive('leftBar', function(shop, system) {
                 if(!scope.shopCacheBranchMod){
                     scope.shopCacheBranch = system.api.fbSafeKey(scope.shopName);
                 }
-
             };
 		}
 	};
