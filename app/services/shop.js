@@ -614,50 +614,49 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 product.new = true;
             }
 
-            var prodSetDefer = $q.defer();
-            //var prodSetDefer = {};
-            // TODO: some magic for multiple stores with different inventories
+            var invSetting = { defer: $q.defer(), addingTo: '', invQueue: {} };
             angular.forEach(product.shops, function(shopProduct, shopID) {
                 var shopConfig = data.shops[shopID];
                 if(shopConfig) {
                     var inventory = firebaseRef(shopConfig.inventory);
-                    if(!productID){ // || !prodSetDefer[shopConfig.inventory]){
-                        //prodSetDefer[shopConfig.inventory] = $q.defer();
-                        // add to "shared inventory" at inventory.push(product)
-//                        console.log('push a new one '+product.name+' into '+shopID);
-                        productID = 'loading';
-                        var newProdRef = inventory.push(product, function(error){
-                            if(error){
-//                                console.log('what:'+error);
-                            }
-                            productID = newProdRef.name();
-                            prodSetDefer.resolve();
-                        });
-                    }
-                    else if(productID === 'loading'){
-//                        console.log('waiting for one of '+product.name+' into '+shopID);
+                    if(!productID){
+                        // this bit of invSetting does the push on only the first inventory table
+                        // and saves a list of additional inventories to add the product into
+                        // this allows for the same fb-generated procuctID to be shared in multiple inventory tables
+                        if(!invSetting.addingTo){
+                            invSetting.addingTo = shopConfig.inventory;
+                            var newProdRef = inventory.push(product, function(error){
+                                if(error){ /* error handling */ }
+                                productID = newProdRef.name();
+                                invSetting.defer.resolve();
+                            });
+                        }
+                        else if(shopConfig.inventory !== invSetting.addingTo && !invSetting.invQueue[shopConfig.inventory]){
+                            invSetting.invQueue[shopConfig.inventory] = true;
+                        }
                     }
                     else{
                         // update "shared inventory" at inventory.child(product.id)
-//                        console.log('we be updatin fresh on #'+productID);
                         inventory.child(productID).update(product, function(error){
-                            if(error){
-//                                console.log('popnlock:'+error);
-                            }
-                            prodSetDefer.resolve();
+                            if(error){ /* error handling */ }
+                            invSetting.defer.resolve();
                         });
                     }
 
-                    prodSetDefer.promise.then(function(){
+                    invSetting.defer.promise.then(function(){
+                        angular.forEach(invSetting.invQueue, function(addTo, inventoryPath){
+                            var cInventory = firebaseRef(inventoryPath);
+                            cInventory.child(productID).set(product);
+                        });
 
-                        //console.log('ok good to go with #'+productID+' into '+shopConfig.name);
+                        // handle flat-list caching for searching
+                        var cachedProduct = firebaseRef(shopConfig.cache+'/products/'+productID);
                         if (shopProduct.available === true || (shopProduct.available === 'stock' && product.stock > 0)) {
-                            //var cache = firebaseRef(shopConfig.cache);
-                            // cache the product
+                            cachedProduct.set(product);
                         }
-                        // else if(product is in store's cache and shouldn't be){
-                        //      remove it
-                        // }
+                        else{
+                            cachedProduct.remove();
+                        }
 
                         if(shopProduct.categories.length){
                             var catalog = firebaseRef(shopConfig.catalog);
@@ -668,20 +667,13 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
                                 var catParts = catPath.split('/');
                                 var fbCatPath = catParts.join('/children/')+productID;
-//                                console.log('mkultra:'+fbCatPath+':');
                                 // use .update({name: product.name, ...}) if we want to store more than just name
                                 catalog.child(fbCatPath).set(product.name);
                             });
                         }
                     });
-
-
-
-
                 }
             });
-
-
 
             // TODO: maybe add supplier to "suppliers" table if it doens't exist already?
             /**
