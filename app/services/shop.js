@@ -510,13 +510,39 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             return defer.promise;
         },
         loadShops: function(){
-            var shopsRef = firebaseRef('shops/config');
+            var defer = $q.defer();
+            data.shops = syncData('shops/config');
+            data.shops.$on('loaded', function(){
+                defer.resolve(data.shops);
+            });
+            /**var shopsRef = firebaseRef('shops/config');
+            shopsRef.on('value', function(snap){
+                defer.resolve(snap.val());
+            });
             shopsRef.on('child_added', function(childSnapshot){
                 data.shops[childSnapshot.name()] = childSnapshot.val();
             });
             shopsRef.on('child_removed', function(oldChildSnapshot){
                 delete data.shops[oldChildSnapshot.name()];
             });
+             */
+            return defer.promise;
+        },
+        setActiveShop: function(browserID, shopName){
+            var defer = $q.defer();
+            if(data.shops[shopName] && data.shops[shopName].catalog){
+                api.getCatalogBrowser(browserID).then(function(){
+                    api.loadCatalog(data.shops[shopName].catalog).then(function(catalog){
+                        data.store.browser[browserID].setCatalog(catalog);
+                        defer.resolve(data.store.browser[browserID]);
+                    });
+                });
+            }
+            else{
+                defer.reject('Catalog is not configured for this shop.');
+            }
+
+            return defer.promise;
         },
 
         upcLookup: function(upc){
@@ -643,14 +669,15 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                                     if(catPath.charAt(0) !== '/'){ catPath = '/'+catPath; } // ensure leading /children/
 
                                     var catParts = catPath.split('/');
+                                    var cCatPath = '';
                                     angular.forEach(catParts, function(cCatPiece, catIdx){
                                         if(cCatPiece){
-                                            catParts[catIdx] = system.api.fbSafeKey(cCatPiece);
+                                            cCatPath += '/children/'+system.api.fbSafeKey(cCatPiece);
+                                            catalog.child(cCatPath).update({name: cCatPiece});
                                         }
                                     });
-                                    var fbCatPath = catParts.join('/children/')+productID;
-                                    // use .update({name: product.name, ...}) if we want to store more than just name
-                                    catalog.child(fbCatPath).set(product.name);
+                                    cCatPath += '/children/'+productID;
+                                    catalog.child(cCatPath).update({name: product.name, url: system.api.fbSafeKey(product.name)});
                                 });
                             }
                         });
@@ -677,16 +704,24 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
 
         addCatalogBrowser: function(name, catalogName){
+            return api.getCatalogBrowser(name, catalogName);
+        },
+        getCatalogBrowser: function(browserID, catalogName){
             var defer = $q.defer();
-            if(!data.store.browser[name]){
-                data.store.browser[name] = new CatalogBrowser();
-                api.loadCatalog(catalogName).then(function(catalog){
-                    data.store.browser[name].setCatalog(catalog);
-                    defer.resolve(data.store.browser[name]);
-                });
+            if(!data.store.browser[browserID]){
+                data.store.browser[browserID] = new CatalogBrowser();
+                if(catalogName){
+                    api.loadCatalog(catalogName).then(function(catalog){
+                        data.store.browser[browserID].setCatalog(catalog);
+                        defer.resolve(data.store.browser[browserID]);
+                    });
+                }
+                else{
+                    defer.resolve(data.store.browser[browserID]);
+                }
             }
             else{
-                defer.resolve(data.store.browser[name]);
+                defer.resolve(data.store.browser[browserID]);
             }
             return defer.promise;
         },
