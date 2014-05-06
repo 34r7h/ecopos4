@@ -8,7 +8,6 @@
             <select ng-model="import" ng-disabled="importing" ng-options="importID as importer.name for (importID,importer) in importers">
                 <option value="">-- choose import --</option>
             </select>
-            {{importShop}}
         </div>
 
         <div ng-show="import && importers[import] && importShop">

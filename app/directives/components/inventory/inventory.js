@@ -86,9 +86,7 @@ angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, 
                                         shops: cShops
                                     };
 
-                                    if(invCount < 10){
-                                        shop.api.setProduct(cProd);
-                                    }
+                                    shop.api.setProduct(cProd);
                                     invCount++;
                                 });
                             }

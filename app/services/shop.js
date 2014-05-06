@@ -519,6 +519,21 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             });
         },
 
+        upcLookup: function(upc){
+            var defer = $q.defer();
+            if(upc){
+                var upcLookup = firebaseRef(FBSHOPSROOT+'/upc/'+system.api.fbSafeKey(upc));
+                upcLookup.once('value', function(snap){
+                    defer.resolve(snap.val());
+                });
+            }
+            else{
+                defer.reject('Invalid UPC \''+upc+'\'');
+            }
+
+            return defer.promise;
+        },
+
         setProduct: function(product){
             /**
              missing data strategy?
@@ -550,129 +565,107 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 delete product.$id;
             }
 
-            var shopsRoot = FBSHOPSROOT;
-
-            var upcProdID = '';
-            var upcCachePath = shopsRoot+'/upc';
-            var upcFound = false;
-            if(false && product.upc){ // && product.upc.test(/[0-9]{12}/)
-
-                // TODO: make an api.upcLookup(upc, restrictShop?) promise
-
-                firebaseRef(upcCachePath+'/'+product.upc).once('value', function(snap){
-                    upcProdID = snap.val();
-                    if(upcProdID){
-                        if(upcProdID === productID){
-                            // UPC matches productID
-                            upcFound = true;
-
-                            // - this means that the product is in the catalog with a valid UPC
-                            // - match it for updating when we are handling the shops
-                        }
-                        else{
-                            // UPC found, but not matching productID
-
-                            // - if productID
-                            //      - insert as array 'upc/'+product.upc = productID
-                            //
-                            // - else if !productID
-                            //      - insert it when we are handling the shops
-                            //          - insert product to generate $id
-                            //          - insert as array 'upc/'+product.upc = productID
-                            //      - or retrieve the upcProdID and update the product
-                            //          - make some checks to ensure it is the "same" product
-                            //              (ex. name, price, shops/categories)
-
-                            upcFound = productID?'multi':'new';
-                        }
+            var upcDefer = $q.defer();
+            api.upcLookup(product.upc).then(function(upcProdID){
+                if(upcProdID){
+                    if(upcProdID === productID){
+                        upcDefer.resolve('match');
+                    }
+                    else if(!productID){
+                        productID = upcProdID;
+                        upcDefer.resolve('found');
                     }
                     else{
-                        // UPC not found in upc table
+                        upcDefer.resolve('duplicates');
+                    }
+                }
+                else{
+                    upcDefer.resolve('new');
+                }
+            },function(error){
+                upcDefer.resolve('invalid');
+            });
 
-                        // - if productID
-                        //      - insert 'upc/'+product.upc = productID
-                        // - else if !productID
-                        //      - insert it when we are handling the shops
-                        //          - insert product to generate $id
-                        //          - insert 'upc/'+product.upc = productID
+            upcDefer.promise.then(function(upcStatus){
+                if(!productID){
+                    product.new = true;
+                }
 
-                        if(productID){
-                            //      - insert 'upc/'+product.upc = productID
+                var invSetting = { defer: $q.defer(), addingTo: '', invQueue: {} };
+                angular.forEach(product.shops, function(shopProduct, shopID) {
+                    var shopConfig = data.shops[shopID];
+                    if(shopConfig) {
+                        var inventory = firebaseRef(shopConfig.inventory);
+                        if(!productID){
+                            // this bit of invSetting does the push on only the first inventory table
+                            // and saves a list of additional inventories to add the product into
+                            // this allows for the same fb-generated procuctID to be shared in multiple inventory tables
+                            if(!invSetting.addingTo){
+                                invSetting.addingTo = shopConfig.inventory;
+                                var newProdRef = inventory.push(product, function(error){
+                                    if(error){ /* error handling */ }
+                                    productID = newProdRef.name();
+                                    invSetting.defer.resolve();
+                                });
+                            }
+                            else if(shopConfig.inventory !== invSetting.addingTo && !invSetting.invQueue[shopConfig.inventory]){
+                                invSetting.invQueue[shopConfig.inventory] = true;
+                            }
                         }
                         else{
-                            upcFound = 'new';
-                        }
-                    }
-                });
-            }
-            else{
-                // no UPC or invalid UPC
-                // save to upc/invalid/<(product.upc?product.upc:'undefined')>
-            }
-
-            if(!productID){
-                product.new = true;
-            }
-
-            var invSetting = { defer: $q.defer(), addingTo: '', invQueue: {} };
-            angular.forEach(product.shops, function(shopProduct, shopID) {
-                var shopConfig = data.shops[shopID];
-                if(shopConfig) {
-                    var inventory = firebaseRef(shopConfig.inventory);
-                    if(!productID){
-                        // this bit of invSetting does the push on only the first inventory table
-                        // and saves a list of additional inventories to add the product into
-                        // this allows for the same fb-generated procuctID to be shared in multiple inventory tables
-                        if(!invSetting.addingTo){
-                            invSetting.addingTo = shopConfig.inventory;
-                            var newProdRef = inventory.push(product, function(error){
+                            // update "shared inventory" at inventory.child(product.id)
+                            inventory.child(productID).update(product, function(error){
                                 if(error){ /* error handling */ }
-                                productID = newProdRef.name();
                                 invSetting.defer.resolve();
                             });
                         }
-                        else if(shopConfig.inventory !== invSetting.addingTo && !invSetting.invQueue[shopConfig.inventory]){
-                            invSetting.invQueue[shopConfig.inventory] = true;
-                        }
-                    }
-                    else{
-                        // update "shared inventory" at inventory.child(product.id)
-                        inventory.child(productID).update(product, function(error){
-                            if(error){ /* error handling */ }
-                            invSetting.defer.resolve();
-                        });
-                    }
 
-                    invSetting.defer.promise.then(function(){
-                        angular.forEach(invSetting.invQueue, function(addTo, inventoryPath){
-                            var cInventory = firebaseRef(inventoryPath);
-                            cInventory.child(productID).set(product);
-                        });
-
-                        // handle flat-list caching for searching
-                        var cachedProduct = firebaseRef(shopConfig.cache+'/products/'+productID);
-                        if (shopProduct.available === true || (shopProduct.available === 'stock' && product.stock > 0)) {
-                            cachedProduct.set(product);
-                        }
-                        else{
-                            cachedProduct.remove();
-                        }
-
-                        if(shopProduct.categories.length){
-                            var catalog = firebaseRef(shopConfig.catalog);
-                            angular.forEach(shopProduct.categories, function(catPath, catIdx){
-                                // insert product into catalog at catPath
-                                if(catPath.charAt(catPath.length-1) !== '/'){ catPath += '/'; } // ensure trailing /children/
-                                if(catPath.charAt(0) !== '/'){ catPath = '/'+catPath; } // ensure leading /children/
-
-                                var catParts = catPath.split('/');
-                                var fbCatPath = catParts.join('/children/')+productID;
-                                // use .update({name: product.name, ...}) if we want to store more than just name
-                                catalog.child(fbCatPath).set(product.name);
+                        invSetting.defer.promise.then(function(){
+                            angular.forEach(invSetting.invQueue, function(addTo, inventoryPath){
+                                var cInventory = firebaseRef(inventoryPath);
+                                cInventory.child(productID).update(product);
                             });
-                        }
-                    });
-                }
+
+                            // handle flat-list caching for searching
+                            var cachedProduct = firebaseRef(shopConfig.cache+'/products/'+productID);
+                            if (shopProduct.available === true || (shopProduct.available === 'stock' && product.stock > 0)) {
+                                cachedProduct.set(product);
+                            }
+                            else{
+                                cachedProduct.remove();
+                            }
+
+                            if(shopProduct.categories.length){
+                                var catalog = firebaseRef(shopConfig.catalog);
+                                angular.forEach(shopProduct.categories, function(catPath, catIdx){
+                                    // insert product into catalog at catPath
+                                    if(catPath.charAt(catPath.length-1) !== '/'){ catPath += '/'; } // ensure trailing /children/
+                                    if(catPath.charAt(0) !== '/'){ catPath = '/'+catPath; } // ensure leading /children/
+
+                                    var catParts = catPath.split('/');
+                                    angular.forEach(catParts, function(cCatPiece, catIdx){
+                                        if(cCatPiece){
+                                            catParts[catIdx] = system.api.fbSafeKey(cCatPiece);
+                                        }
+                                    });
+                                    var fbCatPath = catParts.join('/children/')+productID;
+                                    // use .update({name: product.name, ...}) if we want to store more than just name
+                                    catalog.child(fbCatPath).set(product.name);
+                                });
+                            }
+                        });
+                    }
+                });
+
+                invSetting.defer.promise.then(function(){
+                    var upcRoot = firebaseRef(FBSHOPSROOT+'/upc');
+                    if(upcStatus === 'new'){
+                        upcRoot.child(system.api.fbSafeKey(product.upc)).set(productID);
+                    }
+                    else if(upcStatus === 'duplicates' || upcStatus === 'invalid'){
+                        upcRoot.child(upcStatus+'/'+system.api.fbSafeKey(product.upc?product.upc:'?')+'/'+productID).set(product.upc);
+                    }
+                });
             });
 
             // TODO: maybe add supplier to "suppliers" table if it doens't exist already?
