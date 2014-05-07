@@ -6,7 +6,10 @@ angular.module('ecoposApp').directive('shop', function(system, $rootScope, shop)
 		templateUrl: 'app/directives/components/shop/shop.html',
 		link: function(scope, element, attrs, fn) {
             // catalog browsing
-            scope.shop = shop.data.store.browser['shop'];
+            //scope.shop = shop.data.store.browser['main'];
+            shop.api.getCatalogBrowser('main').then(function(browser){
+                scope.shop = browser;
+            });
 
             // shopping
             scope.qty = 1;
