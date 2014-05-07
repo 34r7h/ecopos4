@@ -6,9 +6,9 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         invoice: { order: {}, orderRef: null, items:{}, delivery: false }
     };
 
-    var CatalogBrowser = function(newCatalog){
-        if(typeof newCatalog === 'undefined'){
-            newCatalog = null;
+    var CatalogBrowser = function(newShop){
+        if(typeof newShop === 'undefined'){
+            newShop = null;
         }
 
         var private = {
@@ -39,6 +39,16 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 });
             },
 
+            setCatalog: function(newCatalog){
+                if(newCatalog !== private.catalog){
+                    private.catalog = newCatalog;
+                    return private.loadPath(private.reqPath);
+                }
+                var defer = $q.defer();
+                defer.resolve(public.category);
+                return defer.promise;
+            },
+
             setCategory: function(category) {
                 var defer = $q.defer();
 
@@ -47,7 +57,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                     public.pathStr = private.getPathForCatalogRef(category.$getRef());
                     public.product = null;
                     public.productURI = '';
-                    api.loadInventoryProducts(category.children);
+                    api.loadInventoryProducts(category.children, (public.shop?public.shop.inventory:''));
                     defer.resolve(public.category);
                 }
                 else{
@@ -170,6 +180,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         };
 
         var public = {
+            shop: null,
             category: null,
             product: null,
             path: [],
@@ -179,16 +190,6 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
             getPathURI: function(){
                 return public.pathStr+((public.pathStr.charAt(public.pathStr.length-1)!=='/' && public.productURI.charAt(0) !=='/')?'/':'')+public.productURI;
-            },
-
-            setCatalog: function(newCatalog){
-                if(newCatalog !== private.catalog){
-                    private.catalog = newCatalog;
-                    return private.loadPath(private.reqPath);
-                }
-                var defer = $q.defer();
-                defer.resolve(public.category);
-                return defer.promise;
             },
 
             setPath: function(newPath){
@@ -205,15 +206,24 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
             setProduct: function(productID){
                 var defer = $q.defer();
-                api.loadInventoryProduct(productID).then(function(product){
+                api.loadInventoryProduct(productID, (public.shop?public.shop.inventory:'')).then(function(product){
                     public.product = product;
                     defer.resolve(product);
                 });
                 return defer.promise;
+            },
+
+            setShop: function(shop){
+                if(shop && shop.catalog){
+                    api.loadCatalog(shop.catalog).then(function(catalog){
+                        public.shop = shop;
+                        private.setCatalog(catalog);
+                    });
+                }
             }
         };
 
-        public.setCatalog(newCatalog);
+        public.setShop(newShop);
 
         return public;
     };
@@ -262,17 +272,22 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         },
         removeItem: function(productID) {
             if(data.invoice.items[productID]){
-                api.loadInventoryProduct(productID).then(function(product){
+                delete data.invoice.items[productID];
+                api.updateOrder({items: data.invoice.items});
+                /**api.loadInventoryProduct(productID).then(function(product){
                     if(product) {
                         delete data.invoice.items[productID];
                         api.updateOrder({items: data.invoice.items});
                     }
-                });
+                });*/
             }
         },
         changeProductQty: function(productID){
             if(data.invoice.items[productID] && data.invoice.order.items[productID]){
-                api.loadInventoryProduct(productID).then(function(product) {
+                // TODO: ensure there is enough product in stock
+                api.updateOrder({items: data.invoice.items});
+
+                /**api.loadInventoryProduct(productID).then(function(product) {
                     if(product){
                         if(product.stock){
                             if(product.stock < data.invoice.items[productID].qty){
@@ -282,6 +297,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                         api.updateOrder({items: data.invoice.items});
                     }
                 });
+                 */
             }
         },
         cartTotal: function() {
@@ -530,7 +546,18 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         },
         setActiveShop: function(browserID, shopName){
             var defer = $q.defer();
-            if(data.shops[shopName] && data.shops[shopName].catalog){
+
+            if(shopName && data.shops[shopName]){
+                api.getCatalogBrowser(browserID).then(function(browser){
+                    browser.setShop(data.shops[shopName]);
+                    defer.resolve(browser);
+                });
+            }
+            else{
+                defer.reject('Shop \''+shopName+'\' was not found.');
+            }
+
+            /**if(data.shops[shopName] && data.shops[shopName].catalog){
                 api.getCatalogBrowser(browserID).then(function(){
                     api.loadCatalog(data.shops[shopName].catalog).then(function(catalog){
                         data.store.browser[browserID].setCatalog(catalog);
@@ -540,7 +567,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             }
             else{
                 defer.reject('Catalog is not configured for this shop.');
-            }
+            }*/
 
             return defer.promise;
         },
@@ -702,23 +729,14 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
              */
         },
 
-
-        addCatalogBrowser: function(name, catalogName){
-            return api.getCatalogBrowser(name, catalogName);
-        },
-        getCatalogBrowser: function(browserID, catalogName){
+        getCatalogBrowser: function(browserID, shopName){
             var defer = $q.defer();
             if(!data.store.browser[browserID]){
                 data.store.browser[browserID] = new CatalogBrowser();
-                if(catalogName){
-                    api.loadCatalog(catalogName).then(function(catalog){
-                        data.store.browser[browserID].setCatalog(catalog);
-                        defer.resolve(data.store.browser[browserID]);
-                    });
+                if(shopName && data.shops[shopName]){
+                    data.store.browser[browserID].setShop(data.shops[shopName]);
                 }
-                else{
-                    defer.resolve(data.store.browser[browserID]);
-                }
+                defer.resolve(data.store.browser[browserID]);
             }
             else{
                 defer.resolve(data.store.browser[browserID]);
@@ -755,20 +773,28 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             console.log('%cnow '+Object.keys(data.store.products).length+' products $firebinded!', 'background-color:#222;color:#90f;font-size:1.24');
         },
 
-        loadInventoryProduct: function(productID){
+        loadInventoryProduct: function(productID, inventoryPath){
+            if(typeof inventoryPath === 'undefined'){
+                inventoryPath = '';
+            }
             var defer = $q.defer();
-            if(!data.store.products[productID]){
-                var productLoad = syncData('product/'+productID);
+
+            if(!data.store.products[inventoryPath]){
+                data.store.products[inventoryPath] = {};
+            }
+
+            if(!data.store.products[inventoryPath][productID]){
+                var productLoad = syncData(inventoryPath+'/'+productID);
                 productLoad.$on('loaded', function(){
-                    data.store.products[productID] = productLoad;
-                    if(data.store.products[productID].$value === null || !data.store.products[productID].name){
-                        data.store.products[productID] = null;
+                    data.store.products[inventoryPath][productID] = productLoad;
+                    if(data.store.products[inventoryPath][productID].$value === null || !data.store.products[inventoryPath][productID].name){
+                        data.store.products[inventoryPath][productID] = null;
                     }
-                    defer.resolve(data.store.products[productID]);
+                    defer.resolve(data.store.products[inventoryPath][productID]);
                 });
             }
             else{
-                defer.resolve(data.store.products[productID].name?data.store.products[productID]:null);
+                defer.resolve(data.store.products[inventoryPath][productID].name?data.store.products[inventoryPath][productID]:null);
             }
             return defer.promise;
         },
@@ -780,12 +806,15 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
          *
          * if product has a property 'children', it will be skipped
          */
-        loadInventoryProducts: function(productList){
+        loadInventoryProducts: function(productList, inventoryPath){
+            if(typeof inventoryPath === 'undefined'){
+                inventoryPath = '';
+            }
             var defer = $q.defer();
             var productLoads = [];
             angular.forEach(productList, function(product, productID){
                 if(product && !product.children){
-                    productLoads.push(api.loadInventoryProduct(productID));
+                    productLoads.push(api.loadInventoryProduct(productID, inventoryPath));
                 }
             });
             if(productLoads.length){
