@@ -6,9 +6,9 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         invoice: { order: {}, orderRef: null, items:{}, delivery: false }
     };
 
-    var CatalogBrowser = function(newCatalog){
-        if(typeof newCatalog === 'undefined'){
-            newCatalog = null;
+    var CatalogBrowser = function(newShop){
+        if(typeof newShop === 'undefined'){
+            newShop = null;
         }
 
         var private = {
@@ -24,7 +24,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 if(private.catalog){
                     catalogRef = private.catalog.$getRef();
                     if(catalogRef){
-                        crumbs.unshift(catalogRef.name());
+                        crumbs.unshift(private.getPathForCatalogRef(catalogRef, true, true));
                     }
                 }
                 //public.path.length = 0;
@@ -40,6 +40,16 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 });
             },
 
+            setCatalog: function(newCatalog){
+                if(newCatalog !== private.catalog){
+                    private.catalog = newCatalog;
+                    return private.loadPath(private.reqPath);
+                }
+                var defer = $q.defer();
+                defer.resolve(public.category);
+                return defer.promise;
+            },
+
             setCategory: function(category) {
                 var defer = $q.defer();
 
@@ -48,7 +58,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                     public.pathStr = private.getPathForCatalogRef(category.$getRef());
                     public.product = null;
                     public.productURI = '';
-                    api.loadInventoryProducts(category.children);
+                    api.loadInventoryProducts(category.children, (public.shop?public.shop.inventory:''));
                     defer.resolve(public.category);
                 }
                 else{
@@ -171,6 +181,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         };
 
         var public = {
+            shop: null,
             category: null,
             product: null,
             path: [],
@@ -180,16 +191,6 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
             getPathURI: function(){
                 return public.pathStr+((public.pathStr.charAt(public.pathStr.length-1)!=='/' && public.productURI.charAt(0) !=='/')?'/':'')+public.productURI;
-            },
-
-            setCatalog: function(newCatalog){
-                if(newCatalog !== private.catalog){
-                    private.catalog = newCatalog;
-                    return private.loadPath(private.reqPath);
-                }
-                var defer = $q.defer();
-                defer.resolve(public.category);
-                return defer.promise;
             },
 
             setPath: function(newPath){
@@ -206,15 +207,24 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
             setProduct: function(productID){
                 var defer = $q.defer();
-                api.loadInventoryProduct(productID).then(function(product){
+                api.loadInventoryProduct(productID, (public.shop?public.shop.inventory:'')).then(function(product){
                     public.product = product;
                     defer.resolve(product);
                 });
                 return defer.promise;
+            },
+
+            setShop: function(shop){
+                if(shop && shop.catalog){
+                    api.loadCatalog(shop.catalog).then(function(catalog){
+                        public.shop = shop;
+                        private.setCatalog(catalog);
+                    });
+                }
             }
         };
 
-        public.setCatalog(newCatalog);
+        public.setShop(newShop);
 
         return public;
     };
@@ -263,17 +273,22 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         },
         removeItem: function(productID) {
             if(data.invoice.items[productID]){
-                api.loadInventoryProduct(productID).then(function(product){
+                delete data.invoice.items[productID];
+                api.updateOrder({items: data.invoice.items});
+                /**api.loadInventoryProduct(productID).then(function(product){
                     if(product) {
                         delete data.invoice.items[productID];
                         api.updateOrder({items: data.invoice.items});
                     }
-                });
+                });*/
             }
         },
         changeProductQty: function(productID){
             if(data.invoice.items[productID] && data.invoice.order.items[productID]){
-                api.loadInventoryProduct(productID).then(function(product) {
+                // TODO: ensure there is enough product in stock
+                api.updateOrder({items: data.invoice.items});
+
+                /**api.loadInventoryProduct(productID).then(function(product) {
                     if(product){
                         if(product.stock){
                             if(product.stock < data.invoice.items[productID].qty){
@@ -283,6 +298,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                         api.updateOrder({items: data.invoice.items});
                     }
                 });
+                 */
             }
         },
         emptyCart: function(){
@@ -525,13 +541,65 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             return defer.promise;
         },
         loadShops: function(){
-            var shopsRef = firebaseRef('shops/config');
+            var defer = $q.defer();
+            data.shops = syncData('shops/config');
+            data.shops.$on('loaded', function(){
+                defer.resolve(data.shops);
+            });
+            /**var shopsRef = firebaseRef('shops/config');
+            shopsRef.on('value', function(snap){
+                defer.resolve(snap.val());
+            });
             shopsRef.on('child_added', function(childSnapshot){
                 data.shops[childSnapshot.name()] = childSnapshot.val();
             });
             shopsRef.on('child_removed', function(oldChildSnapshot){
                 delete data.shops[oldChildSnapshot.name()];
             });
+             */
+            return defer.promise;
+        },
+        setActiveShop: function(browserID, shopName){
+            var defer = $q.defer();
+
+            if(shopName && data.shops[shopName]){
+                api.getCatalogBrowser(browserID).then(function(browser){
+                    browser.setShop(data.shops[shopName]);
+                    defer.resolve(browser);
+                });
+            }
+            else{
+                defer.reject('Shop \''+shopName+'\' was not found.');
+            }
+
+            /**if(data.shops[shopName] && data.shops[shopName].catalog){
+                api.getCatalogBrowser(browserID).then(function(){
+                    api.loadCatalog(data.shops[shopName].catalog).then(function(catalog){
+                        data.store.browser[browserID].setCatalog(catalog);
+                        defer.resolve(data.store.browser[browserID]);
+                    });
+                });
+            }
+            else{
+                defer.reject('Catalog is not configured for this shop.');
+            }*/
+
+            return defer.promise;
+        },
+
+        upcLookup: function(upc){
+            var defer = $q.defer();
+            if(upc){
+                var upcLookup = firebaseRef(FBSHOPSROOT+'/upc/'+system.api.fbSafeKey(upc));
+                upcLookup.once('value', function(snap){
+                    defer.resolve(snap.val());
+                });
+            }
+            else{
+                defer.reject('Invalid UPC \''+upc+'\'');
+            }
+
+            return defer.promise;
         },
 
         setProduct: function(product){
@@ -544,7 +612,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
              */
 
             /**
-             product may be a $firebase object - or of the format:
+             product should be of format:
              product = {
                     $id: <system product ID>
                     upc: <universal product code>,
@@ -559,99 +627,114 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 };
              */
 
-            var shopsRoot = FBSHOPSROOT;
+            var productID = product.$id;
+            if(product.$id){
+                // take it out for when we store product object in DB (we don't want to save $id as a child)
+                delete product.$id;
+            }
 
-            var upcProdID = '';
-            var upcCachePath = shopsRoot+'/upc';
-            var upcFound = false;
-            if(product.upc){ // && product.upc.test(/[0-9]{12}/)
-
-                // TODO: make an api.upcLookup(upc, restrictShop?) promise
-
-                firebaseRef(upcCachePath+'/'+product.upc).once('value', function(snap){
-                    upcProdID = snap.val();
-                    if(upcProdID){
-                        if(upcProdID === product.$id){
-                            // UPC matches product.$id
-                            upcFound = true;
-
-                            // - this means that the product is in the catalog with a valid UPC
-                            // - match it for updating when we are handling the shops
-                        }
-                        else{
-                            // UPC found, but not matching product.$id
-
-                            // - if product.$id
-                            //      - insert as array 'upc/'+product.upc = product.$id
-                            //
-                            // - else if !product.$id
-                            //      - insert it when we are handling the shops
-                            //          - insert product to generate $id
-                            //          - insert as array 'upc/'+product.upc = product.$id
-                            //      - or retrieve the upcProdID and update the product
-                            //          - make some checks to ensure it is the "same" product
-                            //              (ex. name, price, shops/categories)
-
-                            upcFound = product.$id?'multi':'new';
-                        }
+            var upcDefer = $q.defer();
+            api.upcLookup(product.upc).then(function(upcProdID){
+                if(upcProdID){
+                    if(upcProdID === productID){
+                        upcDefer.resolve('match');
+                    }
+                    else if(!productID){
+                        productID = upcProdID;
+                        upcDefer.resolve('found');
                     }
                     else{
-                        // UPC not found in upc table
-
-                        // - if product.$id
-                        //      - insert 'upc/'+product.upc = product.$id
-                        // - else if !product.$id
-                        //      - insert it when we are handling the shops
-                        //          - insert product to generate $id
-                        //          - insert 'upc/'+product.upc = product.$id
-
-                        if(product.$id){
-                            //      - insert 'upc/'+product.upc = product.$id
-                        }
-                        else{
-                            upcFound = 'new';
-                        }
-                    }
-                });
-            }
-            else{
-                // no UPC or invalid UPC
-                // save to upc/invalid/<(product.upc?product.upc:'undefined')>
-            }
-
-            if(!product.$id){
-                product.new = true;
-            }
-
-            angular.forEach(product.shops, function(shopProduct, shopID){
-                var shopConfig = data.shops[shopID];
-                if(shopConfig) {
-                    var inventory = firebaseRef(shopConfig.inventory);
-
-                    if(!product.$id){
-                        // add to "shared inventory" at inventory.push(product)
-                    }
-                    else{
-                        // update "shared inventory" at inventory.child(product.id)
-                    }
-
-
-
-                    if (shopProduct.available === true || (shopProduct.available === 'stock' && product.stock > 0)) {
-                        var cache = firebaseRef(shopConfig.cache);
-                        // cache the product
-                    }
-                    // else if(product is in store's cache and shouldn't be){
-                    //      remove it
-                    // }
-
-                    if(shopProduct.categories.length){
-                        var catalog = firebaseRef(shopConfig.catalog);
-                        angular.forEach(shopProduct.categories, function(catPath, catIdx){
-                            // insert product into catalog at catPath
-                        });
+                        upcDefer.resolve('duplicates');
                     }
                 }
+                else{
+                    upcDefer.resolve('new');
+                }
+            },function(error){
+                upcDefer.resolve('invalid');
+            });
+
+            upcDefer.promise.then(function(upcStatus){
+                if(!productID){
+                    product.new = true;
+                }
+
+                var invSetting = { defer: $q.defer(), addingTo: '', invQueue: {} };
+                angular.forEach(product.shops, function(shopProduct, shopID) {
+                    var shopConfig = data.shops[shopID];
+                    if(shopConfig) {
+                        var inventory = firebaseRef(shopConfig.inventory);
+                        if(!productID){
+                            // this bit of invSetting does the push on only the first inventory table
+                            // and saves a list of additional inventories to add the product into
+                            // this allows for the same fb-generated procuctID to be shared in multiple inventory tables
+                            if(!invSetting.addingTo){
+                                invSetting.addingTo = shopConfig.inventory;
+                                var newProdRef = inventory.push(product, function(error){
+                                    if(error){ /* error handling */ }
+                                    productID = newProdRef.name();
+                                    invSetting.defer.resolve();
+                                });
+                            }
+                            else if(shopConfig.inventory !== invSetting.addingTo && !invSetting.invQueue[shopConfig.inventory]){
+                                invSetting.invQueue[shopConfig.inventory] = true;
+                            }
+                        }
+                        else{
+                            // update "shared inventory" at inventory.child(product.id)
+                            inventory.child(productID).update(product, function(error){
+                                if(error){ /* error handling */ }
+                                invSetting.defer.resolve();
+                            });
+                        }
+
+                        invSetting.defer.promise.then(function(){
+                            angular.forEach(invSetting.invQueue, function(addTo, inventoryPath){
+                                var cInventory = firebaseRef(inventoryPath);
+                                cInventory.child(productID).update(product);
+                            });
+
+                            // handle flat-list caching for searching
+                            var cachedProduct = firebaseRef(shopConfig.cache+'/products/'+productID);
+                            if (shopProduct.available === true || (shopProduct.available === 'stock' && product.stock > 0)) {
+                                cachedProduct.set(product);
+                            }
+                            else{
+                                cachedProduct.remove();
+                            }
+
+                            if(shopProduct.categories.length){
+                                var catalog = firebaseRef(shopConfig.catalog);
+                                angular.forEach(shopProduct.categories, function(catPath, catIdx){
+                                    // insert product into catalog at catPath
+                                    if(catPath.charAt(catPath.length-1) !== '/'){ catPath += '/'; } // ensure trailing /children/
+                                    if(catPath.charAt(0) !== '/'){ catPath = '/'+catPath; } // ensure leading /children/
+
+                                    var catParts = catPath.split('/');
+                                    var cCatPath = '';
+                                    angular.forEach(catParts, function(cCatPiece, catIdx){
+                                        if(cCatPiece){
+                                            cCatPath += '/children/'+system.api.fbSafeKey(cCatPiece);
+                                            catalog.child(cCatPath).update({name: cCatPiece});
+                                        }
+                                    });
+                                    cCatPath += '/children/'+productID;
+                                    catalog.child(cCatPath).update({name: product.name, url: system.api.fbSafeKey(product.name)});
+                                });
+                            }
+                        });
+                    }
+                });
+
+                invSetting.defer.promise.then(function(){
+                    var upcRoot = firebaseRef(FBSHOPSROOT+'/upc');
+                    if(upcStatus === 'new'){
+                        upcRoot.child(system.api.fbSafeKey(product.upc)).set(productID);
+                    }
+                    else if(upcStatus === 'duplicates' || upcStatus === 'invalid'){
+                        upcRoot.child(upcStatus+'/'+system.api.fbSafeKey(product.upc?product.upc:'?')+'/'+productID).set(product.upc);
+                    }
+                });
             });
 
             // TODO: maybe add supplier to "suppliers" table if it doens't exist already?
@@ -661,18 +744,17 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
              */
         },
 
-
-        addCatalogBrowser: function(name, catalogName){
+        getCatalogBrowser: function(browserID, shopName){
             var defer = $q.defer();
-            if(!data.store.browser[name]){
-                data.store.browser[name] = new CatalogBrowser();
-                api.loadCatalog(catalogName).then(function(catalog){
-                    data.store.browser[name].setCatalog(catalog);
-                    defer.resolve(data.store.browser[name]);
-                });
+            if(!data.store.browser[browserID]){
+                data.store.browser[browserID] = new CatalogBrowser();
+                if(shopName && data.shops[shopName]){
+                    data.store.browser[browserID].setShop(data.shops[shopName]);
+                }
+                defer.resolve(data.store.browser[browserID]);
             }
             else{
-                defer.resolve(data.store.browser[name]);
+                defer.resolve(data.store.browser[browserID]);
             }
             return defer.promise;
         },
@@ -706,20 +788,28 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             console.log('%cnow '+Object.keys(data.store.products).length+' products $firebinded!', 'background-color:#222;color:#90f;font-size:1.24');
         },
 
-        loadInventoryProduct: function(productID){
+        loadInventoryProduct: function(productID, inventoryPath){
+            if(typeof inventoryPath === 'undefined'){
+                inventoryPath = '';
+            }
             var defer = $q.defer();
-            if(!data.store.products[productID]){
-                var productLoad = syncData('product/'+productID);
+
+            if(!data.store.products[inventoryPath]){
+                data.store.products[inventoryPath] = {};
+            }
+
+            if(!data.store.products[inventoryPath][productID]){
+                var productLoad = syncData(inventoryPath+'/'+productID);
                 productLoad.$on('loaded', function(){
-                    data.store.products[productID] = productLoad;
-                    if(data.store.products[productID].$value === null || !data.store.products[productID].name){
-                        data.store.products[productID] = null;
+                    data.store.products[inventoryPath][productID] = productLoad;
+                    if(data.store.products[inventoryPath][productID].$value === null || !data.store.products[inventoryPath][productID].name){
+                        data.store.products[inventoryPath][productID] = null;
                     }
-                    defer.resolve(data.store.products[productID]);
+                    defer.resolve(data.store.products[inventoryPath][productID]);
                 });
             }
             else{
-                defer.resolve(data.store.products[productID].name?data.store.products[productID]:null);
+                defer.resolve(data.store.products[inventoryPath][productID].name?data.store.products[inventoryPath][productID]:null);
             }
             return defer.promise;
         },
@@ -731,12 +821,15 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
          *
          * if product has a property 'children', it will be skipped
          */
-        loadInventoryProducts: function(productList){
+        loadInventoryProducts: function(productList, inventoryPath){
+            if(typeof inventoryPath === 'undefined'){
+                inventoryPath = '';
+            }
             var defer = $q.defer();
             var productLoads = [];
             angular.forEach(productList, function(product, productID){
                 if(product && !product.children){
-                    productLoads.push(api.loadInventoryProduct(productID));
+                    productLoads.push(api.loadInventoryProduct(productID, inventoryPath));
                 }
             });
             if(productLoads.length){

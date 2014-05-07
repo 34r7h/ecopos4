@@ -98,10 +98,11 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 			resolve: {
 				resolution: function($stateParams,$log,system,shop){
 					system.data.params.data = $stateParams;
-                    shop.api.addCatalogBrowser('shop', 'shop').then(function(browser){
-                        //$scope.shop = browser;
+
+                    shop.api.getCatalogBrowser('main').then(function(browser){
                         browser.setPath(system.data.params.data['path']);
                     });
+
 					if(/^\/*(\/.*)?$/.test($stateParams.path)) {
 						system.data.view = system.data.user.activeRole + '@ecoApp.nav.not.tools';
 						}
