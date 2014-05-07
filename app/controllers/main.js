@@ -1,5 +1,5 @@
 angular.module('ecoposApp')
-	.controller('MainCtrl', function ($rootScope, $scope, syncData, system, style, shop) {
+	.controller('MainCtrl', function ($rootScope, $scope, syncData, system, style, shop, $timeout) {
 		$scope.view = system.data.view;
 
 		//basic stylin dimensions
@@ -15,6 +15,11 @@ angular.module('ecoposApp')
         $scope.search = system.data.search;
 
         shop.api.loadShops();
+        $scope.shops = shop.data.shops;
+
+        //.then(function(){
+        //    $scope.shops = shop.data.shops;
+        //});
 
         // SHOP SELECTION - could be ecossentials or sunshine-organics - whatever we name the catalog/category tree in firebase
         $scope.shopName = 'pat';
