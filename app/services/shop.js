@@ -24,7 +24,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 if(private.catalog){
                     catalogRef = private.catalog.$getRef();
                     if(catalogRef){
-                        crumbs.unshift(catalogRef.name());
+                        crumbs.unshift(private.getPathForCatalogRef(catalogRef, true, true));
                     }
                 }
                 public.path.length = 0;
