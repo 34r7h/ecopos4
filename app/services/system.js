@@ -1,7 +1,7 @@
 angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q, $http) {
 
     var data = {
-        user: {id: null, anonID: '', profile: null, activeRole: 'anonymous', activeOrder: '', geoIP: {}, messages: {}, events: {}, calendar: {}, session: {anonCheckTime: 0, firstActiveRole: true, calendarEvents: {}}},
+        user: {id: null, anonID: '', profile: null, activeRole: 'anonymous', activeOrder: '', geoIP: {}, messages: {}, events: {}, orders: {}, calendar: {}, session: {anonCheckTime: 0, firstActiveRole: true, calendarEvents: {}}},
         employee: {shiftType: null},
         manager: {orders: {}},
         params:{},
@@ -327,9 +327,10 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 data.user.activeRole = 'anonymous';
                 data.user.id = null;
                 data.user.profile = null;
-//                data.user.notifications = {};
-                data.user.messages = {};
                 data.user.events = {};
+                data.user.messages = {};
+                data.user.notifications = {};
+                data.user.orders = {};
                 data.user.calendar = {};
 
                 data.user.session.firstActiveRole = true;
@@ -362,10 +363,8 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
             }
         },
 
-        setUserOrder: function(orderID){
+        activateUserOrder: function(orderID){
             data.user.activeOrder = orderID;
-            // TODO: make activeOrder an array
-            // TODO: show the activeOrders as a list somewhere
 
             if(data.user.profile){
                 data.user.profile.$update({activeOrder: data.user.activeOrder});
@@ -373,6 +372,15 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
             else{
                 // TODO: something like this for anonymous user cart saving
                 // $localstorage.activeOrder = orderID;
+            }
+        },
+        setUserOrder: function(order){
+            if(data.user.profile && order.$id){
+                if(!data.user.profile.orders || !data.user.profile.orders[order.$id] || data.user.profile.orders[order.$id] !== order.status){
+                    var newOrder = {};
+                    newOrder[order.$id] = order.status;
+                    data.user.profile.$child('orders').$update(newOrder);
+                }
             }
         },
 
