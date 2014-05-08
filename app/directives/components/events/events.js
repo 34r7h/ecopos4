@@ -35,7 +35,7 @@ angular.module('ecoposApp').directive('events', function(system) {
                     }
                 }
 
-                system.api.createEvent(scope.newEvent.title, scope.newEvent.description, users, scope.newEvent.type, dateStamp, endStamp);
+                system.api.createEvent(scope.newEvent.title, scope.newEvent.description, users, scope.newEvent.type, null, dateStamp, endStamp);
             };
 
             scope.completeTodo = system.api.completeEvent;

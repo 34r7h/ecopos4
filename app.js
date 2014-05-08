@@ -181,7 +181,6 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 					controller:function($scope,system,$state,resolution){
 						$scope.orders = system.data.user.orders;
 						$scope.settings = {};
-						$scope.notifications = {};
 						$scope.navigation = {};
 						$scope.user = system.data.user;
 						$scope.users = system.api.getUsersFlat('manager');
@@ -191,7 +190,6 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 					controller:function($scope,system,$state,resolution){
 						$scope.orders = system.data.user.orders;
 						$scope.settings = {};
-						$scope.notifications = {};
 						$scope.navigation = {};
 						$scope.user = system.data.user;
 						$scope.employee = system.data.employee;
@@ -203,7 +201,6 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 					controller:function($scope,system,$state,resolution){
 						$scope.orders = system.data.user.orders;
 						$scope.settings = {};
-						$scope.notifications = {};
 						$scope.navigation = {};
 						$scope.user = system.data.user;
 						$scope.employee = system.data.employee;
@@ -214,7 +211,6 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 					controller:function($scope,system,$state,resolution){
 						$scope.orders = system.data.user.orders;
 						$scope.settings = {};
-						$scope.notifications = {};
 						$scope.navigation = {};
 						$scope.user = system.data.user;
 						$scope.supplier = system.data.supplier;

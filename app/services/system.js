@@ -1,7 +1,7 @@
 angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q, $http) {
 
     var data = {
-        user: {id: null, anonID: '', profile: null, activeRole: 'anonymous', activeOrder: '', geoIP: {}, notifications: {}, messages: {}, events: {}, calendar: {}, session: {anonCheckTime: 0, firstActiveRole: true, calendarEvents: {}}},
+        user: {id: null, anonID: '', profile: null, activeRole: 'anonymous', activeOrder: '', geoIP: {}, messages: {}, events: {}, calendar: {}, session: {anonCheckTime: 0, firstActiveRole: true, calendarEvents: {}}},
         employee: {shiftType: null},
         manager: {orders: {}},
         params:{},
@@ -168,18 +168,22 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
 
         // Events API
 
-        createEvent: function(title, description, users, type, date, end){
+        createEvent: function(title, description, users, type, attachments, date, end, notification){
             console.log('creating event:'+title+':'+description+':'+JSON.stringify(users)+':'+JSON.stringify(type)+':'+date);
 
             var newEvent = {title: title,
                 description: description,
                 users: users,
-                type: type};
+                type: type,
+                attachments: attachments};
             if(date){
                 newEvent.date = date;
             }
             if(end){
                 newEvent.end = end;
+            }
+            if(notification){
+                newEvent.notification = true;
             }
 
             syncData('event').$add(newEvent).then(function(eventRef){
@@ -238,7 +242,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
         },
 
         // Notification API
-        sendNotification: function(toUsers, type, content, time){
+        sendNotification: function(toUsers, type, content, time, attachments){
             if(typeof time === 'undefined'){
                 time = api.currentTime();
             }
@@ -251,7 +255,9 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 }
             });
 
-            var newNotification = {
+            api.createEvent(type.charAt(0).toUpperCase()+type.slice(1)+' Notification', content, users, type, attachments, time, null, true);
+
+/**            var newNotification = {
                 type: type,
                 content: content,
                 time: time,
@@ -264,6 +270,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                     syncData('user/'+username+'/notifications/'+notificationRef.name()).$set(active);
                 });
             });
+ */
         },
 
         // Calendar API
@@ -320,7 +327,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 data.user.activeRole = 'anonymous';
                 data.user.id = null;
                 data.user.profile = null;
-                data.user.notifications = {};
+//                data.user.notifications = {};
                 data.user.messages = {};
                 data.user.events = {};
                 data.user.calendar = {};
@@ -385,7 +392,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
         },
 
         loadUserData: function(){
-            api.loadUserNotifications();
+//            api.loadUserNotifications();
             api.loadUserEvents();
             api.loadUserMessages();
             api.loadUserOrders();
@@ -463,7 +470,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 });
             }
         },
-        loadUserNotifications: function(){
+/**        loadUserNotifications: function(){
             if(data.user.id) {
                 data.user.notifications = {};
                 if(data.user.id){
@@ -477,6 +484,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 }
             }
         },
+ */
         loadUserOrders: function(){
             data.user.orders = {};
             if(data.user.id){
