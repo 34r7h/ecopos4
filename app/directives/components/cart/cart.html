@@ -2,11 +2,13 @@
     <div class="col-xs-2"><a>Empty Cart</a></div>
     <div class="col-xs-4"><select ng-model="user.activeOrder" ng-change="activateOrder()">
         <option value="new">-- New Order --</option>
-        <option ng-repeat="(orderIdx,order) in orders | orderByPriority | filter:{status:0}" value="{{order.$id}}" ng-selected="order.$id===user.activeOrder">{{order.name}}</option>
+        <option ng-repeat="(orderIdx,order) in orders | orderByPriority" value="{{order.$id}}" ng-selected="order.$id===user.activeOrder">{{order.name}}</option>
     </select></div>
-    <div class="col-xs-6"><button class="col-xs-12">Checkout</button></div>
+    <div class="col-xs-6"><button class="col-xs-12" ng-click="checkout()" ng-show="order.status===0">Checkout</button></div>
+
+
     <table class="table">
-        <tr >
+        <tr>
             <th class="col-xs-1"></th>
             <th class="col-xs-2"></th>
             <th class="col-xs-3">Item</th>
@@ -22,7 +24,10 @@
             <td class="col-xs-2" data-title="''"><img width="100%" height="auto" src="{{item.img}}"></td>
             <td class="col-xs-3" data-title="'Item'">{{ item.name }}</td>
             <td class="col-xs-2" data-title="'Price'">{{ item.price }} / {{ item.unitType }}</td>
-            <td class="col-xs-2" data-title="Qty"><a href="#" editable-text="item.qty" ng-model="item.qty" ng-change="productQty(productID)" onbeforesave="qtyCheck($data, productID)">{{item.qty}}</a></td>
+            <td class="col-xs-2" data-title="Qty">
+                <a ng-show="order.status===0" href="#" editable-text="item.qty" ng-model="item.qty" ng-change="productQty(productID)" onbeforesave="qtyCheck($data, productID)">{{item.qty}}</a>
+                <span ng-show="order.status!==0">{{item.qty}}</span>
+            </td>
             <td class="col-xs-2" data-title="'Item Total'">{{item.qty * item.price | currency}}</td>
         </tr>
         <tr>
@@ -31,10 +36,25 @@
             <td class="col-xs-2" data-title="'Order Total'">{{total() | currency}}</td>
         </tr>
     </table>
-    <div>
+    <div ng-show="order.status===0">
         <label for="cart-delivery-flag">Delivery: </label><input type="checkbox" id="cart-delivery-flag" ng-model="invoice.delivery" />
     </div>
-    <div>
+    <div ng-show="order.status!==0 && order.delivery">
+        Where do we deliver?
+    </div>
+    <div ng-show="order.status===0">
         <button class="btn-success" ng-click="checkout()">Checkout</button>
+    </div>
+    <div ng-show="order.status!==0">
+        <div>
+            <label for="payAmt">Payment Amount</label>
+            <input type="number" ng-model="payAmt" id="payAmt" />
+        </div>
+        <div ng-show="payAmt > 0">
+            <span ng-show="payAmt >= total()"><strong>Change: </strong>{{ (payAmt-total()) | currency}}</span>
+            <span ng-show="payAmt < total()"><strong>Balance: </strong>{{ (total()-payAmt) | currency}}</span>
+        </div>
+
+        <button class="btn-success" ng-click="makePayment()">Make Payment</button>
     </div>
 </div>

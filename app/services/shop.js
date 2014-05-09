@@ -427,6 +427,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                      */
 
                     var updates = {
+                        status: 1,
                         checkoutTime: system.api.currentTime(),
                         items: data.invoice.items,
                         paymentStatus: 'unpaid',
@@ -449,6 +450,37 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
              * - if total of order.payments >= order.total
              *      - update order.paymentStatus as 'paid' or 'partial'
              */
+            var order = syncData('order/'+orderID);
+            order.$on('loaded', function(){
+                paymentData.time = system.api.currentTime();
+                order.$child('payments').$add(paymentData);
+
+                // TODO: maybe we want to store an order total?  we should do that when they click "checkout"
+                var cOrderTotal = 0;
+                angular.forEach(order.items, function(item, itemID){
+                    cOrderTotal += item.qty*item.price;
+                });
+
+                // TODO: maybe we want to store an order paid amount?
+                var cOrderPaid = 0;
+                angular.forEach(order.payments, function(payment, paymentID){
+                    cOrderPaid += payment.amount;
+                });
+
+                if(cOrderPaid === cOrderTotal){
+                    order.$update({paymentStatus: 'paid'});
+                }
+                else if(cOrderPaid === 0){
+                    order.$update({paymentStatus: 'unpaid'});
+                }
+                else if(cOrderPaid > 0 && cOrderPaid < cOrderTotal){
+                    order.$update({paymentStatus: 'partial'});
+                }
+                else if(cOrderPaid > cOrderTotal){
+                    order.$update({paymentStatus: 'over'});
+                }
+            });
+
         },
 
         // Catalog API
