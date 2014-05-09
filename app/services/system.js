@@ -270,10 +270,10 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                     var userListDefer = $q.defer();
                     userListProms.push(userListDefer.promise);
 
-                    system.api.getUsersFlat(sendTo.roles).then(function(roleUsers){
+                    api.getUsersFlat(sendTo.roles).then(function(roleUsers){
                         angular.forEach(roleUsers, function(username, index){
                             if(!users[username]){
-                                users[username] = true;
+                                users[username] = 'notification';
                             }
                         });
                         userListDefer.resolve(true);
@@ -284,13 +284,13 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 toUsers = (angular.isArray(sendTo))?sendTo:[sendTo];
             }
 
-            if(typeof time === 'undefined'){
+            if(!time){
                 time = api.currentTime();
             }
 
             angular.forEach(toUsers, function(username, index){
                 if(!users[username]){
-                    users[username] = true;
+                    users[username] = 'notification';
                 }
             });
 
