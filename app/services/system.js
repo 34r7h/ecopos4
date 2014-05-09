@@ -146,6 +146,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
 
         // gets a flattened user list with no duplicates
         getUsersFlat: function(fromRoles){
+            var defer = $q.defer();
             if(typeof fromRoles === 'undefined'){ fromRoles = ['manager']; }
             else if(!(fromRoles instanceof Array)){ fromRoles = fromRoles.split(','); }
 
@@ -162,8 +163,10 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                         });
                     }
                 });
+                defer.resolve(users);
             });
-            return users;
+            //return users;
+            return defer.promise;
         },
 
         // Events API
@@ -242,20 +245,60 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
         },
 
         // Notification API
-        sendNotification: function(toUsers, type, content, time, attachments){
+        sendNotification: function(sendTo, type, content, time, attachments){
+            /** TODO:
+             if(toUsers is object)
+                - look for:
+                    toUsers.users
+                    toUsers.roles
+                - if toUsers.roles
+                    load all users in that role and put them into the users array
+
+             if(toUsers is array or string)
+                - treat as users
+             */
+
+            var users = {};
+            var toUsers = [];
+            var userListProms = [];
+
+            if(angular.isObject(sendTo)){
+                if(sendTo.users){
+                    toUsers = (angular.isArray(sendTo.users))?sendTo.users:[sendTo.users];
+                }
+                if(sendTo.roles){
+                    var userListDefer = $q.defer();
+                    userListProms.push(userListDefer.promise);
+
+                    system.api.getUsersFlat(sendTo.roles).then(function(roleUsers){
+                        angular.forEach(roleUsers, function(username, index){
+                            if(!users[username]){
+                                users[username] = true;
+                            }
+                        });
+                        userListDefer.resolve(true);
+                    });
+                }
+            }
+            else{
+                toUsers = (angular.isArray(sendTo))?sendTo:[sendTo];
+            }
+
             if(typeof time === 'undefined'){
                 time = api.currentTime();
             }
-            toUsers = (toUsers instanceof Array)?toUsers:[toUsers];
 
-            var users = {};
             angular.forEach(toUsers, function(username, index){
                 if(!users[username]){
                     users[username] = true;
                 }
             });
 
-            api.createEvent(type.charAt(0).toUpperCase()+type.slice(1)+' Notification', content, users, type, attachments, time, null, true);
+            // wait for any userList promises to resolve before creating the event
+            $q.all(userListProms).then(function(){
+                api.createEvent(type.charAt(0).toUpperCase()+type.slice(1)+' Notification', content, users, type, attachments, time, null, true);
+            });
+
 
 /**            var newNotification = {
                 type: type,

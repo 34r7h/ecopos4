@@ -174,7 +174,9 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 						$scope.manager = system.data.manager;
 						$scope.supplier = system.data.supplier;
 						$scope.admin = system.data.admin;
-						$scope.users = system.api.getUsersFlat();
+                        system.api.getUsersFlat().then(function(users){
+                            $scope.users = users;
+                        });
 					}
 				},
 				customer:{
@@ -183,7 +185,9 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 						$scope.settings = {};
 						$scope.navigation = {};
 						$scope.user = system.data.user;
-						$scope.users = system.api.getUsersFlat('manager');
+                        system.api.getUsersFlat('manager').then(function(users){
+                            $scope.users = users;
+                        });
 					}
 				},
 				manager:{
@@ -194,7 +198,9 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 						$scope.user = system.data.user;
 						$scope.employee = system.data.employee;
 						$scope.manager = system.data.manager;
-						$scope.users = system.api.getUsersFlat();
+                        system.api.getUsersFlat().then(function(users){
+                            $scope.users = users;
+                        });
 					}
 				},
 				employee:{
@@ -204,7 +210,9 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 						$scope.navigation = {};
 						$scope.user = system.data.user;
 						$scope.employee = system.data.employee;
-						$scope.users = system.api.getUsersFlat('manager','employee');
+                        system.api.getUsersFlat(['manager', 'employee']).then(function(users){
+                            $scope.users = users;
+                        });
 					}
 				},
 				supplier:{
@@ -214,7 +222,9 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 						$scope.navigation = {};
 						$scope.user = system.data.user;
 						$scope.supplier = system.data.supplier;
-						$scope.users = system.api.getUsersFlat('manager');
+                        system.api.getUsersFlat('manager').then(function(users){
+                            $scope.users = users;
+                        });
 					}
 				}
 			},
