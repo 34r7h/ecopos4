@@ -469,6 +469,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
                 if(cOrderPaid === cOrderTotal){
                     order.$update({paymentStatus: 'paid'});
+                    system.api.sendNotification({roles: ['manager', 'admin']}, 'order', 'Order fully paid.', null, [{type: 'order', path: 'order/'+orderID}]);
                 }
                 else if(cOrderPaid === 0){
                     order.$update({paymentStatus: 'unpaid'});
