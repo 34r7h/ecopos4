@@ -14,7 +14,17 @@ angular.module('ecoposApp')
         $scope.breadcrumb = system.data.breadcrumb;
         $scope.search = system.data.search;
 
-        shop.api.loadShops();
+        //shop.api.loadShops();
+        shop.api.loadShops().then(function(shops){
+            var i = 0;
+            while(i < Object.keys(shops).length){
+                if(shops[Object.keys(shops)[i]].default){
+                    shop.api.setActiveShop('main', Object.keys(shops)[i]);
+                    break;
+                }
+                i++;
+            }
+        });
         $scope.shops = shop.data.shops;
 
         //.then(function(){
