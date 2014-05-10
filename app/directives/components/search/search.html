@@ -1,6 +1,44 @@
 <div>
     <div ng-if="search.results" class="search-results">
-        {{search.results}}
+        <div class="col-xs-12 search-items">
+
+            <h4>Search Results: {{searchItems}}</h4>
+            <br>
+            <div ng-show="searchItems===products">
+                Products itemizable
+                <div class="col-xs-12">{{search.results.text}}, <b>{{search.results.text}}</b></div>
+                <div class="col-xs-12">{{search.results.text}}, <b>{{search.results.text}}</b></div>
+            </div>
+            <div ng-show="searchItems===orders">
+                Orders itemizable
+                <div class="col-xs-12">{{search.results.text}}, <b>{{search.results.text}}</b></div>
+                <div class="col-xs-12">{{search.results.text}}, <b>{{search.results.text}}</b></div>
+            </div>
+            <div ng-show="searchItems===messages">
+                Messages itemizable
+                <div class="col-xs-12">{{search.results.text}}, <b>{{search.results.text}}</b></div>
+                <div class="col-xs-12">{{search.results.text}}, <b>{{search.results.text}}</b></div>
+            </div>
+
+            <div class="col-xs-12">{{search.results.text}}, <b>{{search.results.text}}</b></div>
+            <div class="col-xs-12">{{search.results.text}}, <b>{{search.results.text}}</b></div><div class="col-xs-12">{{search.results.text}}, <b>{{search.results.text}}</b></div>
+            <div class="col-xs-12">{{search.results.text}}, <b>{{search.results.text}}</b></div>
+
+        </div>
+
+        <div class="navbar navbar-absolute-bottom search-nav">
+            <div class="btn-group pull-left">
+                <div ng-click="searchItems='products'" class="btn btn-navbar">
+                    <i class="fa fa-gift"></i> Products
+                </div>
+                <div ng-click="searchItems='orders'" class="btn btn-navbar">
+                    <i class="fa fa-truck"></i> Orders
+                </div>
+                <div ng-click="searchItems='messages'" class="btn btn-navbar">
+                    <i class="fa fa-envelope"></i> Messages
+                </div>
+            </div>
+        </div>
     </div>
     <div class="search pull-right">
         <input ng-model="search.value" ng-change="doSearch('value')" placeholder="Search">

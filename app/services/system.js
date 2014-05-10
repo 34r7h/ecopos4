@@ -132,7 +132,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
             if(data.search.value && !data.search.results){
                 data.search.results = {
                     trigger: triggerID,
-                    text: 'cool funkin stuff'
+                    text: 'cool funkin stuff <p>catch the waves</p>'
                 };
             }
             else if(!data.search.value && data.search.results){
