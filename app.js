@@ -174,51 +174,57 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 						$scope.manager = system.data.manager;
 						$scope.supplier = system.data.supplier;
 						$scope.admin = system.data.admin;
-						$scope.users = system.api.getUsersFlat();
+                        system.api.getUsersFlat().then(function(users){
+                            $scope.users = users;
+                        });
 					}
 				},
 				customer:{
 					controller:function($scope,system,$state,resolution){
 						$scope.orders = system.data.user.orders;
 						$scope.settings = {};
-						$scope.notifications = {};
 						$scope.navigation = {};
 						$scope.user = system.data.user;
-						$scope.users = system.api.getUsersFlat('manager');
+                        system.api.getUsersFlat('manager').then(function(users){
+                            $scope.users = users;
+                        });
 					}
 				},
 				manager:{
 					controller:function($scope,system,$state,resolution){
 						$scope.orders = system.data.user.orders;
 						$scope.settings = {};
-						$scope.notifications = {};
 						$scope.navigation = {};
 						$scope.user = system.data.user;
 						$scope.employee = system.data.employee;
 						$scope.manager = system.data.manager;
-						$scope.users = system.api.getUsersFlat();
+                        system.api.getUsersFlat().then(function(users){
+                            $scope.users = users;
+                        });
 					}
 				},
 				employee:{
 					controller:function($scope,system,$state,resolution){
 						$scope.orders = system.data.user.orders;
 						$scope.settings = {};
-						$scope.notifications = {};
 						$scope.navigation = {};
 						$scope.user = system.data.user;
 						$scope.employee = system.data.employee;
-						$scope.users = system.api.getUsersFlat('manager','employee');
+                        system.api.getUsersFlat(['manager', 'employee']).then(function(users){
+                            $scope.users = users;
+                        });
 					}
 				},
 				supplier:{
 					controller:function($scope,system,$state,resolution){
 						$scope.orders = system.data.user.orders;
 						$scope.settings = {};
-						$scope.notifications = {};
 						$scope.navigation = {};
 						$scope.user = system.data.user;
 						$scope.supplier = system.data.supplier;
-						$scope.users = system.api.getUsersFlat('manager');
+                        system.api.getUsersFlat('manager').then(function(users){
+                            $scope.users = users;
+                        });
 					}
 				}
 			},

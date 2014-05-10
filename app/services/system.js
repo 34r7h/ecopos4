@@ -1,7 +1,7 @@
 angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q, $http) {
 
     var data = {
-        user: {id: null, anonID: '', profile: null, activeRole: 'anonymous', activeOrder: '', geoIP: {}, events: {}, messages: {seen: {}, unseen: {}}, notifications: {}, orders: {}, calendar: {}, session: {anonCheckTime: 0, firstActiveRole: true, calendarEvents: {}}},
+        user: {id: null, anonID: '', profile: null, activeRole: 'anonymous', activeOrder: '', geoIP: {}, messages: {}, events: {}, orders: {}, calendar: {}, session: {anonCheckTime: 0, firstActiveRole: true, calendarEvents: {}}},
         employee: {shiftType: null},
         manager: {orders: {}},
         params:{},
@@ -146,6 +146,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
 
         // gets a flattened user list with no duplicates
         getUsersFlat: function(fromRoles){
+            var defer = $q.defer();
             if(typeof fromRoles === 'undefined'){ fromRoles = ['manager']; }
             else if(!(fromRoles instanceof Array)){ fromRoles = fromRoles.split(','); }
 
@@ -162,24 +163,30 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                         });
                     }
                 });
+                defer.resolve(users);
             });
-            return users;
+            //return users;
+            return defer.promise;
         },
 
         // Events API
 
-        createEvent: function(title, description, users, type, date, end){
+        createEvent: function(title, description, users, type, attachments, date, end, notification){
             console.log('creating event:'+title+':'+description+':'+JSON.stringify(users)+':'+JSON.stringify(type)+':'+date);
 
             var newEvent = {title: title,
                 description: description,
                 users: users,
-                type: type};
+                type: type,
+                attachments: attachments};
             if(date){
                 newEvent.date = date;
             }
             if(end){
                 newEvent.end = end;
+            }
+            if(notification){
+                newEvent.notification = true;
             }
 
             syncData('event').$add(newEvent).then(function(eventRef){
@@ -238,20 +245,62 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
         },
 
         // Notification API
-        sendNotification: function(toUsers, type, content, time){
-            if(typeof time === 'undefined'){
-                time = api.currentTime();
-            }
-            toUsers = (toUsers instanceof Array)?toUsers:[toUsers];
+        sendNotification: function(sendTo, type, content, time, attachments){
+            /** TODO:
+             if(toUsers is object)
+                - look for:
+                    toUsers.users
+                    toUsers.roles
+                - if toUsers.roles
+                    load all users in that role and put them into the users array
+
+             if(toUsers is array or string)
+                - treat as users
+             */
 
             var users = {};
+            var toUsers = [];
+            var userListProms = [];
+
+            if(angular.isObject(sendTo)){
+                if(sendTo.users){
+                    toUsers = (angular.isArray(sendTo.users))?sendTo.users:[sendTo.users];
+                }
+                if(sendTo.roles){
+                    var userListDefer = $q.defer();
+                    userListProms.push(userListDefer.promise);
+
+                    api.getUsersFlat(sendTo.roles).then(function(roleUsers){
+                        angular.forEach(roleUsers, function(username, index){
+                            if(!users[username]){
+                                users[username] = 'notification';
+                            }
+                        });
+                        userListDefer.resolve(true);
+                    });
+                }
+            }
+            else{
+                toUsers = (angular.isArray(sendTo))?sendTo:[sendTo];
+            }
+
+            if(!time){
+                time = api.currentTime();
+            }
+
             angular.forEach(toUsers, function(username, index){
                 if(!users[username]){
-                    users[username] = true;
+                    users[username] = 'notification';
                 }
             });
 
-            var newNotification = {
+            // wait for any userList promises to resolve before creating the event
+            $q.all(userListProms).then(function(){
+                api.createEvent(type.charAt(0).toUpperCase()+type.slice(1)+' Notification', content, users, type, attachments, time, null, true);
+            });
+
+
+/**            var newNotification = {
                 type: type,
                 content: content,
                 time: time,
@@ -264,6 +313,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                     syncData('user/'+username+'/notifications/'+notificationRef.name()).$set(active);
                 });
             });
+ */
         },
 
         // Calendar API
@@ -393,7 +443,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
         },
 
         loadUserData: function(){
-            api.loadUserNotifications();
+//            api.loadUserNotifications();
             api.loadUserEvents();
             api.loadUserMessages();
             api.loadUserOrders();
@@ -471,7 +521,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 });
             }
         },
-        loadUserNotifications: function(){
+/**        loadUserNotifications: function(){
             if(data.user.id) {
                 data.user.notifications = {};
                 if(data.user.id){
@@ -485,6 +535,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 }
             }
         },
+ */
         loadUserOrders: function(){
             data.user.orders = {};
             if(data.user.id){
