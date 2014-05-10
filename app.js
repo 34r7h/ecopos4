@@ -20,7 +20,11 @@ angular.module('ecoposApp', [
 	'xeditable'
 ]);
 
-angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) {
+angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, $locationProvider) {
+
+	$locationProvider
+		.html5Mode(true)
+		.hashPrefix('#');
 
 	$stateProvider.
 		state('ecoApp', {
