@@ -28,16 +28,34 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                     }
                 }
                 //public.path.length = 0;
-                while(public.path.length > 0) { public.path.pop(); }
+                //while(public.path.length > 0) { public.path.pop(); }
+                var cTrace = 0;
+                var diffPoint = false;
                 angular.forEach(crumbs, function(crumb, crumbID){
                     crumble.push(crumb);
                     var cPath = '/'+crumble.slice(1).join('/');
                     var fbRef = syncData(crumble.join('/children/')+'/name');
-                    public.path.push({
-                        name: fbRef,
-                        path: cPath
-                    });
+
+                    if(cTrace >= 0 && public.path[cTrace] && public.path[cTrace].path === cPath){
+                        cTrace++;
+                    }
+                    else{
+                        if(!diffPoint){
+                            diffPoint = true;
+                            if(public.path[cTrace]){
+                                public.path.splice(cTrace, public.path.length-cTrace);
+                            }
+                        }
+                        public.path.push({
+                            name: fbRef,
+                            path: cPath
+                        });
+                        cTrace++;
+                    }
                 });
+                if(public.path.length > cTrace){
+                    public.path.splice(cTrace, (public.path.length-cTrace));
+                }
             },
 
             setCatalog: function(newCatalog){
