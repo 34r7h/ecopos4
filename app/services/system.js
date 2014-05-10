@@ -6,7 +6,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
         manager: {orders: {}},
         params:{},
         breadcrumb:[],
-        search:'',
+        search:{value: '', cache: {}},
         view:'',
 	    info:''
     };
@@ -126,6 +126,22 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
 
             return safeKey;
         },
+
+        // search api
+        search: function(triggerID){
+            if(data.search.value && !data.search.results){
+                data.search.results = {
+                    trigger: triggerID,
+                    text: 'cool funkin stuff'
+                };
+            }
+            else if(!data.search.value && data.search.results){
+                data.search.results = null;
+            }
+        },
+
+        // user api
+
         userGeoIP: function(){
             var defer = $q.defer();
             if(data.user.geoIP && data.user.geoIP.ip){
