@@ -121,7 +121,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 			},
 			views: {
 				admin:{
-					controller:function($scope,system,$state,resolution,syncData,Firebase){
+					controller:function($scope,system,$state,resolution,syncData,Firebase, $location, $stateParams){
 						var infos = '/info/test-cat/';
 						$scope.infos = new Firebase('https://opentest.firebaseio.com/info');
 						$scope.info1 = {
@@ -138,6 +138,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 
 						$scope.resolution = resolution;
 						$scope.system = system;
+						$scope.stateParams = $stateParams;
+						$scope.location = $location;
 						$scope.breadcrumb = system.data.breadcrumb;
 
 						// Layout

@@ -34,7 +34,34 @@
 /* Required for Angular UI Bootstrap */
 .nav, .pagination, .carousel a { cursor: pointer; }
 
-html, body, .background-img {}
+html, body, .background-img {overflow:hidden;}
+::-webkit-scrollbar{
+  width:8px;
+  height:8px;
+  background-color:transparent;
+}
+::-webkit-scrollbar-thumb{
+  background-color:rgba(0,0,0,.3);
+  border-radius:1000% 1000% 1000% 1000%;
+}
+::-webkit-scrollbar-thumb:horizontal{
+  background-color:rgba(0,0,0,.3);
+  border-radius:1000% 1000% 1000% 1000%;
+}
+::-webkit-scrollbar-thumb:hover{
+  background-color:rgba(0,0,0,.2);
+  border:0px solid rgba(255,255,255,.2);
+}
+::-webkit-scrollbar-thumb:active{
+  background-color:rgba(0,0,0,.4);
+  box-shadow:0 0 2px solid rgba(255,255,255,.4);
+}
+::-webkit-scrollbar-track{
+  border:1px transparent solid;
+  border-radius:10px;
+
+}
+
 a {
   color:RGBA(75.00, 100.00, 48.00, 1.00);
   text-shadow:0px 0px 1px rgba(255,255,255,.2);
@@ -289,7 +316,7 @@ body { margin: 0; overflow:hidden;box-sizing: border-box;}
 }
 .search-items {
   overflow-y: scroll;
-  min-height:80%;
+  min-height:78%;
 }
 .search-nav {
   border-top: 1px solid rgba(0,0,0,.4);
