@@ -6,11 +6,6 @@ angular.module('ecoposApp').directive('leftBar', function(shop, system) {
 		templateUrl: 'app/directives/layout/leftBar/leftBar.html',
 		link: function(scope, element, attrs, fn) {
 
-            scope.shops = shop.data.shops;
-            scope.activeShop = '';
-            scope.activateShop = function(){
-                shop.api.setActiveShop('main', scope.activeShop);
-            };
 
             // Shop Maker stuff
             scope.shopName = '';

@@ -13,7 +13,7 @@
                     {{order.createdTime | date:'yyyy-MM-dd'}}
                 </td>
                 <td data-title="'Items'" sortable="'items'">
-                    <span ng-repeat="(key,item) in order.products">{{key}}, {{item.qty}}{{item.units}} - {{item.cost | currency}}<br></span>
+                    <span ng-repeat="item in (order.items || $parent.$parent.order.items)">{{item.name}}, {{item.qty}}{{item.units}} - {{item.price | currency}}<br></span>
                 </td>
                 <td data-title="'Total'" sortable="'total'">
                     {{order.total | currency}}

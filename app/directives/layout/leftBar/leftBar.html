@@ -25,9 +25,11 @@
             </div>
 
             <h4>Active Shop</h4>
+            {{activeShop}}
             <select ng-model="activeShop" ng-change="activateShop()">
                 <option ng-repeat="(cShopID, cShop) in shops" ng-value="cShopID">{{cShop.name}}</option>
             </select>
+
         </div>
 
     </div>

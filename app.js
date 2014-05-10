@@ -20,11 +20,8 @@ angular.module('ecoposApp', [
 	'xeditable'
 ]);
 
-angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, $locationProvider) {
+angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) {
 
-	$locationProvider
-		.html5Mode(true)
-		.hashPrefix('#');
 
 	$stateProvider.
 		state('ecoApp', {
@@ -99,7 +96,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 		}).
 		state('ecoApp.nav.not.tools.settings',{
 			// Path equals shop navigation
-			// Layout parameters: main, leftbar, rightbar, overlay
+			// Layout parameters: main, leftbar, rightbar, overlay, alert
+			// Personal parameters: role, preferences, history, store
 			// Content parameters: event, info, inventory, notification, order, product, message
 			url:'*path?role&preferences&history&store&overlay&main&leftbar&rightbar&event&info&inventory&notification&message&order&product',
 			resolve: {

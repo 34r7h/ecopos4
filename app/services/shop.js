@@ -594,7 +594,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         },
         setActiveShop: function(browserID, shopName){
             var defer = $q.defer();
-
+console.log('set shop:'+shopName);
             if(shopName && data.shops[shopName]){
                 api.getCatalogBrowser(browserID).then(function(browser){
                     browser.setShop(data.shops[shopName]);

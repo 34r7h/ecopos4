@@ -10,7 +10,7 @@
         </div>
         <div class="col-xs-9 pull-right" style="height: 0">
             <div class="col-xs-7">
-                <p ng-click="alertz = 'fun daze!'">yo</p><div ng-if="alertz" class="alert-danger alert">{{alertz}}</div>
+                <span><p ng-click="alertz = 'fun daze!';">yo</p><div ng-hide="!alertz" ng-show="alertz" class="alert-danger alert">{{alertz}} <span ng-click="alertz=!alertz">(x)</span> </div></span>
             </div>
 
           <div ng-repeat="notification in notify">
