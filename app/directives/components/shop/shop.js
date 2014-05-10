@@ -1,4 +1,4 @@
-angular.module('ecoposApp').directive('shop', function(system, $rootScope, shop) {
+angular.module('ecoposApp').directive('shop', function(system, $rootScope, shop, $location, $state) {
 	return {
 		restrict: 'E',
 		replace: true,
@@ -10,6 +10,18 @@ angular.module('ecoposApp').directive('shop', function(system, $rootScope, shop)
             shop.api.getCatalogBrowser('main').then(function(browser){
                 scope.shop = browser;
             });
+
+            scope.ecoGo = function(path, setUrl){
+                if(angular.isUndefined(setUrl)){
+                    setUrl = true;
+                }
+                shop.api.getCatalogBrowser('main').then(function(browser){
+                    browser.setPath(path);
+                });
+                if(setUrl){
+                    $location.path(path).replace();
+                }
+            };
 
             // shopping
             scope.qty = 1;
