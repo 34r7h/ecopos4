@@ -34,7 +34,6 @@ module.exports = function (grunt) {
 
   // load all grunt tasks
   require('load-grunt-tasks')(grunt);
-  require('connect-modrewrite')(grunt);
 
   // Project configuration.
   grunt.initConfig({
