@@ -5,14 +5,15 @@ angular.module('ecoposApp').directive('comp', function($compile,$timeout) {
 		replace:true,
 		scope:{element:"=",type:"=",calendar:"@calendar"},
 		link:function(scope, iElem, iAttrs,element, $scope, attrs) {
-
-			var domElement = document.createElement(scope.type || scope.element);
-			if(scope.element){
+			var domElement;
+			if(scope.element && !scope.type){
+				domElement = document.createElement(scope.element);
 				console.log(domElement);
 				iElem.append(domElement);
 				$compile(domElement)(scope);
 
 			} else if (scope.type){
+				domElement = document.createElement(scope.element);
 				console.log(domElement);
 				iElem.append(domElement);
 

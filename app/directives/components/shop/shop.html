@@ -3,7 +3,7 @@
     <div class="col-xs-12 category">
         <h4>Sub-Categories</h4>
         <ul>
-            <li ng-repeat="(childPrio,child) in shop.category.children | orderByPriority| filter:isCategory:searchx">
+            <li ng-repeat="(childPrio,child) in (shop.category.children || $parent.shop.category.children) | orderByPriority| filter:isCategory:searchx">
                 <a ng-if="child.url" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr+'/'+child.url))">{{child.name}}</a>
                 <a ng-if="!child.url" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr+'/'+child.$id))">{{child.name}}</a> /
             </li>
