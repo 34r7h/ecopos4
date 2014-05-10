@@ -20,11 +20,16 @@ angular.module('ecoposApp').directive('userInfo', function(system, $rootScope, $
 			});
 
 			scope.$on('$simpleLogin:profile:loaded', function(event, user){
+                console.log('profile loaded');
 				system.api.setUser(user);
 				system.api.setUserActiveRole();
                 shop.api.loadOrder(user.activeOrder, true);
 
-                $state.go('.', null, {reload:true});
+                var theState = $state.get('ecoApp.nav.not.tools.settings');
+                theState.reloadOnSearch = true;
+                $state.go('.', null, {reload:true}).then(function(){
+                    theState.reloadOnSearch = false;
+                });
 
 				$rootScope.$broadcast('ecopos:user:bound', user);
 

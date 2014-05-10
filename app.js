@@ -22,9 +22,9 @@ angular.module('ecoposApp', [
 
 angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, $locationProvider) {
 
-	$locationProvider
-		.html5Mode(true)
-		.hashPrefix('#');
+	//$locationProvider
+	//	.html5Mode(true)
+	//	.hashPrefix('#');
 
 	$stateProvider.
 		state('ecoApp', {
@@ -102,10 +102,12 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 			// Layout parameters: main, leftbar, rightbar, overlay
 			// Content parameters: event, info, inventory, notification, order, product, message
 			url:'*path?role&preferences&history&store&overlay&main&leftbar&rightbar&event&info&inventory&notification&message&order&product',
+            reloadOnSearch: false,
 			resolve: {
 				resolution: function($stateParams,$log,system,shop){
 					system.data.params.data = $stateParams;
 
+                    // allows loading directly to shop state from bookmark
                     shop.api.getCatalogBrowser('main').then(function(browser){
                         browser.setPath(system.data.params.data['path']);
                     });
