@@ -1,4 +1,5 @@
 <div>
+    <div ng-if="inventory|| $parent.inventory">Hello Specific Inventory Tree</div>
     <div>
         <div>
             <select ng-model="importShop" ng-disabled="importing" multiple="multiple" ng-options="shopID as shop.name for (shopID,shop) in shops">

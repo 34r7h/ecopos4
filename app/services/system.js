@@ -562,11 +562,22 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
 	var ui = {
 		navify:{},
 		notify:{},
-		overlay:false,
-		main:"",
-		settings:"",
-		tools:"",
-		alertz:""
+		layout:{
+			overlay:false,
+			main:"",
+			leftbar:"",
+			rightbar:"",
+			alertz:""
+		},
+		content:{
+			event:"",
+			info:"",
+			inventory:"",
+			notification:"",
+			order:"",
+			product:"",
+			message:""
+		}
 
 	};
     return {

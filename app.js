@@ -94,7 +94,10 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 			}
 		}).
 		state('ecoApp.nav.not.tools.settings',{
-			url:'*path?role&preferences&history&store&overlay&main&settings&tools',
+			// Path equals shop navigation
+			// Layout parameters: main, leftbar, rightbar, overlay
+			// Content parameters: event, info, inventory, notification, order, product, message
+			url:'*path?role&preferences&history&store&overlay&main&leftbar&rightbar&event&info&inventory&notification&message&order&product',
 			resolve: {
 				resolution: function($stateParams,$log,system,shop){
 					system.data.params.data = $stateParams;
@@ -115,8 +118,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 			views: {
 				admin:{
 					controller:function($scope,system,$state,resolution,syncData,Firebase){
-						var info = '/info/test-cat/';
-						$scope.info = new Firebase('https://opentest.firebaseio.com/info');
+						var infos = '/info/test-cat/';
+						$scope.infos = new Firebase('https://opentest.firebaseio.com/info');
 						$scope.info1 = {
 							date:1399068990,
 							media:['https://www.youtube.com/watch?v=AA0SZMZCSkM'],
@@ -127,18 +130,29 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 							tags:['test','upcoming','valid','eat smoothies'],
 							publisher:"irth"
 						};
-					    $scope.info.push($scope.info1);
+					    $scope.infos.push($scope.info1);
 
 						$scope.resolution = resolution;
 						$scope.system = system;
 						$scope.breadcrumb = system.data.breadcrumb;
 
+						// Layout
+						system.ui.layout.main = resolution.params.main;
+						system.ui.layout.overlay = resolution.params.overlay;
+						system.ui.layout.leftbar = resolution.params.leftbar;
+						system.ui.layout.rightbar = resolution.params.rightbar;
 
-						system.ui.main = resolution.params.main;
-						system.ui.overlay = resolution.params.overlay;
-						system.ui.settings = resolution.params.settings;
-						system.ui.tools = resolution.params.tools;
-						console.log(system);
+						// Params Content
+						system.ui.content.event = resolution.params.event;
+						system.ui.content.info = resolution.params.info;
+						system.ui.content.inventory = resolution.params.inventory;
+						system.ui.content.message = resolution.params.message;
+						system.ui.content.notification = resolution.params.notification;
+						system.ui.content.order = resolution.params.order;
+						system.ui.content.product = resolution.params.product;
+
+
+						console.log("system.ui: " + system.ui.content.message);
 
 						$scope.iconz = {
 							icon:"fa fa-plus",
@@ -155,11 +169,20 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 								$scope.newMsg = !$scope.newMsg;
 							}
 						};
+
 						$scope.alertz = system.ui.alertz;
-						$scope.overlay = system.ui.overlay;
-						$scope.main = system.ui.main;
-						$scope.tools = system.ui.tools;
-						$scope.settings = system.ui.settings;
+						$scope.overlay = system.ui.layout.overlay;
+						$scope.main = system.ui.layout.main;
+						$scope.rightbar = system.ui.layout.rightbar;
+						$scope.leftbar = system.ui.layout.leftbar;
+
+						$scope.event = system.ui.content.event;
+						$scope.info = system.ui.content.info;
+						$scope.inventory = system.ui.content.inventory;
+						$scope.message = system.ui.content.message;
+						$scope.notification = system.ui.content.notification;
+						$scope.order = system.ui.content.order;
+						$scope.product = system.ui.content.product;
 
 						console.log($scope.overlay);
 						$scope.orders = system.data.user.orders;
