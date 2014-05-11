@@ -41,4 +41,27 @@
             <li ng-repeat="history in importHistory"><strong>{{history.name}}</strong> into <strong ng-repeat="cShop in history.shop"><span ng-if="!$first">, </span>{{cShop.name}}</strong> @ {{history.start | date:'mediumTime'}} to {{history.finish | date:'mediumTime'}} ({{ (history.finish-history.start)/1000 }}s) on {{history.finish | date:'shortDate'}}</li>
         </ul>
     </div>
+
+    <div>
+        <h3>Shop Maker</h3>
+
+        <div>
+            <label for="shopName">Name</label>
+            <input type="text" ng-model="shopName" ng-change="autoBranchName()" id="shopName" placeholder="Shop Name" />
+        </div>
+        <div ng-show="mess" ng-model="mess">
+            {{mess}}
+        </div>
+        <div>
+            <button ng-click="createShop()" class="btn btn-success">Create Shop</button>
+        </div>
+
+        <h4>Active Shop</h4>
+        {{activeShop}}
+        <select ng-model="$parent.activeShop" ng-change="activateShop()">
+
+            <option ng-repeat="(cShopID, cShop) in shops" ng-value="cShopID">{{cShop.name}}</option>
+        </select>
+
+    </div>
 </div>

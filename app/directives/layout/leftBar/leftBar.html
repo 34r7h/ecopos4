@@ -1,37 +1,16 @@
-<div class="left col col-xs-12" ng-class="{open: left}">
-    <button class="col-xs-12" ng-click="right=false;left=!left" ng-model="left"></button>
+<div class="left col col-xs-12" ng-class="{open: left, openmd: leftmd, opensm: leftsm}">
+    <left-size></left-size>
     'Allo {{system.data.user.profile.displayName}}
     <div ng-if="leftbar"><comp element="leftbar"></comp></div>
     <div ng-if="!leftbar">
         <user-info></user-info>
-        <ul class="col-xs-12">
+        <ul class="col-xs-12" ng-repeat="settings in settings">
             <li ng-repeat="setting in settings | orderByPriority">
                 {{ setting.name }}: <prefs ng-model="setting.model" type="setting.type" element="setting.element" placeholder="{{ setting.name }}"></prefs>
             </li>
         </ul>
 
-        <div>
-            <h3>Shop Maker</h3>
 
-            <div>
-                <label for="shopName">Name</label>
-                <input type="text" ng-model="shopName" ng-change="autoBranchName()" id="shopName" placeholder="Shop Name" />
-            </div>
-            <div ng-show="mess" ng-model="mess">
-                {{mess}}
-            </div>
-            <div>
-                <button ng-click="createShop()" class="btn btn-success">Create Shop</button>
-            </div>
-
-            <h4>Active Shop</h4>
-            {{activeShop}}
-            <select ng-model="$parent.activeShop" ng-change="activateShop()">
-
-                <option ng-repeat="(cShopID, cShop) in shops" ng-value="cShopID">{{cShop.name}}</option>
-            </select>
-
-        </div>
 
     </div>
 </div>
