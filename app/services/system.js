@@ -206,7 +206,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 data.search.sets[searchSet].config = searchConfig;
             }
         },
-        searchableReset: function(searchSet, searchData){
+        searchableSet: function(searchSet, searchData){
             if(angular.isUndefined(searchData)){
                 searchData = [];
             }

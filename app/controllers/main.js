@@ -97,7 +97,7 @@ angular.module('ecoposApp')
                     if(browser.shop && browser.shop.cache){
                         var products = syncData(browser.shop.cache+'/products');
                         products.$on('value', function(){
-                            system.api.searchableReset('products', products);
+                            system.api.searchableSet('products', products);
                         });
                     }
                 });
