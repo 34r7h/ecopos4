@@ -12,7 +12,10 @@ angular.module('ecoposApp')
 		};
 
         $scope.breadcrumb = system.data.breadcrumb;
-        $scope.search = system.data.search;
+        //$scope.search = system.data.search; // allow the search directive to scope its own value
+        $scope.search = {
+            value: ''
+        };
 
         $scope.alertz = system.ui.alertz;
         $scope.overlay = system.ui.layout.overlay;

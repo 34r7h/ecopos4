@@ -17,7 +17,7 @@ angular.module('ecoposApp').directive('search', function(system) {
                     searchStarted();
                 }
                 if(scope.search.value.length !== 1){
-                    system.api.search(trigger);
+                    system.api.search(scope.search, trigger);
                 }
                 if(!scope.search.results && !scope.search.value){
                     searchCleared();

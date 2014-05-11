@@ -6,7 +6,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
         manager: {orders: {}},
         params:{},
         breadcrumb:[],
-        search:{value: '', sets: {}},
+        search:{sets: {}},
         view:'',
 	    info:''
     };
@@ -128,24 +128,77 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
         },
 
         // search api
-        search: function(triggerID){
-            if(data.search.value){
-                //console.log('searchablez:'+JSON.stringify(Object.keys(data.search.data)));
-                if(Object.keys(data.search.sets).length && !data.search.results){
-                    data.search.results = {};
-                }
-                angular.forEach(data.search.sets, function(searchConfig, searchSet){
-                    var searchData = searchConfig.data;
-                    if(searchData){
-                        data.search.results[searchSet] = $filter('unique')($filter('filter')(searchData, {name:data.search.value}));
+        search: function(query, triggerID){
+            if(angular.isUndefined(query)){
+                query = {
+                    filter: {value: ''},
+                    sets: Object.keys(data.search.sets),
+                    results: {}
+                };
+            }
+
+            // by default, search all sets
+            if(!query.sets){
+                query.sets = Object.keys(data.search.sets);
+            }
+            else if(!angular.isArray(query.sets)){
+                query.sets = [query.sets];
+            }
+
+            if(query.value && query.sets.length && !query.results){
+                query.results = {};
+            }
+            else if(!query.value && query.results){
+                query.results = null;
+            }
+
+            if(query.value && query.results){
+                angular.forEach(query.sets, function(setName, setIdx){
+                    var cSet = data.search.sets[setName];
+                    if(cSet && cSet.data){
+                        var parent = '';
+                        if(cSet.config && cSet.config.parent){
+                            parent = cSet.config.parent;
+                        }
+                        else{
+                            var cSetSplit = setName.indexOf('-');
+                            if(cSetSplit !== -1){
+                                parent = setName.substr(0,cSetSplit);
+                            }
+                        }
+
+                        if(cSet.config && angular.isFunction(cSet.config.deepSearch)){
+                            query.results[setName] = $filter('filter')(cSet.data, cSet.config.deepSearch(query));
+                        }
+                        else if(angular.isObject(query.value)){
+                            query.results[setName] = $filter('filter')(cSet.data, query.value);
+                        }
+                        else{
+                            query.results[setName] = $filter('filter')(cSet.data, {$:query.value});
+                        }
+                        if(query.results[setName] && query.results[setName].length){
+                            query.results[setName] = $filter('unique')(query.results[setName]);
+                            if(parent){
+                                if(!query.results[parent]){
+                                    query.results[parent] = query.results[setName];
+                                }
+                                else if(angular.isArray(query.results[parent])){
+                                    Array.prototype.splice.apply(query.results[parent], [query.results[parent].length, 0].concat(query.results[setName]));
+                                    query.results[parent] = $filter('unique')(query.results[parent]);
+                                }
+                            }
+                        }
                     }
                 });
             }
-            else if(!data.search.value && data.search.results){
-                data.search.results = null;
-            }
         },
         searchableConfig: function(searchSet, searchConfig){
+            /**
+             if we want to configure a deepSearch for a certain set, we can do so with:
+             searchConfig = {
+                deepSearch: function(value){ return (true||false); }
+            };
+             */
             if(searchConfig){
                 if(!data.search.sets[searchSet]){
                     data.search.sets[searchSet] = {};
