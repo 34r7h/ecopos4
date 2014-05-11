@@ -595,7 +595,6 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             var defer = $q.defer();
             data.shops = syncData('shops/config');
             data.shops.$on('loaded', function(){
-                console.log('shopsLoaded:'+data.shops);
                 defer.resolve(data.shops);
             });
             /**var shopsRef = firebaseRef('shops/config');
