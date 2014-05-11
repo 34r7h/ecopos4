@@ -6,7 +6,22 @@ angular.module('ecoposApp').directive('comp', function($compile,$timeout) {
 		scope:{element:"=",type:"=",calendar:"@calendar"},
 		link:function(scope, iElem, iAttrs,element, $scope, attrs) {
 			var domElement;
-			if(scope.element && !scope.type){
+            scope.$watch('element', function(newVal){
+                if(newVal && (!domElement || !domElement.nodeName || newVal.toLowerCase() !== domElement.nodeName.toLowerCase())){
+                    domElement = document.createElement(newVal);
+                    console.log(domElement);
+                    iElem.empty();
+                    iElem.append(domElement);
+                    $compile(domElement)(scope);
+                }
+                else if(!newVal && domElement){
+                    console.log('remove:'+(domElement.nodeName?domElement.nodeName.toLowerCase():'?'));
+                    domElement = null;
+                    iElem.empty();
+                }
+            });
+
+/**			if(scope.element && !scope.type){
 				domElement = document.createElement(scope.element);
 				console.log(domElement);
 				iElem.append(domElement);
@@ -18,7 +33,7 @@ angular.module('ecoposApp').directive('comp', function($compile,$timeout) {
 				iElem.append(domElement);
 
 			}
-
+*/
 		}
 	};
 }).directive('ecoPanel', function() {
