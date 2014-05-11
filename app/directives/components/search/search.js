@@ -5,18 +5,20 @@ angular.module('ecoposApp').directive('search', function(system) {
 		templateUrl: 'app/directives/components/search/search.html',
 		link: function(scope, element, attrs, fn) {
             var searchStarted = function(){
-                console.log('search initiated');
+                //console.log('search initiated');
             };
 
             var searchCleared = function(){
-                console.log('search cleared');
+                //console.log('search cleared');
             };
 
             scope.doSearch = function(trigger){
                 if(!scope.search.results && scope.search.value){
                     searchStarted();
                 }
-                system.api.search(trigger);
+                if(scope.search.value.length !== 1){
+                    system.api.search(trigger);
+                }
                 if(!scope.search.results && !scope.search.value){
                     searchCleared();
                 }

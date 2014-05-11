@@ -9,17 +9,21 @@
                 <div class="col-xs-12" ng-if="search.results.products">
                     <strong><em>{{search.results.products.length}}</em></strong> products found.
                 </div>
-                <div class="col-xs-12" ng-repeat="res in search.results.products">{{res.name}}, <b>{{res.price | currency}}</b> [{{res.shops}}]</div>
+                <div class="col-xs-12" ng-repeat="res in search.results.products">{{res.name}}, <b>{{res.price | currency}}</b></div>
             </div>
             <div ng-show="searchItems==='orders'">
                 Orders itemizable
-                <div class="col-xs-12">{{search.results.text}}, <b>{{search.results.text}}</b></div>
-                <div class="col-xs-12">{{search.results.text}}, <b>{{search.results.text}}</b></div>
+                <div class="col-xs-12" ng-if="search.results.orders">
+                    <strong><em>{{search.results.orders.length}}</em></strong> orders found.
+                </div>
+                <div class="col-xs-12" ng-repeat="res in search.results.orders"><b>{{res.name}}</b>, {{res.items}}</div>
             </div>
             <div ng-show="searchItems==='messages'">
                 Messages itemizable
-                <div class="col-xs-12">{{search.results.text}}, <b>{{search.results.text}}</b></div>
-                <div class="col-xs-12">{{search.results.text}}, <b>{{search.results.text}}</b></div>
+                <div class="col-xs-12" ng-if="search.results.messages">
+                    <strong><em>{{search.results.messages.length}}</em></strong> messages found.
+                </div>
+                <div class="col-xs-12" ng-repeat="res in search.results.messages">{{res.name}}, <b>{{res.users}}</b></div>
             </div>
         </div>
 
