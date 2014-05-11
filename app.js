@@ -174,19 +174,6 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 							}
 						};
 
-						$scope.alertz = system.ui.alertz;
-						$scope.overlay = system.ui.layout.overlay;
-						$scope.main = system.ui.layout.main;
-						$scope.rightbar = system.ui.layout.rightbar;
-						$scope.leftbar = system.ui.layout.leftbar;
-
-						$scope.event = system.ui.content.event;
-						$scope.info = system.ui.content.info;
-						$scope.inventory = system.ui.content.inventory;
-						$scope.message = system.ui.content.message;
-						$scope.notification = system.ui.content.notification;
-						$scope.order = system.ui.content.order;
-						$scope.product = system.ui.content.product;
 
 						console.log($scope.overlay);
 						$scope.orders = system.data.user.orders;
