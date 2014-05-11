@@ -6,7 +6,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
         manager: {orders: {}},
         params:{},
         breadcrumb:[],
-        search:{value: '', cache: {}},
+        search:{sets: {}},
         view:'',
 	    info:''
     };
@@ -128,23 +128,136 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
         },
 
         // search api
-        search: function(triggerID){
-            if(data.search.value){
-                //console.log('searchablez:'+JSON.stringify(Object.keys(data.search.cache)));
-                if(Object.keys(data.search.cache).length && !data.search.results){
-                    data.search.results = {};
-                }
-                angular.forEach(data.search.cache, function(searchData, searchSet){
-                    //data.search.results[searchSet] = 'hello';
-                    data.search.results[searchSet] = $filter('filter')(searchData, {name:data.search.value});
-                });
-                /**data.search.results = {
-                    trigger: triggerID,
-                    text: 'cool funkin stuff <p>catch the waves</p>'
-                };*/
+        search: function(query, triggerID){
+            if(angular.isUndefined(query)){
+                query = {
+                    filter: {value: ''},
+                    sets: Object.keys(data.search.sets),
+                    results: {}
+                };
             }
-            else if(!data.search.value && data.search.results){
-                data.search.results = null;
+
+            // by default, search all sets
+            if(!query.sets){
+                query.sets = Object.keys(data.search.sets);
+            }
+            else if(!angular.isArray(query.sets)){
+                query.sets = [query.sets];
+            }
+
+            if(query.value && query.sets.length && !query.results){
+                query.results = {};
+            }
+            else if(!query.value && query.results){
+                query.results = null;
+            }
+
+            if(query.value && query.results){
+                angular.forEach(query.sets, function(setName, setIdx){
+                    var cSet = data.search.sets[setName];
+                    if(cSet && cSet.data){
+                        var parent = '';
+                        if(cSet.config && cSet.config.parent){
+                            parent = cSet.config.parent;
+                        }
+                        else{
+                            var cSetSplit = setName.indexOf('-');
+                            if(cSetSplit !== -1){
+                                parent = setName.substr(0,cSetSplit);
+                            }
+                        }
+
+                        if(cSet.config && angular.isFunction(cSet.config.deepSearch)){
+                            query.results[setName] = $filter('filter')(cSet.data, cSet.config.deepSearch(query));
+                        }
+                        else if(angular.isObject(query.value)){
+                            query.results[setName] = $filter('filter')(cSet.data, query.value);
+                        }
+                        else{
+                            query.results[setName] = $filter('filter')(cSet.data, {$:query.value});
+                        }
+                        if(query.results[setName] && query.results[setName].length){
+                            query.results[setName] = $filter('unique')(query.results[setName]);
+                            if(parent){
+                                if(!query.results[parent]){
+                                    query.results[parent] = query.results[setName];
+                                }
+                                else if(angular.isArray(query.results[parent])){
+                                    Array.prototype.splice.apply(query.results[parent], [query.results[parent].length, 0].concat(query.results[setName]));
+                                    query.results[parent] = $filter('unique')(query.results[parent]);
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        },
+        searchableConfig: function(searchSet, searchConfig){
+            /**
+             if we want to configure a deepSearch for a certain set, we can do so with:
+             searchConfig = {
+                deepSearch: function(value){ return (true||false); }
+            };
+             */
+            if(searchConfig){
+                if(!data.search.sets[searchSet]){
+                    data.search.sets[searchSet] = {};
+                }
+                data.search.sets[searchSet].config = searchConfig;
+            }
+        },
+        searchableSet: function(searchSet, searchData){
+            if(angular.isUndefined(searchData)){
+                searchData = [];
+            }
+            else if(searchData){
+                if(angular.isObject(searchData)){
+                    searchData = $filter('orderByPriority')(searchData);
+                }
+                else if(!angular.isArray(searchData)){
+                    searchData = [searchData];
+                }
+            }
+            if(!data.search.sets[searchSet]){
+                data.search.sets[searchSet] = {};
+            }
+            data.search.sets[searchSet].data = searchData;
+        },
+        searchableAdd: function(searchSet, searchData){
+            if(searchData){
+                if(angular.isObject(searchData)){
+                    searchData = $filter('orderByPriority')(searchData);
+                }
+                else if(!angular.isArray(searchData)){
+                    searchData = [searchData];
+                }
+            }
+            if(!data.search.sets[searchSet]){
+                data.search.sets[searchSet] = {data: searchData};
+            }
+            if(!data.search.sets[searchSet].data){
+                data.search.sets[searchSet].data = searchData;
+            }
+            else if(angular.isArray(data.search.sets[searchSet].data)){
+                Array.prototype.splice.apply(data.search.sets[searchSet].data, [data.search.sets[searchSet].data.length, 0].concat(searchData));
+            }
+        },
+        searchableRemove: function(searchSet, searchData){
+            if(searchData && data.search.sets[searchSet] && data.search.sets[searchSet].data){
+                if(!angular.isArray(searchData)){
+                    var dataIdx = data.search.sets[searchSet].data.indexOf(searchData);
+                    if(dataIdx !== -1){
+                        data.search.sets[searchSet].data.splice(dataIdx, 1);
+                    }
+                }
+                else{
+                    angular.forEach(searchData, function(cData, cIdx){
+                        var dataIdx = data.search.sets[searchSet].data.indexOf(cData);
+                        if(dataIdx !== -1){
+                            data.search.sets[searchSet].data.splice(dataIdx, 1);
+                        }
+                    });
+                }
             }
         },
 
@@ -486,10 +599,10 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 eventBind.on('child_added', function(childSnapshot, prevChildName){
                     var cEvent = syncData('event/'+childSnapshot.name());
                     data.user.events[childSnapshot.name()] = cEvent;
+                    api.searchableAdd('events', [data.user.events[childSnapshot.name()]]);
 
                     cEvent.$on('loaded', function(field){
                         cEvent.completeFlag = cEvent.completed?true:false;
-
                         if(cEvent.date){
                             api.setCalendarEvent(cEvent);
                             if(cEvent.type === 'shift' && data.user.session.loginTime && cEvent.users && cEvent.users[data.user.id] && data.user.session.loginTime >= cEvent.date && cEvent.end && data.user.session.loginTime <= cEvent.end) {
@@ -513,6 +626,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
 
                 });
                 eventBind.on('child_removed', function(oldChildSnapshot){
+                    api.searchableRemove('events', [data.user.events[oldChildSnapshot.name()]]);
                     api.removeCalendarEvent(oldChildSnapshot.name());
                     delete data.user.events[oldChildSnapshot.name()];
                 });
@@ -526,21 +640,20 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 var unseenMsgsBind = firebaseRef('user/'+data.user.id+'/messages/unseen');
                 unseenMsgsBind.on('child_added', function(childSnapshot, prevChildName){
                     data.user.messages.unseen[childSnapshot.name()] = syncData('message/'+childSnapshot.name());
+                    api.searchableAdd('messages', [data.user.messages.unseen[childSnapshot.name()]]);
                 });
                 unseenMsgsBind.on('child_removed', function(oldChildSnapshot){
-                    // for 3-way data binding... (not working)
-                    //if(typeof messageBinds[oldChildSnapshot.name()] === 'function'){
-                    //    messageBinds[oldChildSnapshot.name()]();
-                    //}
-
+                    api.searchableRemove('messages', [data.user.messages.unseen[oldChildSnapshot.name()]]);
                     delete data.user.messages.unseen[oldChildSnapshot.name()];
                 });
 
                 var seenMsgBind = firebaseRef('user/'+data.user.id+'/messages/seen');
                 seenMsgBind.on('child_added', function(childSnapshot, prevChildName){
                     data.user.messages.seen[childSnapshot.name()] = syncData('message/'+childSnapshot.name());
+                    api.searchableAdd('messages', [data.user.messages.seen[childSnapshot.name()]]);
                 });
                 seenMsgBind.on('child_removed', function(oldChildSnapshot){
+                    api.searchableRemove('messages', [data.user.messages.seen[oldChildSnapshot.name()]]);
                     delete data.user.messages.seen[oldChildSnapshot.name()];
                 });
             }
@@ -566,18 +679,26 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 var orderBind = firebaseRef('user/'+data.user.id+'/orders');
                 orderBind.on('child_added', function(childSnapshot, prevChildName){
                     data.user.orders[childSnapshot.name()] = syncData('order/'+childSnapshot.name());
+                    api.searchableAdd('orders-user', [data.user.orders[childSnapshot.name()]]);
                 });
                 orderBind.on('child_removed', function(oldChildSnapshot){
+                    api.searchableRemove('orders-user', [data.user.orders[oldChildSnapshot.name()]]);
                     delete data.user.orders[oldChildSnapshot.name()];
                 });
             }
         },
 
         loadManagerData: function(){
+            data.manager.orders = {};
             if(data.user && data.user.profile && data.user.profile.roles && (data.user.profile.roles.admin || data.user.profile.roles.manager)) {
                 var orderBind = firebaseRef('order');
                 orderBind.on('child_added', function (childSnapshot, prevChildName) {
                     data.manager.orders[childSnapshot.name()] = childSnapshot.val();
+                    api.searchableAdd('orders-manager', [data.manager.orders[childSnapshot.name()]]);
+                });
+                orderBind.on('child_removed', function (oldChildSnapshot) {
+                    api.searchableRemove('orders-manager', [data.manager.orders[oldChildSnapshot.name()]]);
+                    delete data.manager.orders[oldChildSnapshot.name()];
                 });
             }
         }
