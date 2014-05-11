@@ -234,8 +234,8 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
             setShop: function(shop){
                 if(shop && shop.catalog){
+                    public.shop = shop;
                     api.loadCatalog(shop.catalog).then(function(catalog){
-                        public.shop = shop;
                         private.setCatalog(catalog);
                     });
                 }
@@ -595,6 +595,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             var defer = $q.defer();
             data.shops = syncData('shops/config');
             data.shops.$on('loaded', function(){
+                console.log('shopsLoaded:'+data.shops);
                 defer.resolve(data.shops);
             });
             /**var shopsRef = firebaseRef('shops/config');
@@ -612,15 +613,9 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         },
         setActiveShop: function(browserID, shopName){
             var defer = $q.defer();
-
             if(shopName && data.shops[shopName]){
                 api.getCatalogBrowser(browserID).then(function(browser){
                     browser.setShop(data.shops[shopName]);
-                    var products = syncData(data.shops[shopName].cache+'/products');
-                    products = syncData(data.shops[shopName].cache+'/products');
-                    products.$on('value', function(){
-                        system.data.search.cache['products'] = $filter('orderByPriority')(products);
-                    });
                     defer.resolve(browser);
                 });
             }
