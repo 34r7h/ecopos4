@@ -5,23 +5,20 @@
             <h4>Search Results: {{searchItems}}</h4>
             <br>
             <div ng-show="!searchItems || searchItems==='products'">
-                Products itemizable
-                <div class="col-xs-12" ng-if="search.results.products">
-                    <strong><em>{{search.results.products.length}}</em></strong> products found.
+                <div class="col-xs-12">
+                    <strong><em ng-if="search.results.products && search.results.products.length">{{search.results.products.length}}</em><em ng-if="!search.results.products || !search.results.products.length">0</em></strong> products found.
                 </div>
                 <div class="col-xs-12" ng-repeat="res in search.results.products">{{res.name}}, <b>{{res.price | currency}}</b></div>
             </div>
             <div ng-show="searchItems==='orders'">
-                Orders itemizable
-                <div class="col-xs-12" ng-if="search.results.orders">
-                    <strong><em>{{search.results.orders.length}}</em></strong> orders found.
+                <div class="col-xs-12">
+                    <strong><em ng-if="search.results.orders && search.results.orders.length">{{search.results.orders.length}}</em><em ng-if="!search.results.orders || !search.results.orders.length">0</em></strong> orders found.
                 </div>
-                <div class="col-xs-12" ng-repeat="res in search.results.orders"><b>{{res.name}}</b>, {{res.items}}</div>
+                <div class="col-xs-12" ng-repeat="res in search.results.orders"><b>{{res.name}}</b></div>
             </div>
             <div ng-show="searchItems==='messages'">
-                Messages itemizable
-                <div class="col-xs-12" ng-if="search.results.messages">
-                    <strong><em>{{search.results.messages.length}}</em></strong> messages found.
+                <div class="col-xs-12">
+                    <strong><em ng-if="search.results.messages && search.results.messages.length">{{search.results.messages.length}}</em><em ng-if="!search.results.messages || !search.results.messages.length">0</em></strong> messages found.
                 </div>
                 <div class="col-xs-12" ng-repeat="res in search.results.messages">{{res.name}}, <b>{{res.users}}</b></div>
             </div>

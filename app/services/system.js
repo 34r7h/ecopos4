@@ -136,7 +136,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 }
                 angular.forEach(data.search.cache, function(searchData, searchSet){
                     //data.search.results[searchSet] = 'hello';
-                    data.search.results[searchSet] = $filter('filter')(searchData, {name:data.search.value});
+                    data.search.results[searchSet] = $filter('unique')($filter('filter')(searchData, {name:data.search.value}));
                 });
             }
             else if(!data.search.value && data.search.results){
@@ -152,8 +152,41 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                     searchData = [searchData];
                 }
             }
-            // TODO: if we want to be vigilant, we could allow for adding to the cache
             data.search.cache[searchSet] = searchData;
+        },
+        searchCacheAppend: function(searchSet, searchData){
+            if(searchData){
+                if(angular.isObject(searchData)){
+                    searchData = $filter('orderByPriority')(searchData);
+                }
+                else if(!angular.isArray(searchData)){
+                    searchData = [searchData];
+                }
+            }
+            if(!data.search.cache[searchSet]){
+                data.search.cache[searchSet] = searchData;
+            }
+            else if(angular.isArray(data.search.cache[searchSet])){
+                Array.prototype.splice.apply(data.search.cache[searchSet], [data.search.cache[searchSet].length, 0].concat(searchData));
+            }
+        },
+        searchCacheRemove: function(searchSet, searchData){
+            if(searchData && data.search.cache[searchSet]){
+                if(!angular.isArray(searchData)){
+                    var dataIdx = data.search.cache[searchSet].indexOf(searchData);
+                    if(dataIdx !== -1){
+                        data.search.cache[searchSet].splice(dataIdx, 1);
+                    }
+                }
+                else{
+                    angular.forEach(searchData, function(cData, cIdx){
+                        var dataIdx = data.search.cache[searchSet].indexOf(cData);
+                        if(dataIdx !== -1){
+                            data.search.cache[searchSet].splice(dataIdx, 1);
+                        }
+                    });
+                }
+            }
         },
 
         // user api
@@ -489,15 +522,14 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
         },
         loadUserEvents: function(){
             data.user.events = {};
+            api.searchCache('events', data.user.events);
             if(data.user.id){
                 var eventBind = firebaseRef('user/'+data.user.id+'/events');
                 eventBind.on('child_added', function(childSnapshot, prevChildName){
                     var cEvent = syncData('event/'+childSnapshot.name());
                     data.user.events[childSnapshot.name()] = cEvent;
-
                     cEvent.$on('loaded', function(field){
                         cEvent.completeFlag = cEvent.completed?true:false;
-
                         if(cEvent.date){
                             api.setCalendarEvent(cEvent);
                             if(cEvent.type === 'shift' && data.user.session.loginTime && cEvent.users && cEvent.users[data.user.id] && data.user.session.loginTime >= cEvent.date && cEvent.end && data.user.session.loginTime <= cEvent.end) {
@@ -534,21 +566,20 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 var unseenMsgsBind = firebaseRef('user/'+data.user.id+'/messages/unseen');
                 unseenMsgsBind.on('child_added', function(childSnapshot, prevChildName){
                     data.user.messages.unseen[childSnapshot.name()] = syncData('message/'+childSnapshot.name());
+                    api.searchCacheAppend('messages', [data.user.messages.unseen[childSnapshot.name()]]);
                 });
                 unseenMsgsBind.on('child_removed', function(oldChildSnapshot){
-                    // for 3-way data binding... (not working)
-                    //if(typeof messageBinds[oldChildSnapshot.name()] === 'function'){
-                    //    messageBinds[oldChildSnapshot.name()]();
-                    //}
-
+                    api.searchCacheRemove('messages', [data.user.messages.unseen[oldChildSnapshot.name()]]);
                     delete data.user.messages.unseen[oldChildSnapshot.name()];
                 });
 
                 var seenMsgBind = firebaseRef('user/'+data.user.id+'/messages/seen');
                 seenMsgBind.on('child_added', function(childSnapshot, prevChildName){
                     data.user.messages.seen[childSnapshot.name()] = syncData('message/'+childSnapshot.name());
+                    api.searchCacheAppend('messages', [data.user.messages.seen[childSnapshot.name()]]);
                 });
                 seenMsgBind.on('child_removed', function(oldChildSnapshot){
+                    api.searchCacheRemove('messages', [data.user.messages.seen[oldChildSnapshot.name()]]);
                     delete data.user.messages.seen[oldChildSnapshot.name()];
                 });
             }
@@ -574,18 +605,26 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 var orderBind = firebaseRef('user/'+data.user.id+'/orders');
                 orderBind.on('child_added', function(childSnapshot, prevChildName){
                     data.user.orders[childSnapshot.name()] = syncData('order/'+childSnapshot.name());
+                    api.searchCacheAppend('orders', [data.user.orders[childSnapshot.name()]]);
                 });
                 orderBind.on('child_removed', function(oldChildSnapshot){
+                    api.searchCacheRemove('orders', [data.user.orders[oldChildSnapshot.name()]]);
                     delete data.user.orders[oldChildSnapshot.name()];
                 });
             }
         },
 
         loadManagerData: function(){
+            data.manager.orders = {};
             if(data.user && data.user.profile && data.user.profile.roles && (data.user.profile.roles.admin || data.user.profile.roles.manager)) {
                 var orderBind = firebaseRef('order');
                 orderBind.on('child_added', function (childSnapshot, prevChildName) {
                     data.manager.orders[childSnapshot.name()] = childSnapshot.val();
+                    api.searchCacheAppend('orders', [data.manager.orders[childSnapshot.name()]]);
+                });
+                orderBind.on('child_removed', function (oldChildSnapshot) {
+                    api.searchCacheRemove('orders', [data.manager.orders[oldChildSnapshot.name()]]);
+                    delete data.manager.orders[oldChildSnapshot.name()];
                 });
             }
         }
