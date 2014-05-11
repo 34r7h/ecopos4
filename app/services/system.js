@@ -138,14 +138,22 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                     //data.search.results[searchSet] = 'hello';
                     data.search.results[searchSet] = $filter('filter')(searchData, {name:data.search.value});
                 });
-                /**data.search.results = {
-                    trigger: triggerID,
-                    text: 'cool funkin stuff <p>catch the waves</p>'
-                };*/
             }
             else if(!data.search.value && data.search.results){
                 data.search.results = null;
             }
+        },
+        searchCache: function(searchSet, searchData){
+            if(searchData){
+                if(angular.isObject(searchData)){
+                    searchData = $filter('orderByPriority')(searchData);
+                }
+                else if(!angular.isArray(searchData)){
+                    searchData = [searchData];
+                }
+            }
+            // TODO: if we want to be vigilant, we could allow for adding to the cache
+            data.search.cache[searchSet] = searchData;
         },
 
         // user api
