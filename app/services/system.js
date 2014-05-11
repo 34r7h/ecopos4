@@ -1,4 +1,4 @@
-angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q, $http) {
+angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q, $filter, $http) {
 
     var data = {
         user: {id: null, anonID: '', profile: null, activeRole: 'anonymous', activeOrder: '', geoIP: {}, messages: {}, events: {}, orders: {}, calendar: {}, session: {anonCheckTime: 0, firstActiveRole: true, calendarEvents: {}}},
@@ -129,11 +129,19 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
 
         // search api
         search: function(triggerID){
-            if(data.search.value && !data.search.results){
-                data.search.results = {
+            if(data.search.value){
+                //console.log('searchablez:'+JSON.stringify(Object.keys(data.search.cache)));
+                if(Object.keys(data.search.cache).length && !data.search.results){
+                    data.search.results = {};
+                }
+                angular.forEach(data.search.cache, function(searchData, searchSet){
+                    //data.search.results[searchSet] = 'hello';
+                    data.search.results[searchSet] = $filter('filter')(searchData, {name:data.search.value});
+                });
+                /**data.search.results = {
                     trigger: triggerID,
                     text: 'cool funkin stuff <p>catch the waves</p>'
-                };
+                };*/
             }
             else if(!data.search.value && data.search.results){
                 data.search.results = null;

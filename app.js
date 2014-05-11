@@ -15,7 +15,7 @@ angular.module('ecoposApp', [
 	'mobile-angular-ui',
 	'mobile-angular-ui.touch',
 	'mobile-angular-ui.scrollable',
-	'ngAnimate',
+	// 'ngAnimate',
 	'ngTable',
 	'xeditable'
 ]);

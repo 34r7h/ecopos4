@@ -85,16 +85,6 @@ angular.module('ecoposApp')
             });
         });
 
-        /**
-        $rootScope.$on('$routeUpdate', function(){
-            console.log('route updated');
-        });
-        $rootScope.$watch('$location.hash', function (newVal) {
-            console.log('newhash:'+newVal);
-        });
-         */
-
-
         //shop.api.loadShops();
         shop.api.loadShops().then(function(shops){
             var i = 0;
@@ -108,13 +98,8 @@ angular.module('ecoposApp')
         });
         $scope.shops = shop.data.shops;
 
-        //.then(function(){
-        //    $scope.shops = shop.data.shops;
-        //});
-
         // handle catalog browsing
         $scope.stateParams = system.data.params;
-
 
         $scope.stateParamsSetPath = function(path, append){
             if(typeof append === 'undefined'){ append = false; }
