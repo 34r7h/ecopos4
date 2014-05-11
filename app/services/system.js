@@ -6,7 +6,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
         manager: {orders: {}},
         params:{},
         breadcrumb:[],
-        search:{value: '', cache: {}},
+        search:{value: '', sets: {}},
         view:'',
 	    info:''
     };
@@ -130,13 +130,15 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
         // search api
         search: function(triggerID){
             if(data.search.value){
-                //console.log('searchablez:'+JSON.stringify(Object.keys(data.search.cache)));
-                if(Object.keys(data.search.cache).length && !data.search.results){
+                //console.log('searchablez:'+JSON.stringify(Object.keys(data.search.data)));
+                if(Object.keys(data.search.sets).length && !data.search.results){
                     data.search.results = {};
                 }
-                angular.forEach(data.search.cache, function(searchData, searchSet){
-                    //data.search.results[searchSet] = 'hello';
-                    data.search.results[searchSet] = $filter('unique')($filter('filter')(searchData, {name:data.search.value}));
+                angular.forEach(data.search.sets, function(searchConfig, searchSet){
+                    var searchData = searchConfig.data;
+                    if(searchData){
+                        data.search.results[searchSet] = $filter('unique')($filter('filter')(searchData, {name:data.search.value}));
+                    }
                 });
             }
             else if(!data.search.value && data.search.results){
@@ -155,7 +157,10 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                     searchData = [searchData];
                 }
             }
-            data.search.cache[searchSet] = searchData;
+            if(!data.search.sets[searchSet]){
+                data.search.sets[searchSet] = {};
+            }
+            data.search.sets[searchSet].data = searchData;
         },
         searchableAdd: function(searchSet, searchData){
             if(searchData){
@@ -166,26 +171,29 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                     searchData = [searchData];
                 }
             }
-            if(!data.search.cache[searchSet]){
-                data.search.cache[searchSet] = searchData;
+            if(!data.search.sets[searchSet]){
+                data.search.sets[searchSet] = {data: searchData};
             }
-            else if(angular.isArray(data.search.cache[searchSet])){
-                Array.prototype.splice.apply(data.search.cache[searchSet], [data.search.cache[searchSet].length, 0].concat(searchData));
+            if(!data.search.sets[searchSet].data){
+                data.search.sets[searchSet].data = searchData;
+            }
+            else if(angular.isArray(data.search.sets[searchSet].data)){
+                Array.prototype.splice.apply(data.search.sets[searchSet].data, [data.search.sets[searchSet].data.length, 0].concat(searchData));
             }
         },
         searchableRemove: function(searchSet, searchData){
-            if(searchData && data.search.cache[searchSet]){
+            if(searchData && data.search.sets[searchSet] && data.search.sets[searchSet].data){
                 if(!angular.isArray(searchData)){
-                    var dataIdx = data.search.cache[searchSet].indexOf(searchData);
+                    var dataIdx = data.search.sets[searchSet].data.indexOf(searchData);
                     if(dataIdx !== -1){
-                        data.search.cache[searchSet].splice(dataIdx, 1);
+                        data.search.sets[searchSet].data.splice(dataIdx, 1);
                     }
                 }
                 else{
                     angular.forEach(searchData, function(cData, cIdx){
-                        var dataIdx = data.search.cache[searchSet].indexOf(cData);
+                        var dataIdx = data.search.sets[searchSet].data.indexOf(cData);
                         if(dataIdx !== -1){
-                            data.search.cache[searchSet].splice(dataIdx, 1);
+                            data.search.sets[searchSet].data.splice(dataIdx, 1);
                         }
                     });
                 }
