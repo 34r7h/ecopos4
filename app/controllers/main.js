@@ -1,5 +1,5 @@
 angular.module('ecoposApp')
-	.controller('MainCtrl', function ($rootScope, $scope, syncData, system, style, shop, $location, $stateParams, $timeout) {
+	.controller('MainCtrl', function ($rootScope, $scope, syncData, system, style, shop, $filter, $location) {
 		$scope.view = system.data.view;
 
 		//basic stylin dimensions
@@ -12,7 +12,10 @@ angular.module('ecoposApp')
 		};
 
         $scope.breadcrumb = system.data.breadcrumb;
-        $scope.search = system.data.search;
+        //$scope.search = system.data.search; // allow the search directive to scope its own value
+        $scope.search = {
+            value: ''
+        };
 
         $scope.alertz = system.ui.alertz;
         $scope.overlay = system.ui.layout.overlay;
@@ -85,15 +88,19 @@ angular.module('ecoposApp')
             });
         });
 
-        //shop.api.loadShops();
+        // load shops and set default for main shop browser
         shop.api.loadShops().then(function(shops){
-            var i = 0;
-            while(i < Object.keys(shops).length){
-                if(shops[Object.keys(shops)[i]].default){
-                    shop.api.setActiveShop('main', Object.keys(shops)[i]);
-                    break;
-                }
-                i++;
+            var aShops = $filter('orderByPriority')(shops);
+            var defShops = $filter('filter')(aShops, {default:true}, true);
+            if(defShops && defShops.length){
+                shop.api.setActiveShop('main', defShops[0].$id).then(function(browser){
+                    if(browser.shop && browser.shop.cache){
+                        var products = syncData(browser.shop.cache+'/products');
+                        products.$on('value', function(){
+                            system.api.searchableSet('products', products);
+                        });
+                    }
+                });
             }
         });
         $scope.shops = shop.data.shops;

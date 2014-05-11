@@ -8,4 +8,4 @@ angular.module('ecoposApp').directive('leftBar', function(shop, system) {
 
 		}
 	};
-})
+});
