@@ -612,10 +612,15 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         },
         setActiveShop: function(browserID, shopName){
             var defer = $q.defer();
-console.log('set shop:'+shopName);
+
             if(shopName && data.shops[shopName]){
                 api.getCatalogBrowser(browserID).then(function(browser){
                     browser.setShop(data.shops[shopName]);
+                    var products = syncData(data.shops[shopName].cache+'/products');
+                    products = syncData(data.shops[shopName].cache+'/products');
+                    products.$on('value', function(){
+                        system.data.search.cache['products'] = $filter('orderByPriority')(products);
+                    });
                     defer.resolve(browser);
                 });
             }
