@@ -4,6 +4,9 @@ angular.module('ecoposApp').directive('search', function(system) {
 		replace: true,
 		templateUrl: 'app/directives/components/search/search.html',
 		link: function(scope, element, attrs, fn) {
+
+            scope.searchItems = {products: true};
+
             var searchStarted = function(){
                 //console.log('search initiated');
             };

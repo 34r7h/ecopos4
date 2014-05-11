@@ -15,7 +15,7 @@ angular.module('ecoposApp', [
 	'mobile-angular-ui',
 	'mobile-angular-ui.touch',
 	'mobile-angular-ui.scrollable',
-	'ngAnimate',
+	// 'ngAnimate',
 	'ngTable',
 	'xeditable'
 ]);
@@ -122,6 +122,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 			views: {
 				admin:{
 					controller:function($scope,system,$state,resolution,syncData,Firebase, $location, $stateParams){
+						$scope.settings = syncData("settings/admin");
+
 						var infos = '/info/test-cat/';
 						$scope.infos = new Firebase('https://opentest.firebaseio.com/info');
 						$scope.info1 = {

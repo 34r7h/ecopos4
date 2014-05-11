@@ -1,55 +1,60 @@
-<div class="right col col-xs-12" ng-class="{open: right}" >
-    <button class="col-xs-12" ng-click="left=false;right=!right" ng-model="right"></button>
-    <comp element="rightbar"></comp>
-    <ul class="nav nav-tabs">
-        <li><a href="#Tab1" toggle="on" parent-active-class="active">Calendar</a></li>
-        <li><a href="#Tab2" toggle="on" parent-active-class="active">Map</a></li>
-        <li><a href="#Tab3" toggle="on" parent-active-class="active">Orders</a></li>
-        <li><a href="#Tab4" toggle="on" parent-active-class="active">Inventory</a></li>
-    </ul>
-    <div class="tab-content">
-        <div class="tab-pane" toggleable active-class="active" default="active" id="Tab1" exclusion-group="myTabs">
+<div class="right col col-xs-12" ng-class="{openlg: rightlg, opensm: rightsm, openmd:rightmd}" >
+    <button class="col-xs-4" ng-click="leftlg=false;leftmd=false;leftsm=false;rightsm=false;rightmd=false;rightlg=!rightlg;" ng-model="rightlg"></button>
+    <button class="col-xs-4" ng-click="leftlg=false;leftmd=false;rightlg=false;rightsm=false;rightmd=!rightmd;" ng-model="rightmd"></button>
+    <button class="col-xs-4" ng-click="leftlg=false;rightlg=false;rightmd=false;rightsm=!rightsm;" ng-model="rightsm"></button>
 
-            <h3 class="page-header">Calendar</h3>
-            <calendar calendar-content="user.calendar"></calendar>
+    <div ng-if="rightbar"><comp element="rightbar"></comp></div>
+    <div ng-if="!rightbar">
+        <ul class="nav nav-tabs">
+            <li><a href="#Tab1" toggle="on" parent-active-class="active">Calendar</a></li>
+            <li><a href="#Tab2" toggle="on" parent-active-class="active">Map</a></li>
+            <li><a href="#Tab3" toggle="on" parent-active-class="active">Orders</a></li>
+            <li><a href="#Tab4" toggle="on" parent-active-class="active">Inventory</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane" toggleable active-class="active" default="active" id="Tab1" exclusion-group="myTabs">
+
+                <h3 class="page-header">Calendar</h3>
+                <calendar calendar-content="user.calendar"></calendar>
+            </div>
+
+            <div class="tab-pane" toggleable active-class="active" id="Tab2" exclusion-group="myTabs">
+                <h3 class="page-header">Map</h3>
+                <maps></maps>
+            </div>
+
+            <div class="tab-pane" toggleable active-class="active" id="Tab3" exclusion-group="myTabs">
+                <h3 class="page-header">Orders</h3>
+                <orders></orders>
+            </div>
+
+            <div class="tab-pane" toggleable active-class="active" id="Tab4" exclusion-group="myTabs">
+                <h3 class="page-header">Inventory</h3>
+                <inventory></inventory>
+            </div>
         </div>
 
-        <div class="tab-pane" toggleable active-class="active" id="Tab2" exclusion-group="myTabs">
-            <h3 class="page-header">Map</h3>
-            <maps></maps>
+        <div class="btn-group justified nav-tabs">
+            <a class="btn btn-default" href="#Tab1" toggle="on" active-class="active">Calendar
+            </a>
+
+            <a class="btn btn-default" href="#Tab2" toggle="on" active-class="active">Map
+            </a>
+
+            <a class="btn btn-default" href="#Tab3" toggle="on" active-class="active">Orders
+            </a>
+
+            <a class="btn btn-default" href="#Tab4" toggle="on" active-class="active">Inventory
+            </a>
+
         </div>
 
-        <div class="tab-pane" toggleable active-class="active" id="Tab3" exclusion-group="myTabs">
-            <h3 class="page-header">Orders</h3>
-            <orders></orders>
-        </div>
 
-        <div class="tab-pane" toggleable active-class="active" id="Tab4" exclusion-group="myTabs">
-            <h3 class="page-header">Inventory</h3>
-            <inventory></inventory>
+
+        <div ng-show="evtsChecked" eco-panel title="Events" iconz="iconz">
+            <events></events>
         </div>
+        <div ui-view="2@ecoApp.nav.not"></div>
     </div>
-
-    <div class="btn-group justified nav-tabs">
-        <a class="btn btn-default" href="#Tab1" toggle="on" active-class="active">Calendar
-        </a>
-
-        <a class="btn btn-default" href="#Tab2" toggle="on" active-class="active">Map
-        </a>
-
-        <a class="btn btn-default" href="#Tab3" toggle="on" active-class="active">Orders
-        </a>
-
-        <a class="btn btn-default" href="#Tab4" toggle="on" active-class="active">Inventory
-        </a>
-
-    </div>
-
-
-
-    <div ng-show="evtsChecked" eco-panel title="Events" iconz="iconz">
-        <events></events>
-    </div>
-    <div ui-view="2@ecoApp.nav.not"></div>
 </div>
 

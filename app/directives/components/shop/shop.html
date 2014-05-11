@@ -1,6 +1,7 @@
 <div>
     <div ng-if="product|| $parent.product">Hello Specific Product</div>
-    <div class="col-xs-12 category">
+    <div ng-if="!product && !$parent.product">
+        <div class="col-xs-12 category">
         <div>
             <ul class="breadcrumb">
                 <li ng-repeat="cPath in shop.path">
@@ -39,31 +40,37 @@
                 -->
             </li>
         </ul></div>
-    <div class="col-xs-6"><div ng-show="shop.product">
-        <h3>{{shop.product.name}}</h3>
-        <div>
-            <div class="price">{{shop.product.price | currency}}</div>
-            <div class="stock"><strong>{{shop.product.stock}}</strong> in stock</div>
-        </div>
-        <div>
-            <input type="number" ng-model="qty" />
-            <button ng-click="addProduct(shop.product, qty)">Add to Cart</button>
-        </div>
+        <div class="col-xs-6">
+            <div ng-show="shop.product">
+                <h3>{{shop.product.name}}</h3>
+                <div>
+                    <div class="price">{{shop.product.price | currency}}</div>
+                    <div class="stock"><strong>{{shop.product.stock}}</strong> in stock</div>
+                </div>
+                <div>
+                    <input type="number" ng-model="qty" />
+                    <button ng-click="addProduct(shop.product, qty)">Add to Cart</button>
+                </div>
 
-        {{shop.product.$id}}
-        {{shop.product}}
-    </div>
-        <div ng-show="shop.productURI && !shop.product">
-            <p>Could not find requested product '{{shop.productURI}}'</p>
-            <p>Return to category <a ng-click="ecoGo(shop.pathStr)"><span ng-show="shop.category">{{shop.category.name}}</span><span ng-hide="shop.category">parent</span></a>.</p>
-            <!--
-            <p>Return to category <a ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr))"><span ng-show="shop.category">{{shop.category.name}}</span><span ng-hide="shop.category">parent</span></a>.</p>
-            -->
-        </div></div>
+                {{shop.product.$id}}
+
+            </div>
+            <div ng-show="shop.productURI && !shop.product">
+                <p>Could not find requested product '{{shop.productURI}}'</p>
+                <p>Return to category <a ng-click="ecoGo(shop.pathStr)"><span ng-show="shop.category">{{shop.category.name}}</span><span ng-hide="shop.category">parent</span></a>.</p>
+                <!--
+                <p>Return to category <a ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr))"><span ng-show="shop.category">{{shop.category.name}}</span><span ng-hide="shop.category">parent</span></a>.</p>
+                -->
+            </div>
+        </div>
 
     <div ng-hide="shop">
         Shop is not initialized.
     </div>
-
-
+        <ul ng-repeat="thing in shop.product" style="overflow-x:hidden;">
+            <li>
+                {{thing}}
+            </li>
+        </ul>
+</div>
 </div>
