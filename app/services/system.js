@@ -144,7 +144,10 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
             }
         },
         searchableReset: function(searchSet, searchData){
-            if(searchData){
+            if(angular.isUndefined(searchData)){
+                searchData = [];
+            }
+            else if(searchData){
                 if(angular.isObject(searchData)){
                     searchData = $filter('orderByPriority')(searchData);
                 }
