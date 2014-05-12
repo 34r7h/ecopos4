@@ -142,7 +142,6 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 						$scope.system = system;
 						$scope.stateParams = $stateParams;
 						$scope.location = $location;
-						$scope.breadcrumb = system.data.breadcrumb;
 
 						// Layout
 						system.ui.layout.main = resolution.params.main;
