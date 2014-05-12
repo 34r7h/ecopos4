@@ -94,6 +94,8 @@ angular.module('ecoposApp')
             var defShops = $filter('filter')(aShops, {default:true}, true);
             if(defShops && defShops.length){
                 shop.api.setActiveShop('main', defShops[0].$id).then(function(browser){
+                    if(!system.data.breadcrumb){ system.data.breadcrumb = {}; $scope.breadcrumb = system.data.breadcrumb; }
+                    system.data.breadcrumb.path = browser.path;
                     if(browser.shop && browser.shop.cache){
                         var products = syncData(browser.shop.cache+'/products');
                         products.$on('value', function(){
