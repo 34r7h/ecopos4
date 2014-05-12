@@ -27,8 +27,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                         crumbs.unshift(private.getPathForCatalogRef(catalogRef, true, true));
                     }
                 }
-                //public.path.length = 0;
-                //while(public.path.length > 0) { public.path.pop(); }
+
                 var cTrace = 0;
                 var diffPoint = false;
                 angular.forEach(crumbs, function(crumb, crumbID){
@@ -36,7 +35,6 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                     var cPath = '/'+crumble.slice(1).join('/');
                     var nameRef = syncData(crumble.join('/children/')+'/name');
                     var childrenRef = syncData(crumble.join('/children/')+'/children');
-                    console.log('crumb:'+crumble.join('/children/')+'/children');
 
                     if(cTrace >= 0 && public.path[cTrace] && public.path[cTrace].path === cPath){
                         cTrace++;
@@ -52,6 +50,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                             name: nameRef,
                             path: cPath
                         };
+
                         childrenRef.$on('value', function(){
                             newCrumb.children = [];
                             angular.forEach(childrenRef, function(child, childID){
@@ -61,7 +60,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                                         newChild.url = cPath+((cPath.charAt(cPath.length-1) !== '/' && child.url.charAt(0) !== '/')?'/':'')+child.url;
                                     }
                                     else if(childID){
-                                        newChild.url = cPath+((cPath.charAt(cPath.length-1) !== '/' && childID(0) !== '/')?'/':'')+childID;
+                                        newChild.url = cPath+((cPath.charAt(cPath.length-1) !== '/' && childID.charAt(0) !== '/')?'/':'')+childID;
                                     }
                                     newCrumb.children.push(newChild);
                                 }
@@ -71,6 +70,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                         public.path.push(newCrumb);
                         cTrace++;
                     }
+
                 });
                 if(public.path.length > cTrace){
                     public.path.splice(cTrace, (public.path.length-cTrace));
