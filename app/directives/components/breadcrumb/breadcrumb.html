@@ -1,12 +1,13 @@
 <div>
     <ul class="breadcrumb">
         <li ng-repeat="cPath in breadcrumb.path">
-            <a ng-if="!$last" ng-click="ecoGo(cPath.path)">{{cPath.name.$value}}</a>
-            <!--
-            <a ng-if="!$last" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(cPath.path))">{{cPath.name.$value}}</a>
-            -->
+            <a ng-if="!$last" eco-ref="cPath.path">{{cPath.name.$value}}</a>
             <strong ng-if="$last">{{cPath.name.$value}}</strong>
-            <span ng-if="cPath.children"> [{{cPath.children}}]</span>
+            <ul>
+                <li ng-repeat="cChild in cPath.children">
+                    <span ng-if="cChild.productID">$$$ </span><a eco-ref="cChild.url">{{cChild.name}}</a>
+                </li>
+            </ul>
         </li>
     </ul>
 
