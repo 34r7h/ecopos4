@@ -15,7 +15,7 @@ angular.module('ecoposApp').directive('comp', function($compile,$timeout) {
                     $compile(domElement)(scope);
                 }
                 else if(!newVal && domElement){
-                    console.log('remove:'+(domElement.nodeName?domElement.nodeName.toLowerCase():'?'));
+                    console.log('remove:'+domElement);
                     domElement = null;
                     iElem.empty();
                 }
@@ -39,10 +39,8 @@ angular.module('ecoposApp').directive('comp', function($compile,$timeout) {
 }).directive('ecoRef', function($location, $log){
     return {
         restrict: 'A',
-        scope: {ref:'=ecoRef'},
+        scope: {ref:'=ecoRef', reset:'=ecoRefReset'},
         link: function(scope, element, attrs){
-            var refPath = attrs.ecoRef;
-
             scope.$watch('ref', function(newVal, oldVal){
                 var locObj = null;
                 var handleAreas = ['leftbar', 'main', 'rightbar', 'overlay'];
@@ -112,7 +110,7 @@ angular.module('ecoposApp').directive('comp', function($compile,$timeout) {
                     var idParts = {};
                     angular.forEach(handleAreas, function(areaID, areaIdx){
                         if(locObj[areaID] && locObj[areaID].type){
-                            refQuery += (!refQuery?'?':'&')+areaID+'='+locObj[areaID].type;
+                            refQuery += (!refQuery?'':'&')+areaID+'='+locObj[areaID].type;
                             if(locObj[areaID].id){
                                 var idType = locObj[areaID].type.substr(0, locObj[areaID].type.length-1)+'ID';
                                 if(!idParts[idType]){
@@ -125,14 +123,29 @@ angular.module('ecoposApp').directive('comp', function($compile,$timeout) {
                         }
                     });
                     angular.forEach(idParts, function(typeIDs, idType){
-                        refQuery += (!refQuery?'?':'&')+idType+'='+typeIDs.join(',');
+                        refQuery += (!refQuery?'':'&')+idType+'='+typeIDs.join(',');
                     });
 
-                    element.attr('href', refPath+refQuery);
+                    element.attr('href', refPath+(refQuery?'?'+refQuery:''));
                     element.off('click');
                     element.on('click', function(){
+                        var freshQuery = '';
+                        if(!scope.reset){
+                            angular.forEach($location.search(), function(sParamVal, sParamName){
+                                if(!locObj[sParamName] && !idParts[sParamName]){
+                                    freshQuery += (!freshQuery?'':'&')+sParamName+'='+sParamVal;
+                                }
+                            });
+                            if(refQuery){
+                                freshQuery += (freshQuery?'&':'')+refQuery;
+                            }
+                        }
+                        else{
+                            freshQuery = refQuery;
+                        }
+
                         scope.$apply(function(){
-                            $location.url(refPath+refQuery);
+                            $location.url(refPath+(freshQuery?'?'+freshQuery:''));
                         });
                         event.preventDefault();
                     });
