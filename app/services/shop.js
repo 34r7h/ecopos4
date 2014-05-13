@@ -62,6 +62,9 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                                     else if(childID){
                                         newChild.url = cPath+((cPath.charAt(cPath.length-1) !== '/' && childID.charAt(0) !== '/')?'/':'')+childID;
                                     }
+                                    if(!child.children){
+                                        newChild.productID = childID;
+                                    }
                                     newCrumb.children.push(newChild);
                                 }
                             });

@@ -3,6 +3,11 @@
         <li ng-repeat="cPath in breadcrumb.path">
             <a ng-if="!$last" eco-ref="cPath.path">{{cPath.name.$value}}</a>
             <strong ng-if="$last">{{cPath.name.$value}}</strong>
+            <ul>
+                <li ng-repeat="cChild in cPath.children">
+                    <span ng-if="cChild.productID">$$$ </span><a eco-ref="cChild.url">{{cChild.name}}</a>
+                </li>
+            </ul>
         </li>
     </ul>
 
