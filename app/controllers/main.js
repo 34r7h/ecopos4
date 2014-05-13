@@ -76,6 +76,7 @@ angular.module('ecoposApp')
             });
 
             angular.forEach(params, function(val, key){
+                system.data.params.data[key] = val;
                 if(handleParams.layout.indexOf(key) !== -1){
                     if(system.ui.layout[key] !== val){
                         system.ui.layout[key] = val;
