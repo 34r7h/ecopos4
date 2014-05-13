@@ -6,6 +6,10 @@
             <breadcrumb></breadcrumb>
             <div class="scroll-x">
                 <!-- type attr used for non-repeated or directed views such as overlay. -->
+                {{urlTest}}<a eco-ref="urlTest+'?leftbar=messages&rightbar=messages/12345&messageID=4206&messageID=5679'" eco-ref-reset="urlReset">Tester</a>
+                <input type="checkbox" ng-model="urlReset" />
+                <input type="text" ng-model="urlTest" />
+
                 <div ng-if="main"><comp element="main"></comp></div>
                 <div ng-if="!main"><shop></shop></div>
             </div>

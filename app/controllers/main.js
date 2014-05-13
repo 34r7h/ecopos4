@@ -31,6 +31,9 @@ angular.module('ecoposApp')
         $scope.order = system.ui.content.order;
         $scope.product = system.ui.content.product;
 
+        $scope.urlTest = '';
+        $scope.urlReset = false;
+
 
         $scope.$location = $location;
         var handleParams = { layout: ['overlay','main','rightbar','leftbar'], content: ['event','info','inventory','message','notification','order','product'] };
