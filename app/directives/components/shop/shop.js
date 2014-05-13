@@ -11,18 +11,6 @@ angular.module('ecoposApp').directive('shop', function(system, $rootScope, shop,
                 scope.shop = browser;
             });
 
-            scope.ecoGo = function(path, setUrl){
-                if(angular.isUndefined(setUrl)){
-                    setUrl = true;
-                }
-                shop.api.getCatalogBrowser('main').then(function(browser){
-                    browser.setPath(path);
-                });
-                if(setUrl){
-                    $location.path(path).replace();
-                }
-            };
-
             // shopping
             scope.qty = 1;
             scope.addProduct = shop.api.addProduct;

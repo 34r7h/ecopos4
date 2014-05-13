@@ -31,7 +31,6 @@ angular.module('ecoposApp')
         $scope.order = system.ui.content.order;
         $scope.product = system.ui.content.product;
 
-
         $scope.$location = $location;
         var handleParams = { layout: ['overlay','main','rightbar','leftbar'], content: ['event','info','inventory','message','notification','order','product'] };
         var handleComps = ['events','inventory','messages','orders'];
@@ -73,6 +72,7 @@ angular.module('ecoposApp')
             });
 
             angular.forEach(params, function(val, key){
+                system.data.params.data[key] = val;
                 if(handleParams.layout.indexOf(key) !== -1){
                     if(system.ui.layout[key] !== val){
                         system.ui.layout[key] = val;
