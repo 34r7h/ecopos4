@@ -36,6 +36,112 @@ angular.module('ecoposApp').directive('comp', function($compile,$timeout) {
 */
 		}
 	};
+}).directive('ecoRef', function($location, $log){
+    return {
+        restrict: 'A',
+        scope: {ref:'=ecoRef'},
+        link: function(scope, element, attrs){
+            var refPath = attrs.ecoRef;
+
+            scope.$watch('ref', function(newVal, oldVal){
+                var locObj = null;
+                var handleAreas = ['leftbar', 'main', 'rightbar', 'overlay'];
+
+                if(angular.isObject(newVal)){
+                    locObj = newVal;
+                }
+                else if(angular.isArray(newVal) && newVal.length){
+                    locObj = {};
+                    angular.forEach(newVal, function(assign, idx){
+                        if(assign && idx < handleAreas.length){
+                            locObj[handleAreas[idx]] = assign;
+                        }
+                    });
+                }
+                else if(angular.isString(newVal)){
+                    locObj = {};
+                    if(newVal.charAt(0) === '\''){
+                        newVal = newVal.substr(1);
+                    }
+                    if(newVal.charAt(newVal.length-1) === '\''){
+                        newVal = newVal.substr(0, newVal.length-1);
+                    }
+                    var pathSplit = newVal.split('?');
+                    var newPath = (pathSplit.length?pathSplit[0]:'');
+
+                    locObj['path'] = newPath;
+
+                    if(pathSplit.length > 1){
+                        var querySplit = pathSplit[1].split('&');
+                        var idParams = {};
+                        angular.forEach(querySplit, function(paramSet){
+                            var paramSplit = paramSet.split('=');
+                            var paramName = paramSplit.length?paramSplit[0]:'';
+                            var paramVal = (paramSplit.length > 1)?paramSplit[1]:true;
+                            if(paramName){
+                                if(handleAreas.indexOf(paramName) !== -1){
+                                    var paramValSplit = paramVal.split('/');
+                                    locObj[paramName] = {type: (paramValSplit.length?paramValSplit[0]:paramVal)};
+                                    if(paramValSplit.length > 1){
+                                        locObj[paramName].id = paramValSplit[1];
+                                    }
+                                }
+                                else if(paramName.substr(paramName.length-2).toLowerCase() === 'id'){
+                                    idParams[paramName] = (idParams[paramName]?idParams[paramName]+',':'')+paramVal;
+                                }
+                            }
+                        });
+                        angular.forEach(idParams, function(idVal, idName){
+                            var idType = idName.substr(0, idName.length-2).toLowerCase()+'s';
+                            var idSplit = idVal.split(',');
+                            angular.forEach(handleAreas, function(areaID, areaIdx){
+                                if(locObj[areaID] && locObj[areaID].type === idType){
+                                    //if(!locObj[areaID].id){
+                                        locObj[areaID].id = idSplit.shift();
+                                    //}
+                                }
+                            });
+
+                        });
+                    }
+                }
+
+                if(locObj){
+                    var refPath = locObj.path?locObj.path:'';
+                    var refQuery = '';
+                    var idParts = {};
+                    angular.forEach(handleAreas, function(areaID, areaIdx){
+                        if(locObj[areaID] && locObj[areaID].type){
+                            refQuery += (!refQuery?'?':'&')+areaID+'='+locObj[areaID].type;
+                            if(locObj[areaID].id){
+                                var idType = locObj[areaID].type.substr(0, locObj[areaID].type.length-1)+'ID';
+                                if(!idParts[idType]){
+                                    idParts[idType] = [locObj[areaID].id];
+                                }
+                                else{
+                                    idParts[idType].push(locObj[areaID].id);
+                                }
+                            }
+                        }
+                    });
+                    angular.forEach(idParts, function(typeIDs, idType){
+                        refQuery += (!refQuery?'?':'&')+idType+'='+typeIDs.join(',');
+                    });
+
+                    element.attr('href', refPath+refQuery);
+                    element.off('click');
+                    element.on('click', function(){
+                        scope.$apply(function(){
+                            $location.url(refPath+refQuery);
+                        });
+                        event.preventDefault();
+                    });
+
+                }
+
+            });
+        }
+    };
 }).directive('ecoPanel', function() {
 	// ecoPanel is used to create component containers
 	return {
