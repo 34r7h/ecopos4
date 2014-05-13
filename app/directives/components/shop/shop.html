@@ -2,26 +2,11 @@
     <div ng-if="product|| $parent.product">Hello Specific Product</div>
     <div ng-if="!product && !$parent.product">
         <div class="col-xs-12 category">
-        <!--div>
-            <ul class="breadcrumb">
-                <li ng-repeat="cPath in shop.path">
-                    <a ng-if="!$last" ng-click="ecoGo(cPath.path)">{{cPath.name.$value}}</a>
-                    <!--
-                    <a ng-if="!$last" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(cPath.path))">{{cPath.name.$value}}</a>
-                    -->
-                    <!--strong ng-if="$last">{{cPath.name.$value}}</strong>
-                </li>
-            </ul>
-        </div-->
         <h4>Sub-Categories</h4>
         <ul>
             <li ng-repeat="(childPrio,child) in (shop.category.children || $parent.shop.category.children) | orderByPriority| filter:isCategory:searchx">
-                <a ng-if="child.url" ng-click="ecoGo(shop.pathStr+'/'+child.url)">{{child.name}}</a>
-                <a ng-if="!child.url" ng-click="ecoGo(shop.pathStr+'/'+child.$id)">{{child.name}}</a> /
-                <!--
-                <a ng-if="child.url" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr+'/'+child.url))">{{child.name}}</a>
-                <a ng-if="!child.url" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr+'/'+child.$id))">{{child.name}}</a> /
-                -->
+                <a ng-if="child.url" eco-ref="shop.pathStr+'/'+child.url">{{child.name}}</a>
+                <a ng-if="!child.url" eco-ref="shop.pathStr+'/'+child.$id">{{child.name}}</a> /
             </li>
         </ul>
     </div>
@@ -30,14 +15,9 @@
         <h4>Products</h4>
         <ul>
             <li ng-repeat="(childPrio,child) in shop.category.children | orderByPriority | filter:isProduct:searchx">
-                <a ng-if="child.url" ng-click="ecoGo(shop.pathStr+'/'+child.url)"><span ng-if="!inventory[child.$id]">{{child.name}}</span>
+                <a ng-if="child.url" eco-ref="shop.pathStr+'/'+child.url"><span ng-if="!inventory[child.$id]">{{child.name}}</span>
                     <span ng-if="inventory[child.$id]">{{inventory[child.$id].brand}} {{inventory[child.$id].name}} {{inventory[child.$id].size}}</span></a>
-                <a ng-if="!child.url" ng-click="ecoGo(shop.pathStr+'/'+child.$id)">{{child.name}}</a>
-                <!--
-                <a ng-if="child.url" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr+'/'+child.url))"><span ng-if="!inventory[child.$id]">{{child.name}}</span>
-                    <span ng-if="inventory[child.$id]">{{inventory[child.$id].brand}} {{inventory[child.$id].name}} {{inventory[child.$id].size}}</span></a>
-                <a ng-if="!child.url" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr+'/'+child.$id))">{{child.name}}</a>
-                -->
+                <a ng-if="!child.url" eco-ref="shop.pathStr+'/'+child.$id">{{child.name}}</a>
             </li>
         </ul></div>
         <div class="col-xs-6">
@@ -57,10 +37,7 @@
             </div>
             <div ng-show="shop.productURI && !shop.product">
                 <p>Could not find requested product '{{shop.productURI}}'</p>
-                <p>Return to category <a ng-click="ecoGo(shop.pathStr)"><span ng-show="shop.category">{{shop.category.name}}</span><span ng-hide="shop.category">parent</span></a>.</p>
-                <!--
-                <p>Return to category <a ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(shop.pathStr))"><span ng-show="shop.category">{{shop.category.name}}</span><span ng-hide="shop.category">parent</span></a>.</p>
-                -->
+                <p>Return to category <a eco-ref="shop.pathStr"><span ng-show="shop.category">{{shop.category.name}}</span><span ng-hide="shop.category">parent</span></a>.</p>
             </div>
         </div>
 
