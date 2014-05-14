@@ -1,9 +1,10 @@
 <div>
+    {{dropdowns}}
     <ul class="breadcrumb">
-        <li ng-repeat="cPath in breadcrumb.path">
+        <li ng-repeat="cPath in breadcrumb.path" ng-mouseover="dropdowns=true" ng-mouseleave="dropdowns=false" >
             <a ng-if="!$last" eco-ref="cPath.path">{{cPath.name.$value}}</a>
             <strong ng-if="$last">{{cPath.name.$value}}</strong>
-            <ul>
+            <ul ng-show="dropdowns" >
                 <li ng-repeat="cChild in cPath.children">
                     <span ng-if="cChild.productID">$$$ </span><a eco-ref="cChild.url">{{cChild.name}}</a>
                 </li>

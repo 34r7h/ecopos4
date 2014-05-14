@@ -1,13 +1,13 @@
 <div>
-    <div ng-if="product|| $parent.product">Hello Specific Product</div>
+    <div ng-if="product|| $parent.product">{{product}}</div>
     <div ng-if="!product && !$parent.product">
         <div class="col-xs-12 category">
         <h4>Sub-Categories</h4>
-        <ul>
-            <li ng-repeat="(childPrio,child) in (shop.category.children || $parent.shop.category.children) | orderByPriority| filter:isCategory:searchx">
-                <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)">{{child.name}}</a> /
+        <ul ng-repeat="(childPrio,child) in (shop.category.children || $parent.shop.category.children) | orderByPriority| filter:isCategory">
+            <li ng-mouseover="catalogDrop=true" ng-mouseleave="catalogDrop=false">
+                <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)" >{{child.name}}</a> /
 
-                <div>
+                <div ng-show="catalogDrop">
                     <ul>
                         <li ng-repeat="subChild in child.children | orderByPriority| filter:isCategory">
                             <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)+'/'+(subChild.url?subChild.url:subChild.$id)">{{subChild.name}}</a>

@@ -1,12 +1,7 @@
 <div class="header rowz">
     <div class="col-xs-12">
         <div class="col-xs-3">
-            <div class="foots breadcrumbs">
-                    <span ng-repeat="cPath in breadcrumb">
-                        <a ng-if="cPath.path" ui-sref="ecoApp.nav.not.tools.settings(stateParamsSetPath(cPath.path))">/ {{cPath.name}}</a>
-                        <strong ng-if="!cPath.path"><br> {{cPath.name}}</strong>
-                    </span>
-            </div>
+            <breadcrumb></breadcrumb>
         </div>
         <div class="col-xs-9 pull-right" style="height: 0">
             <div class="col-xs-7">

@@ -1,16 +1,16 @@
 <div class="left col col-xs-12" ng-class="{openlg:leftlg,openmd:leftmd,opensm:leftsm}">
     <div class="fixed-top">
-    <button class="col-xs-2" ng-click="rightlg=false;leftlg=false;leftmd=false;leftsm=!leftsm;" ng-model="leftsm">x</button>
-    <button class="col-xs-3" ng-click="rightlg=false;rightmd=false;leftlg=false;leftsm=false;leftmd=!leftmd;" ng-model="leftmd">x</button>
-    <button class="col-xs-5" ng-click="rightlg=false;rightmd=false;rightsm=false;leftsm=false;leftmd=false;leftlg=!leftlg;" ng-model="leftlg">x</button>
-    <button class="col-xs-2"><icon class="fa fa-gear"></icon></button>
+    <button class="col-xs-2" ng-click="rightlg=false;leftlg=false;leftmd=false;leftsm=!leftsm;" ng-model="leftsm"></button>
+    <button class="col-xs-2" ng-click="rightlg=false;rightmd=false;leftlg=false;leftsm=false;leftmd=!leftmd;" ng-model="leftmd"></button>
+    <button class="col-xs-4" ng-click="rightlg=false;rightmd=false;rightsm=false;leftsm=false;leftmd=false;leftlg=!leftlg;" ng-model="leftlg"></button>
+    <div class="col-xs-2 pull-right"><icon class="fa fa-gear"></icon></div>
     </div>
         'Allo {{system.data.user.profile.displayName}}
     <div ng-if="leftbar"><comp element="leftbar"></comp></div>
     <div ng-if="!leftbar">
-        <user-info></user-info>
-        <ul class="col-xs-12">
-            <li ng-repeat="setting in (settings || $parent.settings ||$parent.$parent.settings) | orderByPriority">
+
+        <ul ng-repeat="sets in (settings || $parent.settings ||$parent.$parent.settings)" class="col-xs-12">
+            <li ng-repeat="setting in sets | orderByPriority">
                 {{ setting.name }}: <prefs ng-model="setting.model" type="setting.type" element="setting.element" placeholder="{{ setting.name }}"></prefs>
             </li>
         </ul>

@@ -1,6 +1,7 @@
 <div>
     <div class="row">
         <div class="well">
+
             <ul class="nav nav-tabs">
                 <li ng-class="{active:loginMode||passwordMode}"><a ng-click="setMode('login')">Login</a></li>
                 <li ng-class="{active:createMode||profileMode}"><a ng-click="setMode('register')">Register</a></li>
@@ -98,6 +99,7 @@
                     <div ng-show="err" class="alert alert-danger"><strong>{{err}}</strong></div>
                 </form>
             </div>
+            <user-info></user-info>
         </div>
     </div>
 </div>

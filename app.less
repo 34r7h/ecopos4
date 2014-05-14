@@ -42,11 +42,11 @@ html, body, .background-img {overflow:hidden;}
 }
 ::-webkit-scrollbar-thumb{
   background-color:rgba(0,0,0,.3);
-  border-radius:1000% 1000% 1000% 1000%;
+  border-radius:1000% 0 0 1000%;
 }
 ::-webkit-scrollbar-thumb:horizontal{
   background-color:rgba(0,0,0,.3);
-  border-radius:1000% 1000% 1000% 1000%;
+  border-radius:10000% 10000% 0 0;
 }
 ::-webkit-scrollbar-thumb:hover{
   background-color:rgba(0,0,0,.2);
@@ -347,17 +347,17 @@ body { margin: 0; overflow:hidden;box-sizing: border-box;}
   padding: 2px 10%;
   width:100%;
 }
-.search input {max-width:100%;min-width:100%}
+.search input {max-width:100%;min-width:inherit}
 
 .search-results {
   position: fixed;
   bottom: 81px;
   background: white;
-  width:45%;
-  max-height: 100%!important;
-  height: 50%!important;
+  width:62%;
+  max-height: 62%!important;
+  height: 62%!important;
   overflow: visible;
-  min-width: 100%;
+  min-width: 62%;
 }
 .search-items {
   overflow-y: scroll;
