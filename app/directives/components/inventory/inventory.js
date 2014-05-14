@@ -6,10 +6,36 @@ angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, 
 		templateUrl: 'app/directives/components/inventory/inventory.html',
 		link: function(scope, element, attrs, fn) {
             scope.shops = shop.data.shops;
-            scope.importShop = '';
 
+            // inventory table
+            scope.invShop = '';
+            scope.productOrder = '';
+            scope.productReverse = false;
+            scope.productCount = function(){
+                return (scope.inventory?Object.keys(scope.inventory).length:0);
+            };
+            scope.shopSelected = function(){
+                if(scope.invShop){
+                    console.log('load shop '+scope.invShop);
+                    shop.api.loadInventoryProductsAll(scope.invShop).then(function(inventory){
+                        scope.inventory = inventory;
+                    });
+                }
+            };
+            scope.sortBy = function(key){
+                if(scope.productOrder === key){
+                    scope.productReverse = !scope.productReverse;
+                }
+                else{
+                    scope.productOrder = key;
+                    scope.productReverse = false;
+                }
+            };
+
+            // importing
+            scope.showImport = false;
             scope.importHistory = [];
-
+            scope.importShop = '';
             scope.startImport = function(){
                 if(!scope.importing && scope.import && scope.importers[scope.import] && typeof scope.importers[scope.import].import === 'function' && scope.importShop){
                     var impShops = {};
@@ -115,6 +141,7 @@ angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, 
 
 
 			// Shop Maker stuff
+            scope.showCreateShop = false;
 			scope.shopName = '';
 			scope.shopCatalogBranch = '';
 			scope.shopCatalogBranchMod = false;
