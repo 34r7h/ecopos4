@@ -10,7 +10,28 @@
             {{productCount()}} products.
         </div>
 
-        <table>
+        <div ng-if="catalog">
+            <script type="text/ng-template" id="category_tree_select.html">
+                {{childCat.name}}
+                <ul ng-if="childCat.children">
+                    <li ng-repeat="childCat in childCat.children | orderByPriority | isCategory" ng-include="'category_tree_select.html'"></li>
+                </ul>
+            </script>
+
+            <ul ng-if="catalog.children">
+                <li ng-repeat="childCat in catalog.children | orderByPriority | isCategory" ng-include="'category_tree_select.html'"></li>
+            </ul>
+        </div>
+
+        <div ng-show="changedProductsCount()">
+            {{changedProductsCount()}} products changed.
+            <ul>
+                <li ng-repeat="(changedID,changedFields) in changedProducts"><span ng-if="inventory[changedID]">{{inventory[changedID].name}}</span><span ng-if="!inventory[changedID]">{{changedID}}</span>: {{changedFields}}</li>
+            </ul>
+            <button class="btn btn-success">Save Products</button>
+        </div>
+
+        <table class="inventory">
             <tr>
                 <th><a ng-click="sortBy('upc')">UPC</a></th>
                 <th><a ng-click="sortBy('name')">Product</a></th>
@@ -18,11 +39,11 @@
                 <th><a ng-click="sortBy('price')">Price</a></th>
                 <th>Suppliers</th>
             </tr>
-            <tr ng-repeat="(idx,product) in inventory | orderByPriority | orderBy:productOrder:productReverse">
-                <td>{{product.upc}}</td>
-                <td>{{product.name}}</td>
-                <td>{{product.stock}}</td>
-                <td>{{product.price | currency}}</td>
+            <tr ng-repeat="(idx,product) in inventory | orderByPriority | orderBy:productOrder:productReverse" ng-class="{active: (focusProduct===product.$id), changed: (changedProducts[product.$id]?true:false)}">
+                <td><input type="text" ng-model="product.upc" ng-change="productChanged(product.$id, 'upc')" ng-focus="productFocus(product.$id, 'upc')" ng-blur="productBlur(product.$id, 'upc')" /></td>
+                <td><input type="text" ng-model="product.name" ng-change="productChanged(product.$id, 'name')" ng-focus="productFocus(product.$id, 'name')" ng-blur="productBlur(product.$id, 'name')" /></td>
+                <td><input type="number" ng-model="product.stock" ng-change="productChanged(product.$id, 'stock')" ng-focus="productFocus(product.$id, 'stock')" ng-blur="productBlur(product.$id, 'stock')" /></td>
+                <td><input type="text" ng-model="product.price" ng-change="productChanged(product.$id, 'price')" ng-focus="productFocus(product.$id, 'price')" ng-blur="productBlur(product.$id, 'price')" /></td>
                 <td><ul>
                     <li ng-repeat="sup in product.suppliers">{{sup.name}} - {{sup.cost | currency}}</li>
                 </ul></td>

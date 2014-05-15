@@ -7,6 +7,32 @@ angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, 
 		link: function(scope, element, attrs, fn) {
             scope.shops = shop.data.shops;
 
+            // product management
+            scope.changedProducts = {};
+            scope.focusProduct = '';
+            scope.focusField = '';
+            scope.changedProductsCount = function(){
+                return (scope.changedProducts?Object.keys(scope.changedProducts).length:0);
+            };
+            scope.productChanged = function(productID, changedField){
+                if(!scope.changedProducts[productID]){
+                    scope.changedProducts[productID] = [];
+                }
+                if(scope.changedProducts[productID].indexOf(changedField) === -1){
+                    scope.changedProducts[productID].push(changedField);
+                }
+            };
+            scope.productFocus = function(productID, focusField){
+                scope.focusProduct = productID;
+                scope.focusField = focusField;
+            };
+            scope.productBlur = function(productID, blurField){
+                if(scope.focusProduct === productID){
+                    scope.focusProduct = '';
+                }
+            };
+
+
             // inventory table
             scope.invShop = '';
             scope.productOrder = '';
@@ -20,6 +46,11 @@ angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, 
                     shop.api.loadInventoryProductsAll(scope.invShop).then(function(inventory){
                         scope.inventory = inventory;
                     });
+                    if(scope.shops[scope.invShop].catalog){
+                        shop.api.loadCatalog(scope.shops[scope.invShop].catalog).then(function(catalog){
+                            scope.catalog = catalog;
+                        });
+                    }
                 }
             };
             scope.sortBy = function(key){
