@@ -15,13 +15,6 @@ angular.module('ecoposApp').directive('shop', function(system, $rootScope, shop,
             scope.qty = 1;
             scope.addProduct = shop.api.addProduct;
 
-
-            scope.isCategory = function(item){
-                return (item.name && item.children);
-            };
-            scope.isProduct = function(item){
-                return (item.name && !(item.children));
-            };
 		}
 	};
 });
