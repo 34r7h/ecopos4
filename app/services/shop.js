@@ -854,12 +854,6 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             return defer.promise;
         },
 
-        resetInventoryCache: function(){
-            console.log('%chas '+Object.keys(data.store.products).length+' products $firebinded!', 'background-color:#222;color:#09f;font-size:1.75em');
-            for (var prop in data.store.products) { if (data.store.products.hasOwnProperty(prop)) { delete data.store.products[prop]; } }
-            console.log('%cnow '+Object.keys(data.store.products).length+' products $firebinded!', 'background-color:#222;color:#90f;font-size:1.24');
-        },
-
         loadInventoryProduct: function(productID, inventoryPath){
             if(typeof inventoryPath === 'undefined'){
                 inventoryPath = '';
@@ -915,8 +909,50 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             return defer.promise;
         },
 
-        saveProduct: function(product){
-            product.$save();
+        loadInventoryProductsAll: function(shopName){
+            var defer = $q.defer();
+            if(shopName && data.shops[shopName] && data.shops[shopName].inventory){
+                var inventoryPath = data.shops[shopName].inventory;
+                if(!data.store.products[inventoryPath]){
+                    data.store.products[inventoryPath] = {};
+                }
+                var invRef = firebaseRef(inventoryPath);
+                invRef.on('child_added', function(childSnap){
+                    api.loadInventoryProduct(childSnap.name(), inventoryPath);
+                });
+                invRef.on('child_removed', function(oldChildSnap){
+                    api.unloadInventoryProduct(oldChildSnap.name(), inventoryPath);
+                });
+
+                defer.resolve(data.store.products[inventoryPath]);
+            }
+            else{
+                defer.reject('Shop \''+shopName+'\' could not be loaded.');
+            }
+            return defer.promise;
+        },
+
+        unloadInventoryProduct: function(productID, inventoryPath){
+            if(data.store.products[inventoryPath] && data.store.products[inventoryPath][productID]){
+                delete data.store.products[inventoryPath][productID];
+            }
+        },
+
+        unloadInventoryProducts: function(productList, inventoryPath){
+            angular.forEach(productList, function(product, productID){
+                api.unloadInventoryProduct(productID, inventoryPath);
+            });
+        },
+
+        unloadInventoryProductsAll: function(shopName){
+            if(shopName && data.shops[shopName] && data.shops[shopName].inventory) {
+                var inventoryPath = data.shops[shopName].inventory;
+                for(var prop in data.store.products[inventoryPath]){
+                    if (data.store.products[inventoryPath].hasOwnProperty(prop)){
+                        delete data.store.products[inventoryPath][prop];
+                    }
+                }
+            }
         }
     };
 

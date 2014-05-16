@@ -6,10 +6,172 @@ angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, 
 		templateUrl: 'app/directives/components/inventory/inventory.html',
 		link: function(scope, element, attrs, fn) {
             scope.shops = shop.data.shops;
-            scope.importShop = '';
 
+            scope.selectedCats = {};
+
+            // filtering
+            scope.filters = {
+                matchAll: true,
+                changedProducts: false,
+                name: '',
+                nameExact: false,
+                upc: '',
+                upcExact: true,
+                priceLow: 0,
+                priceHigh: 0,
+                stockLow: 1,
+                stockHigh: 0
+            };
+            scope.filterArgs = function(){
+                var args = [];
+
+                if(scope.selectedCats){
+                    var selectCats = [];
+                    angular.forEach(scope.selectedCats, function(selected, catID){
+                        if(selected){
+                            selectCats.push(catID);
+                        }
+                    });
+                    if(selectCats.length){
+                        // TODO: need to update to handle multiple categories (ie. contains when field and value are both arrays)
+                        args.push({
+                            field: 'shops[\''+scope.invShop+'\'].categories[0]',
+                            match: 'contains',
+                            value: selectCats
+                        });
+                    }
+                }
+
+                if(scope.filters.changedProducts){
+                    args.push({
+                        field: '$id',
+                        match: 'contains',
+                        value: Object.keys(scope.changedProducts)
+                    });
+                }
+                if(scope.filters.name){
+                    args.push({
+                        field: 'name',
+                        match: scope.filters.nameExact?'==':'contains',
+                        value: scope.filters.name
+                    });
+                }
+                if(scope.filters.upc){
+                    args.push({
+                        field: 'upc',
+                        match: scope.filters.upcExact?'=':'contains',
+                        value: scope.filters.upc
+                    });
+                }
+                if(scope.filters.priceLow && scope.filters.priceHigh && scope.filters.priceHigh >= scope.filters.priceLow){
+                    args.push({
+                        field: 'price',
+                        match: ['>=', '<='],
+                        value: [scope.filters.priceLow, scope.filters.priceHigh]
+                    });
+                }
+                else if(scope.filters.priceHigh){
+                    args.push({
+                        field: 'price',
+                        match: '<=',
+                        value: scope.filters.priceHigh
+                    });
+                }
+                else if(scope.filters.priceLow){
+                    args.push({
+                        field: 'price',
+                        match: '>=',
+                        value: scope.filters.priceLow
+                    });
+                }
+
+                if(scope.filters.stockLow && scope.filters.stockHigh && scope.filters.stockHigh >= scope.filters.stockLow){
+                    args.push({
+                        field: 'stock',
+                        match: ['>=', '<='],
+                        value: [scope.filters.stockLow, scope.filters.stockHigh]
+                    });
+                }
+                else if(scope.filters.stockLow){
+                    args.push({
+                        field: 'stock',
+                        match: '>=',
+                        value: scope.filters.stockLow
+                    });
+                }
+                else if(scope.filters.stockHigh){
+                    args.push({
+                        field: 'stock',
+                        match: '<=',
+                        value: scope.filters.stockHigh
+                    });
+                }
+                return args;
+            };
+
+            // product management
+            scope.changedProducts = {};
+            scope.focusProduct = '';
+            scope.focusField = '';
+            scope.changedProductsCount = function(){
+                return (scope.changedProducts?Object.keys(scope.changedProducts).length:0);
+            };
+            scope.productChanged = function(productID, changedField){
+                if(!scope.changedProducts[productID]){
+                    scope.changedProducts[productID] = [];
+                }
+                if(scope.changedProducts[productID].indexOf(changedField) === -1){
+                    scope.changedProducts[productID].push(changedField);
+                }
+            };
+            scope.productFocus = function(productID, focusField){
+                scope.focusProduct = productID;
+                scope.focusField = focusField;
+            };
+            scope.productBlur = function(productID, blurField){
+                if(scope.focusProduct === productID){
+                    scope.focusProduct = '';
+                }
+            };
+
+
+            // inventory table
+            scope.invShop = '';
+            scope.productOrder = '';
+            scope.productReverse = false;
+            scope.productCount = function(){
+                return (scope.inventory?Object.keys(scope.inventory).length:0);
+            };
+            scope.shopSelected = function(){
+                if(scope.invShop){
+                    console.log('load shop '+scope.invShop);
+                    shop.api.loadInventoryProductsAll(scope.invShop).then(function(inventory){
+                        scope.inventory = inventory;
+                    });
+                    if(scope.shops[scope.invShop].catalog){
+                        shop.api.loadCatalog(scope.shops[scope.invShop].catalog).then(function(catalog){
+                            scope.catalog = catalog;
+                        });
+                    }
+                }
+            };
+            scope.sortBy = function(key){
+                if(key === 'category'){
+                    key = 'shops[\''+scope.invShop+'\'].categories[0]';
+                }
+                if(scope.productOrder === key){
+                    scope.productReverse = !scope.productReverse;
+                }
+                else{
+                    scope.productOrder = key;
+                    scope.productReverse = false;
+                }
+            };
+
+            // importing
+            scope.showImport = false;
             scope.importHistory = [];
-
+            scope.importShop = '';
             scope.startImport = function(){
                 if(!scope.importing && scope.import && scope.importers[scope.import] && typeof scope.importers[scope.import].import === 'function' && scope.importShop){
                     var impShops = {};
@@ -115,6 +277,7 @@ angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, 
 
 
 			// Shop Maker stuff
+            scope.showCreateShop = false;
 			scope.shopName = '';
 			scope.shopCatalogBranch = '';
 			scope.shopCatalogBranchMod = false;
