@@ -8,19 +8,32 @@
 
         <div>
             {{productCount()}} products.
+            <br/>{{selectedCats}}
         </div>
 
         <div ng-if="catalog">
+            <script type="text/ng-template" id="category_parent_path.html">
+
+            </script>
             <script type="text/ng-template" id="category_tree_select.html">
-                {{childCat.name}}
+                {{childCat.name}} <input type="checkbox" ng-model="selectedCats[parentID+'/'+childCat.$id]" />
                 <ul ng-if="childCat.children">
-                    <li ng-repeat="childCat in childCat.children | orderByPriority | isCategory" ng-include="'category_tree_select.html'"></li>
+                    <li ng-repeat="childCat in childCat.children | orderByPriority | isCategory" ng-include="'category_tree_select.html'" onload="parentID=parentID+'/'+$parent.$parent.$parent.childCat.$id"></li>
                 </ul>
             </script>
 
             <ul ng-if="catalog.children">
-                <li ng-repeat="childCat in catalog.children | orderByPriority | isCategory" ng-include="'category_tree_select.html'"></li>
+                <li ng-repeat="childCat in catalog.children | orderByPriority | isCategory" ng-include="'category_tree_select.html'" onload="parentID=''"></li>
             </ul>
+        </div>
+
+        <div>
+            <input type="checkbox" ng-model="filters.matchAll" id="filter-match-all" /> <label for="filter-match-all">Match All Criteria</label><br/>
+            <label for="filter-name">Name</label> <input type="text" ng-model="filters.name" id="filter-name" /> <input type="checkbox" ng-model="filters.nameExact" id="filter-name-exact" /> <label for="filter-name-exact">Exact</label><br/>
+            <label for="filter-upc">UPC</label> <input type="text" ng-model="filters.upc" id="filter-upc" /> <input type="checkbox" ng-model="filters.upcExact" id="filter-upc-exact" /> <label for="filter-upc-exact">Exact</label><br/>
+            <label for="filter-price-low">Price</label> <input type="number" ng-model="filters.priceLow" id="filter-price-low" /> to <input type="number" ng-model="filters.priceHigh" id="filter-price-high" /><br/>
+            <label for="filter-stock-low">Stock</label> <input type="number" ng-model="filters.stockLow" id="filter-stock-low" /> to <input type="number" ng-model="filters.stockHigh" id="filter-stock-high" />
+            <input type="checkbox" ng-model="filters.changedProducts" id="filter-show-changed" /> <label for="filter-show-changed">Show changed</label><br/>
         </div>
 
         <div ng-show="changedProductsCount()">
@@ -33,17 +46,21 @@
 
         <table class="inventory">
             <tr>
-                <th><a ng-click="sortBy('upc')">UPC</a></th>
-                <th><a ng-click="sortBy('name')">Product</a></th>
-                <th><a ng-click="sortBy('stock')">Stock</a></th>
-                <th><a ng-click="sortBy('price')">Price</a></th>
+                <th><a ng-click="sortBy('upc')">UPC</a><span ng-show="productOrder==='upc'"><span ng-show="!productReverse">*</span><span ng-show="productReverse">**</span></span></th>
+                <th><a ng-click="sortBy('name')">Product</a><span ng-show="productOrder==='name'"><span ng-show="!productReverse">*</span><span ng-show="productReverse">**</span></span></th>
+                <th><a ng-click="sortBy('stock')">Stock</a><span ng-show="productOrder==='stock'"><span ng-show="!productReverse">*</span><span ng-show="productReverse">**</span></span></th>
+                <th><a ng-click="sortBy('price')">Price</a><span ng-show="productOrder==='price'"><span ng-show="!productReverse">*</span><span ng-show="productReverse">**</span></span></th>
+                <th><a ng-click="sortBy('category')">Categories</a><span ng-show="productOrder.indexOf('shops[')===0"><span ng-show="!productReverse">*</span><span ng-show="productReverse">**</span></span></th>
                 <th>Suppliers</th>
             </tr>
-            <tr ng-repeat="(idx,product) in inventory | orderByPriority | orderBy:productOrder:productReverse" ng-class="{active: (focusProduct===product.$id), changed: (changedProducts[product.$id]?true:false)}">
+            <tr ng-repeat="(idx,product) in inventory | orderByPriority | ecoFilter:filterArgs():filters.matchAll | orderBy:productOrder:productReverse" ng-class="{active: (focusProduct===product.$id), changed: (changedProducts[product.$id]?true:false)}">
                 <td><input type="text" ng-model="product.upc" ng-change="productChanged(product.$id, 'upc')" ng-focus="productFocus(product.$id, 'upc')" ng-blur="productBlur(product.$id, 'upc')" /></td>
                 <td><input type="text" ng-model="product.name" ng-change="productChanged(product.$id, 'name')" ng-focus="productFocus(product.$id, 'name')" ng-blur="productBlur(product.$id, 'name')" /></td>
                 <td><input type="number" ng-model="product.stock" ng-change="productChanged(product.$id, 'stock')" ng-focus="productFocus(product.$id, 'stock')" ng-blur="productBlur(product.$id, 'stock')" /></td>
-                <td><input type="text" ng-model="product.price" ng-change="productChanged(product.$id, 'price')" ng-focus="productFocus(product.$id, 'price')" ng-blur="productBlur(product.$id, 'price')" /></td>
+                <td><input type="number" ng-model="product.price" ng-change="productChanged(product.$id, 'price')" ng-focus="productFocus(product.$id, 'price')" ng-blur="productBlur(product.$id, 'price')" /></td>
+                <td><ul ng-show="product.shops[invShop]">
+                    <li ng-repeat="cCat in product.shops[invShop].categories">{{cCat}}</li>
+                </ul></td>
                 <td><ul>
                     <li ng-repeat="sup in product.suppliers">{{sup.name}} - {{sup.cost | currency}}</li>
                 </ul></td>

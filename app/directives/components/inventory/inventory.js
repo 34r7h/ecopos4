@@ -7,6 +7,108 @@ angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, 
 		link: function(scope, element, attrs, fn) {
             scope.shops = shop.data.shops;
 
+            scope.selectedCats = {};
+
+            // filtering
+            scope.filters = {
+                matchAll: true,
+                changedProducts: false,
+                name: '',
+                nameExact: false,
+                upc: '',
+                upcExact: true,
+                priceLow: 0,
+                priceHigh: 0,
+                stockLow: 1,
+                stockHigh: 0
+            };
+            scope.filterArgs = function(){
+                var args = [];
+
+                if(scope.selectedCats){
+                    var selectCats = [];
+                    angular.forEach(scope.selectedCats, function(selected, catID){
+                        if(selected){
+                            selectCats.push(catID);
+                        }
+                    });
+                    if(selectCats.length){
+                        // TODO: need to update to handle multiple categories (ie. contains when field and value are both arrays)
+                        args.push({
+                            field: 'shops[\''+scope.invShop+'\'].categories[0]',
+                            match: 'contains',
+                            value: selectCats
+                        });
+                    }
+                }
+
+                if(scope.filters.changedProducts){
+                    args.push({
+                        field: '$id',
+                        match: 'contains',
+                        value: Object.keys(scope.changedProducts)
+                    });
+                }
+                if(scope.filters.name){
+                    args.push({
+                        field: 'name',
+                        match: scope.filters.nameExact?'==':'contains',
+                        value: scope.filters.name
+                    });
+                }
+                if(scope.filters.upc){
+                    args.push({
+                        field: 'upc',
+                        match: scope.filters.upcExact?'=':'contains',
+                        value: scope.filters.upc
+                    });
+                }
+                if(scope.filters.priceLow && scope.filters.priceHigh && scope.filters.priceHigh >= scope.filters.priceLow){
+                    args.push({
+                        field: 'price',
+                        match: ['>=', '<='],
+                        value: [scope.filters.priceLow, scope.filters.priceHigh]
+                    });
+                }
+                else if(scope.filters.priceHigh){
+                    args.push({
+                        field: 'price',
+                        match: '<=',
+                        value: scope.filters.priceHigh
+                    });
+                }
+                else if(scope.filters.priceLow){
+                    args.push({
+                        field: 'price',
+                        match: '>=',
+                        value: scope.filters.priceLow
+                    });
+                }
+
+                if(scope.filters.stockLow && scope.filters.stockHigh && scope.filters.stockHigh >= scope.filters.stockLow){
+                    args.push({
+                        field: 'stock',
+                        match: ['>=', '<='],
+                        value: [scope.filters.stockLow, scope.filters.stockHigh]
+                    });
+                }
+                else if(scope.filters.stockLow){
+                    args.push({
+                        field: 'stock',
+                        match: '>=',
+                        value: scope.filters.stockLow
+                    });
+                }
+                else if(scope.filters.stockHigh){
+                    args.push({
+                        field: 'stock',
+                        match: '<=',
+                        value: scope.filters.stockHigh
+                    });
+                }
+                return args;
+            };
+
             // product management
             scope.changedProducts = {};
             scope.focusProduct = '';
@@ -54,6 +156,9 @@ angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, 
                 }
             };
             scope.sortBy = function(key){
+                if(key === 'category'){
+                    key = 'shops[\''+scope.invShop+'\'].categories[0]';
+                }
                 if(scope.productOrder === key){
                     scope.productReverse = !scope.productReverse;
                 }
