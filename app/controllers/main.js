@@ -1,6 +1,64 @@
 angular.module('ecoposApp')
-	.controller('MainCtrl', function ($rootScope, $scope, syncData, system, style, shop, $filter, $location) {
+	.controller('MainCtrl', function ($rootScope, $scope, syncData, system, style, shop, $filter, $location, mainResolve) {
+
 		$scope.view = system.data.view;
+		$scope.notify = syncData(mainResolve.ui.notify);
+		$scope.navify = syncData(mainResolve.ui.navify);
+
+		// REFACTOR popdown exclusion group
+		$scope.popDown = function(name){
+			/* var popDowns = ['notifications','cart','messages','events','user'];
+			angular.forEach(popDowns,function(){
+				if(popDowns===name){
+					$scope.notifications = false;
+					$scope.messages = false;
+					$scope.cart = false;
+					$scope.events = false;
+					$scope.name = true;
+				}
+			});
+			*/
+			if(name==='notifications' && $scope.popDownnotifications === false){
+				$scope.popDownnotifications = true;
+				$scope.popDownmessages = false;
+				$scope.popDowncart = false;
+				$scope.popDownevents = false;
+				$scope.popDownuser = false;
+			} else if(name==='cart' && $scope.popDowncart === false){
+				$scope.popDownnotifications = false;
+				$scope.popDownmessages = false;
+				$scope.popDowncart = true;
+				$scope.popDownevents = false;
+				$scope.popDownuser = false;
+			} else if(name==='messages' && $scope.popDownmessages === false){
+				$scope.popDownnotifications = false;
+				$scope.popDownmessages = true;
+				$scope.popDowncart = false;
+				$scope.popDownevents = false;
+				$scope.popDownuser = false;
+			} else if(name==='events' && $scope.popDownevents === false){
+				$scope.popDownnotifications = false;
+				$scope.popDownmessages = false;
+				$scope.popDowncart = false;
+				$scope.popDownevents = true;
+				$scope.popDownuser = false;
+			} else if(name==='user' && $scope.popDownuser === false){
+				$scope.popDownnotifications = false;
+				$scope.popDownmessages = false;
+				$scope.popDowncart = false;
+				$scope.popDownevents = false;
+				$scope.popDownuser = true;
+			} else {
+				$scope.popDownnotifications = false;
+				$scope.popDownmessages = false;
+				$scope.popDowncart = false;
+				$scope.popDownevents = false;
+				$scope.popDownuser = false;
+			}
+		// refactor
+
+		};
+
 
 		//basic stylin dimensions
 		$scope.dirDim = {

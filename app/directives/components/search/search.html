@@ -41,6 +41,6 @@
         </div>
     </div>
     <div class="search pull-right">
-        <input ng-model="search.value" ng-change="doSearch('value')" placeholder="Search">
+        <input ng-blur="expandSearchBar='col-xs-3';searching=false;" ng-focus="expandSearchBar='col-xs-8';searching=true;" ng-model="search.value" ng-change="doSearch('value')" placeholder=" ">
     </div>
 </div>

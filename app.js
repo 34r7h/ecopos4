@@ -27,13 +27,16 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 	$stateProvider.
 		state('ecoApp', {
 			controller:'MainCtrl',
-			templateUrl:'app/views/main.html',
-			onEnter: function(){
-				console.log('ecoApp State');
+			resolve: {
+				mainResolve: function($stateParams,$log,system,shop){
+					system.ui.notify= '/ui/'+system.data.user.activeRole+'/notifications';
+					system.ui.navify= '/ui/'+system.data.user.activeRole+'/navigation';
+					return {
+						ui:system.ui
+					};
+				}
 			},
-			onExit: function(){
-				console.log('goodbye ecoApp state');
-			}
+			templateUrl:'app/views/main.html'
 		}).
 		state('ecoApp.nav',{
 			views:{
@@ -102,21 +105,24 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 			// Content parameters: event, info, inventory, notification, order, product, message
 			url:'*path?role&preferences&history&store&overlay&main&leftbar&rightbar&event&info&inventory&notification&message&order&product',
             reloadOnSearch: false,
+			data:{
+
+			},
 			resolve: {
 				resolution: function($stateParams,$log,system,shop){
-					system.data.params.data = $stateParams;
 
-                    // allows loading directly to shop state from bookmark
-                    shop.api.getCatalogBrowser('main').then(function(browser){
-                        browser.setPath(system.data.params.data['path']);
-                    });
+					system.data.params.data = $stateParams;
+					// allows loading directly to shop state from bookmark
+					shop.api.getCatalogBrowser('main').then(function(browser){
+						browser.setPath(system.data.params.data['path']);
+					});
 
 					if(/^\/*(\/.*)?$/.test($stateParams.path)) {
 						system.data.view = system.data.user.activeRole + '@ecoApp.nav.not.tools';
-						}
+					}
 					return {
 						view:system.data.view,
-						params:system.data.params.data
+						params:system.data.params.data,
 					};
 				}
 			},
@@ -124,20 +130,6 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 				admin:{
 					controller:function($scope,system,$state,resolution,syncData,Firebase, $location, $stateParams){
 						$scope.settings = syncData("settings/admin");
-
-						var infos = '/info/test-cat/';
-						$scope.infos = new Firebase('https://opentest.firebaseio.com/info');
-						$scope.info1 = {
-							date:1399068990,
-							media:['https://www.youtube.com/watch?v=AA0SZMZCSkM'],
-							content:'A whole paragraph',
-							categories:['test','test1'],
-							links:['http://ecossentials.com'],
-							title:"A long way together",
-							tags:['test','upcoming','valid','eat smoothies'],
-							publisher:"irth"
-						};
-					    $scope.infos.push($scope.info1);
 
 						$scope.resolution = resolution;
 						$scope.system = system;
@@ -178,15 +170,9 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 							}
 						};
 
-
 						console.log($scope.overlay);
 						$scope.orders = system.data.user.orders;
-						var notifyRef = '/ui/admin/notifications';
-						$scope.notify = syncData(notifyRef);
-						console.log($scope.notify);
-						var navifyRef = '/ui/admin/navigation';
-						$scope.navify = syncData(navifyRef);
-						console.log($scope.navify);
+
 						$scope.user = system.data.user;
 						$scope.employee = system.data.employee;
 						$scope.manager = system.data.manager;

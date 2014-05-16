@@ -9,11 +9,7 @@
     <div ng-if="leftbar"><comp element="leftbar"></comp></div>
     <div ng-if="!leftbar">
 
-        <ul ng-repeat="sets in (settings || $parent.settings ||$parent.$parent.settings)" class="col-xs-12">
-            <li ng-repeat="setting in sets | orderByPriority">
-                {{ setting.name }}: <prefs ng-model="setting.model" type="setting.type" element="setting.element" placeholder="{{ setting.name }}"></prefs>
-            </li>
-        </ul>
+        <settings></settings>
 
 
 
