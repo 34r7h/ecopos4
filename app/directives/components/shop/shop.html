@@ -4,18 +4,18 @@
     <div ng-if="!product && !$parent.product">
         <div class="col-xs-12 category">
         <h4>Sub-Categories</h4>
-        <ul ng-repeat="(childPrio,child) in (shop.category.children || $parent.shop.category.children) | orderByPriority| filter:isCategory">
+        <ul ng-repeat="(childPrio,child) in (shop.category.children || $parent.shop.category.children) | orderByPriority | isCategory">
             <li ng-mouseover="catalogDrop=true" ng-mouseleave="catalogDrop=false">
                 <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)" >{{child.name}}</a> /
 
                 <div ng-show="catalogDrop">
                     <ul>
-                        <li ng-repeat="subChild in child.children | orderByPriority| filter:isCategory">
+                        <li ng-repeat="subChild in child.children | orderByPriority | isCategory">
                             <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)+'/'+(subChild.url?subChild.url:subChild.$id)">{{subChild.name}}</a>
                         </li>
                     </ul>
                     <ul>
-                        <li ng-repeat="subChild in child.children | orderByPriority| filter:isProduct">
+                        <li ng-repeat="subChild in child.children | orderByPriority | isProduct">
                             <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)+'/'+(subChild.url?subChild.url:subChild.$id)">{{subChild.name}}</a>
                         </li>
                     </ul>
@@ -27,7 +27,7 @@
     <div class="col-xs-3"><h3>{{shop.category.name}}</h3>
         <h4>Products</h4>
         <ul>
-            <li ng-repeat="(childPrio,child) in shop.category.children | orderByPriority | filter:isProduct:searchx">
+            <li ng-repeat="(childPrio,child) in shop.category.children | orderByPriority | isProduct">
                 <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)">
                     <span ng-if="!inventory[child.$id]">{{child.name}}</span>
                     <span ng-if="inventory[child.$id]">{{inventory[child.$id].brand}} {{inventory[child.$id].name}} {{inventory[child.$id].size}}</span>
