@@ -51,10 +51,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 				}
 			},
 			onEnter: function(){
-				console.log('NAV State');
 			},
 			onExit: function(){
-				console.log('goodbye Navigation state');
 			}
 		}).
 		state('ecoApp.nav.not',{
@@ -71,10 +69,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 				}
 			},
 			onEnter: function(){
-				console.log('notifications state');
 			},
 			onExit: function(){
-				console.log('goodbye Notifications state');
 			}
 		}).
 		state('ecoApp.nav.not.tools',{
@@ -91,10 +87,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 				}
 			},
 			onEnter: function(){
-				console.log('tools state');
 			},
 			onExit: function(){
-				console.log('goodbye tools state');
 			}
 		}).
 		state('ecoApp.nav.not.tools.settings',{
@@ -121,7 +115,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 					}
 					return {
 						view:system.data.view,
-						params:system.data.params.data,
+						params:system.data.params.data
 					};
 				}
 			},
@@ -151,7 +145,6 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 						system.ui.content.product = resolution.params.product;
 
 
-						console.log("system.ui: " + system.ui.content.message);
 
 						$scope.iconz = {
 							icon:"fa fa-plus",
@@ -169,7 +162,6 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 							}
 						};
 
-						console.log($scope.overlay);
 						$scope.orders = system.data.user.orders;
 
 						$scope.user = system.data.user;
@@ -232,7 +224,6 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 				}
 			},
 			onEnter: function(system,$stateParams){
-				console.log('%c Settings State', 'color:#888;background:#333;','http://ecossentials.ca');
 				// SHOP SELECTION - could be ecossentials or sunshine-organics - whatever we name the catalog/category tree in firebase
 
 

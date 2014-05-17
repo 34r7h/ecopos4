@@ -4,24 +4,23 @@
     <div ng-if="!product && !$parent.product">
         <div class="col-xs-12 category">
         <h4>Sub-Categories</h4>
-        <ul ng-repeat="(childPrio,child) in (shop.category.children || $parent.shop.category.children) | orderByPriority | isCategory">
-            <li ng-mouseover="catalogDrop=true" ng-mouseleave="catalogDrop=false">
-                <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)" >{{child.name}}</a> /
+        <div class="category-browser" ng-repeat="(childPrio,child) in (shop.category.children || $parent.shop.category.children) | orderByPriority | isCategory">
+            <div ng-mouseover="catalogDrop=true" ng-mouseleave="catalogDrop=false">
+                <i class="fa fa-angle-right"></i> <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)" >{{child.name}}</a>
 
                 <div ng-show="catalogDrop">
                     <ul>
                         <li ng-repeat="subChild in child.children | orderByPriority | isCategory">
                             <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)+'/'+(subChild.url?subChild.url:subChild.$id)">{{subChild.name}}</a>
                         </li>
-                    </ul>
-                    <ul>
+
                         <li ng-repeat="subChild in child.children | orderByPriority | isProduct">
                             <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)+'/'+(subChild.url?subChild.url:subChild.$id)">{{subChild.name}}</a>
                         </li>
                     </ul>
                 </div>
-            </li>
-        </ul>
+            </div>
+        </div>
     </div>
     <div class="col-xs-3">Filters</div>
     <div class="col-xs-3"><h3>{{shop.category.name}}</h3>

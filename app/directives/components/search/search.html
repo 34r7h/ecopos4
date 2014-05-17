@@ -17,6 +17,7 @@
                 </div>
                 <div class="col-xs-12" ng-repeat="res in search.results.orders"><b>{{res.name}}</b></div>
             </div>
+
             <div ng-show="searchItems.messages">
                 <div class="col-xs-12">
                     <strong><em ng-if="search.results.messages && search.results.messages.length">{{search.results.messages.length}}</em><em ng-if="!search.results.messages || !search.results.messages.length">0</em></strong> messages found.
@@ -41,6 +42,6 @@
         </div>
     </div>
     <div class="search pull-right">
-        <input ng-blur="expandSearchBar='col-xs-3';searching=false;" ng-focus="expandSearchBar='col-xs-8';searching=true;" ng-model="search.value" ng-change="doSearch('value')" placeholder=" ">
+        <input ng-blur="expandSearchBar='col-xs-3';searching=false;" ng-click="expandSearchBar='col-xs-8';searching=true;" ng-model="search.value" ng-change="doSearch('value')" placeholder=" ">
     </div>
 </div>
