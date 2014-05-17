@@ -30,6 +30,7 @@
 @import "app/directives/components/notifications/notifications.less";
 @import "app/directives/components/settings/settings.less";
 @import "app/directives/layout/setLayout/setLayout.less";
+@import "app/directives/layout/omniButton/omniButton";
 /* Add Component LESS Above */
 
 /* Required for Angular UI Bootstrap */
@@ -42,11 +43,11 @@ html, body, .background-img {overflow:hidden;}
   background-color:transparent;
 }
 ::-webkit-scrollbar-thumb{
-  background-color:rgba(0,0,0,.3);
+  background-color:rgba(0,0,0,.15);
   border-radius:1% 0 0 1%;
 }
 ::-webkit-scrollbar-thumb:horizontal{
-  background-color:rgba(0,0,0,.3);
+  background-color:rgba(0,0,0,.2);
   border-radius:1% 1% 0 0;
 }
 ::-webkit-scrollbar-thumb:hover{
@@ -240,7 +241,7 @@ input:-moz-placeholder::before  { font-family: fontAwesome; content:'\f002  '; 
 
 body { margin: 0; overflow:hidden;box-sizing: border-box;}
 .rowz, .col {
-  overflow-y: scroll; overflow-x:hidden; position: absolute;
+  overflow-x:hidden; position: absolute;
 }
 .rowz {background: rgba(255,255,255,.8);}
 .body.rowz { top: 8px; bottom: 1em; }
@@ -270,37 +271,44 @@ body { margin: 0; overflow:hidden;box-sizing: border-box;}
 
 .left.col {
   left: 1%;width: 18%;bottom: 96px;top: 75px;
-  background:RGBA(137.00, 151.00, 117.00, .92) ;box-shadow: 1px 10px 21px rgba(0, 0, 0, .38);border: 1px solid rgba(250, 250, 250, .08);border-left: 2px solid rgba(0, 0, 0, .38);
+  background:RGBA(253.00, 253.00, 254.00, .87) ;box-shadow: 1px 10px 21px rgba(0, 0, 0, .38);border: 1px solid rgba(250, 250, 250, .08);border-left: 2px solid rgba(0, 0, 0, .38);
   z-index:100;
-  border-radius: 0 5px 5px 0;
+  border-radius: 0 1px 1px 0;
 }
 .left.col.openlg {
   left: 1%;width: 78%;bottom: 96px;top: 75px;
-  background:RGBA(137.00, 151.00, 117.00, .87);box-shadow: 1px 10px 21px rgba(0, 0, 0, .38);border: 1px solid rgba(250, 250, 250, .18);border-left: 4px solid rgba(0, 0, 0, .38);
+  background:RGBA(254.00, 254.00, 253.00, .95);box-shadow: 1px 10px 21px rgba(0, 0, 0, .38);border: 1px solid rgba(250, 250, 250, .18);border-left: 4px solid rgba(0, 0, 0, .38);
   z-index:200;
 
 }
 .left.col.openmd {
   left: 1%;width: 60%;bottom: 96px;top: 75px;
-  background:RGBA(137.00, 151.00, 117.00, .87);box-shadow: 1px 10px 21px rgba(0, 0, 0, .38);border: 1px solid rgba(250, 250, 250, .18);border-left: 4px solid rgba(0, 0, 0, .38);
+  background:RGBA(254.00, 254.00, 253.00, .87);
+  box-shadow: 1px 10px 21px rgba(0, 0, 0, .38);
+  border: 1px solid rgba(250, 250, 250, .18);
+  border-left: 1px solid rgba(0, 0, 0, .38);
   z-index:200;
 }
 .left.col.opensm {
   left: 1%;width: 36%;bottom: 96px;top: 75px;
-  background:RGBA(137.00, 151.00, 117.00, .87);box-shadow: 1px 10px 21px rgba(0, 0, 0, .38);border: 1px solid rgba(250, 250, 250, .18);border-left: 4px solid rgba(0, 0, 0, .38);
+  background:RGBA(254.00, 254.00, 253.00, .87);
+  box-shadow: 1px 10px 21px rgba(0, 0, 0, .38);
+  border: 1px solid rgba(250, 250, 250, .18);
+  border-left: 1px solid rgba(0, 0, 0, .38);
   z-index:200;
 }
 
 .middle.col {
   width: 60%;
   left: 20%; right: 20%; bottom: 0px; top:0px;
-  margin:75px 0 99px 0}
+  margin:75px 0 99px 0;
+}
 
 .right.col {
   width:18%; left: 81%; right: 1%; bottom: 96px; top:75px;
-  background:RGBA(137.00, 151.00, 117.00, .92); box-shadow: -1px 10px 21px rgba(0,0,0,.38);border: 1px solid rgba(250, 250, 250, .08);border-right: 2px solid rgba(0, 0, 0, .38);
+  background:RGBA(253.00, 253.00, 254.00, .87); box-shadow: -1px 10px 21px rgba(0,0,0,.38);border: 1px solid rgba(250, 250, 250, .08);border-right: 2px solid rgba(0, 0, 0, .38);
   z-index:100;
-  border-radius: 5px 0 0 5px;
+  border-radius: 1px 0 0 1px;
 }
 .right.col.openlg{
   width: 78%;
@@ -308,7 +316,7 @@ body { margin: 0; overflow:hidden;box-sizing: border-box;}
   right: 1%;
   bottom: 96px;
   top: 75px;
-  background: RGBA(137.00, 151.00, 117.00, .87);
+  background: RGBA(254.00, 254.00, 253.00, .95);
   box-shadow: -1px 10px 25px rgba(0, 0, 0, 0.38);
   border: 1px solid rgba(250, 250, 250, 0.18);
   border-right: 4px solid rgba(0, 0, 0, 0.38);
@@ -320,7 +328,7 @@ body { margin: 0; overflow:hidden;box-sizing: border-box;}
   right: 1%;
   bottom: 96px;
   top: 75px;
-  background: RGBA(137.00, 151.00, 117.00, .87);
+  background: RGBA(254.00, 254.00, 253.00, .89);
   box-shadow: -1px 10px 25px rgba(0, 0, 0, 0.38);
   border: 1px solid rgba(250, 250, 250, 0.18);
   border-right: 4px solid rgba(0, 0, 0, 0.38);
@@ -332,7 +340,7 @@ body { margin: 0; overflow:hidden;box-sizing: border-box;}
   right: 1%;
   bottom: 96px;
   top: 75px;
-  background: RGBA(137.00, 151.00, 117.00, .87);
+  background: RGBA(254.00, 254.00, 253.00, .92);
   box-shadow: -1px 10px 25px rgba(0, 0, 0, 0.38);
   border: 1px solid rgba(250, 250, 250, 0.18);
   border-right: 4px solid rgba(0, 0, 0, 0.38);
@@ -371,6 +379,7 @@ body { margin: 0; overflow:hidden;box-sizing: border-box;}
 .search-nav .btn{
   padding-top:0;
 }
+
 .category li {display: inline-block; list-style-type:none;}
 .foots {
   font-size: 1.2em;
@@ -397,8 +406,6 @@ body { margin: 0; overflow:hidden;box-sizing: border-box;}
   bottom:0;
   background: RGBA(87.00, 103.00, 100.00, 1.00);
   }
-
-
 
 .fa-stack-1x, .fa-stack-2x {
   text-shadow: 3px 3px 1px rgba(0,0,0,.2);

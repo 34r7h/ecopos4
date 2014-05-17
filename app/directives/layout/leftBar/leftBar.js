@@ -12,7 +12,7 @@ angular.module('ecoposApp').directive('leftBar', function(shop, system) {
 					scope.leftmd = false;
 					scope.leftlg = false;
 					if(scope.rightlg){
-						scope.rightlg = false
+						scope.rightlg = false;
 					}
 				}
 				if(name==="leftmd"){

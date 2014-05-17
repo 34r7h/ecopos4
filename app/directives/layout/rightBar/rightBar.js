@@ -28,7 +28,7 @@ angular.module('ecoposApp').directive('rightBar', function() {
 				if(name==="rightlg"){
 					scope.rightsm = false;
 					scope.rightmd = false;
-					scope.rightlg = !scope.leftlg;
+					scope.rightlg = !scope.rightlg;
 					scope.leftsm = false;
 					scope.leftmd = false;
 					scope.leftlg = false;

@@ -6,7 +6,7 @@
             </div>
             <div ng-show="navPop" class="nav-pop" ng-init="components=['orders','shop','inventory','messages','events','infos','notifications','settings']">
                 <div ng-repeat="component in components">
-                    <button class="btn-sm col-xs-12" eco-ref="shop.pathStr+'/?'+ $parent.icon.name +'='+component">{{component}}</button>
+                    <button class="btn-sm col-xs-12" eco-ref="$parent.$parent.system.data.params.data.path +'/?'+ $parent.icon.name +'='+component">{{component}}</button>
                 </div>
             </div>
         </div>
