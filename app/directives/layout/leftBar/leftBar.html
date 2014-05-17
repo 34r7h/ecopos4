@@ -1,15 +1,13 @@
 <div class="left col col-xs-12" ng-class="{openlg:leftlg,openmd:leftmd,opensm:leftsm}">
-    <div class="fixed-top">
-    <button class="col-xs-2" ng-click="rightlg=false;leftlg=false;leftmd=false;leftsm=!leftsm;" ng-model="leftsm"></button>
-    <button class="col-xs-2" ng-click="rightlg=false;rightmd=false;leftlg=false;leftsm=false;leftmd=!leftmd;" ng-model="leftmd"></button>
-    <button class="col-xs-4" ng-click="rightlg=false;rightmd=false;rightsm=false;leftsm=false;leftmd=false;leftlg=!leftlg;" ng-model="leftlg"></button>
-    <div class="col-xs-2 pull-right"><icon class="fa fa-gear"></icon></div>
+    <div class="fixed-top-left">
+    <button class="col-xs-4" ng-click="leftBarSize('leftsm')" ng-model="leftsm"></button>
+    <button class="col-xs-4" ng-click="leftBarSize('leftmd')" ng-model="leftmd"></button>
+    <button class="col-xs-4" ng-click="leftBarSize('leftlg')" ng-model="leftlg"></button>
     </div>
         'Allo {{system.data.user.profile.displayName}}
     <div ng-if="leftbar"><comp element="leftbar"></comp></div>
     <div ng-if="!leftbar">
 
-        <settings></settings>
 
 
 

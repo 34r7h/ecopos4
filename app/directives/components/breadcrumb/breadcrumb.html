@@ -1,6 +1,10 @@
 <div class="col-xs-12 crumb-container">
 
-        <div class="row breadcrumb"
+    <div ng-if="$parent.main" class="row breadcrumb">
+        <h5>{{$parent.$parent.main}}</h5>
+    </div>
+
+        <div ng-if="!$parent.main" class="row breadcrumb"
              ng-repeat="cPath in breadcrumb.path"
             ng-click="dropdowns=true"
             ng-mouseover="dropdowns=true;dropIcon='fa-rotate-90';"

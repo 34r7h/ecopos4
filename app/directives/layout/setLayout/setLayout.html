@@ -1,0 +1,16 @@
+<div>
+    <div class="col-xs-12 btn-group">
+        <div class="col-xs-3 text-center footnav fa-lg" ng-mouseover="navPop=true" ng-mouseleave="navPop=false" ng-repeat="icon in navify">
+            <div class="btn">
+                <i class="fa fa-{{icon.icon}} fa-2x fa-fw fa-stack-1x" ng-click="$parent.barSize(icon.name, icon.actions[(actionCountLeft || actionCountRight)])"> </i>
+            </div>
+            <div ng-show="navPop" class="nav-pop" ng-init="components=['orders','shop','inventory','messages','events','infos','notifications','settings']">
+                <div ng-repeat="component in components">
+                    <button class="btn-sm col-xs-12" eco-ref="shop.pathStr+'/?'+ $parent.icon.name +'='+component">{{component}}</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

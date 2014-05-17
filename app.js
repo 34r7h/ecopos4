@@ -121,9 +121,12 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 			},
 			views: {
 				admin:{
-					controller:function($scope,system,$state,resolution,syncData,Firebase, $location, $stateParams){
+					controller:function($scope,system,$state,resolution,syncData,Firebase, $firebase, $location, $stateParams){
 						$scope.settings = syncData("settings/admin");
-
+	/*				$scope.fireRef = new Firebase('https://opentest.firebaseio.com/ui/admin/navigation/');
+						$scope.fire = $firebase($scope.fireRef);
+						$scope.fire.$add({icon:"mail-forward",name:"rightbar",actions:['rightsm','rightmd','rightlg']});
+*/
 						$scope.resolution = resolution;
 						$scope.system = system;
 						$scope.stateParams = $stateParams;
