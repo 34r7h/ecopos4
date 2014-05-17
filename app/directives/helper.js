@@ -9,13 +9,12 @@ angular.module('ecoposApp').directive('comp', function($compile,$timeout) {
             scope.$watch('element', function(newVal){
                 if(newVal && (!domElement || !domElement.nodeName || newVal.toLowerCase() !== domElement.nodeName.toLowerCase())){
                     domElement = document.createElement(newVal);
-                    console.log(domElement);
+
                     iElem.empty();
                     iElem.append(domElement);
                     $compile(domElement)(scope);
                 }
                 else if(!newVal && domElement){
-                    console.log('remove:'+domElement);
                     domElement = null;
                     iElem.empty();
                 }
@@ -172,3 +171,17 @@ angular.module('ecoposApp').directive('comp', function($compile,$timeout) {
 		}
 	};
 });
+
+angular.module("ecoposApp").directive("prefs", function(){
+		return {
+			restrict:"E",
+			scope:{element:"=", type:"=", model:"=ngModel"},
+			link:function(scope, iElem, iAttrs) {
+				var domElement = document.createElement(scope.element);
+				domElement.type = scope.type;
+				domElement.ngModel = scope.name;
+				iElem.append(domElement);
+			}
+		};
+	}
+);

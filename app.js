@@ -26,13 +26,16 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 	$stateProvider.
 		state('ecoApp', {
 			controller:'MainCtrl',
-			templateUrl:'app/views/main.html',
-			onEnter: function(){
-				console.log('ecoApp State');
+			resolve: {
+				mainResolve: function($stateParams,$log,system,shop){
+					system.ui.notify= '/ui/'+system.data.user.activeRole+'/notifications';
+					system.ui.navify= '/ui/'+system.data.user.activeRole+'/navigation';
+					return {
+						ui:system.ui
+					};
+				}
 			},
-			onExit: function(){
-				console.log('goodbye ecoApp state');
-			}
+			templateUrl:'app/views/main.html'
 		}).
 		state('ecoApp.nav',{
 			views:{
@@ -48,10 +51,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 				}
 			},
 			onEnter: function(){
-				console.log('NAV State');
 			},
 			onExit: function(){
-				console.log('goodbye Navigation state');
 			}
 		}).
 		state('ecoApp.nav.not',{
@@ -68,10 +69,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 				}
 			},
 			onEnter: function(){
-				console.log('notifications state');
 			},
 			onExit: function(){
-				console.log('goodbye Notifications state');
 			}
 		}).
 		state('ecoApp.nav.not.tools',{
@@ -88,10 +87,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 				}
 			},
 			onEnter: function(){
-				console.log('tools state');
 			},
 			onExit: function(){
-				console.log('goodbye tools state');
 			}
 		}).
 		state('ecoApp.nav.not.tools.settings',{
@@ -101,18 +98,21 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 			// Content parameters: event, info, inventory, notification, order, product, message
 			url:'*path?role&preferences&history&store&overlay&main&leftbar&rightbar&event&info&inventory&notification&message&order&product',
             reloadOnSearch: false,
+			data:{
+
+			},
 			resolve: {
 				resolution: function($stateParams,$log,system,shop){
-					system.data.params.data = $stateParams;
 
-                    // allows loading directly to shop state from bookmark
-                    shop.api.getCatalogBrowser('main').then(function(browser){
-                        browser.setPath(system.data.params.data['path']);
-                    });
+					system.data.params.data = $stateParams;
+					// allows loading directly to shop state from bookmark
+					shop.api.getCatalogBrowser('main').then(function(browser){
+						browser.setPath(system.data.params.data['path']);
+					});
 
 					if(/^\/*(\/.*)?$/.test($stateParams.path)) {
 						system.data.view = system.data.user.activeRole + '@ecoApp.nav.not.tools';
-						}
+					}
 					return {
 						view:system.data.view,
 						params:system.data.params.data
@@ -121,23 +121,12 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 			},
 			views: {
 				admin:{
-					controller:function($scope,system,$state,resolution,syncData,Firebase, $location, $stateParams){
+					controller:function($scope,system,$state,resolution,syncData,Firebase, $firebase, $location, $stateParams){
 						$scope.settings = syncData("settings/admin");
-
-						var infos = '/info/test-cat/';
-						$scope.infos = new Firebase('https://opentest.firebaseio.com/info');
-						$scope.info1 = {
-							date:1399068990,
-							media:['https://www.youtube.com/watch?v=AA0SZMZCSkM'],
-							content:'A whole paragraph',
-							categories:['test','test1'],
-							links:['http://ecossentials.com'],
-							title:"A long way together",
-							tags:['test','upcoming','valid','eat smoothies'],
-							publisher:"irth"
-						};
-					    $scope.infos.push($scope.info1);
-
+	/*				$scope.fireRef = new Firebase('https://opentest.firebaseio.com/ui/admin/navigation/');
+						$scope.fire = $firebase($scope.fireRef);
+						$scope.fire.$add({icon:"mail-forward",name:"rightbar",actions:['rightsm','rightmd','rightlg']});
+*/
 						$scope.resolution = resolution;
 						$scope.system = system;
 						$scope.stateParams = $stateParams;
@@ -159,7 +148,6 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 						system.ui.content.product = resolution.params.product;
 
 
-						console.log("system.ui: " + system.ui.content.message);
 
 						$scope.iconz = {
 							icon:"fa fa-plus",
@@ -177,15 +165,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 							}
 						};
 
-
-						console.log($scope.overlay);
 						$scope.orders = system.data.user.orders;
-						var notifyRef = '/ui/admin/notifications';
-						$scope.notify = syncData(notifyRef);
-						console.log($scope.notify);
-						var navifyRef = '/ui/admin/navigation';
-						$scope.navify = syncData(navifyRef);
-						console.log($scope.navify);
+
 						$scope.user = system.data.user;
 						$scope.employee = system.data.employee;
 						$scope.manager = system.data.manager;
@@ -246,7 +227,6 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 				}
 			},
 			onEnter: function(system,$stateParams){
-				console.log('%c Settings State', 'color:#888;background:#333;','http://ecossentials.ca');
 				// SHOP SELECTION - could be ecossentials or sunshine-organics - whatever we name the catalog/category tree in firebase
 
 

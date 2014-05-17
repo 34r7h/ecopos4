@@ -1,9 +1,14 @@
 <div class="right col col-xs-12" ng-class="{openlg: rightlg, opensm: rightsm, openmd:rightmd}" >
-    <button class="col-xs-4" ng-click="leftlg=false;leftmd=false;leftsm=false;rightsm=false;rightmd=false;rightlg=!rightlg;" ng-model="rightlg"></button>
-    <button class="col-xs-4" ng-click="leftlg=false;leftmd=false;rightlg=false;rightsm=false;rightmd=!rightmd;" ng-model="rightmd"></button>
-    <button class="col-xs-4" ng-click="leftlg=false;rightlg=false;rightmd=false;rightsm=!rightsm;" ng-model="rightsm"></button>
+    <div class="fixed-top-right">
+    <button class="col-xs-4" ng-click="rightBarSize('rightlg')" ng-model="rightlg"></button>
+    <button class="col-xs-4" ng-click="rightBarSize('rightmd')" ng-model="rightmd"></button>
+    <button class="col-xs-4" ng-click="rightBarSize('rightsm')" ng-model="rightsm"></button>
+    </div>
 
     <div ng-if="rightbar"><comp element="rightbar"></comp></div>
+    <div ng-show="user.id"><user-info></user-info></div>
+    <div ng-show="!user.id"><login></login></div>
+    <!--
     <div ng-if="!rightbar">
         <ul class="nav nav-tabs">
             <li><a href="#Tab1" toggle="on" parent-active-class="active">Calendar</a></li>
@@ -56,5 +61,6 @@
         </div>
         <div ui-view="2@ecoApp.nav.not"></div>
     </div>
+    -->
 </div>
 

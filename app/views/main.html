@@ -1,4 +1,7 @@
 <div ui-view="{{view}}">
+    <div class="col-xs-12 eco-alert">
+        <div ng-click="$parent.alertz=false" ng-hide="!$parent.alertz" ng-show="$parent.alertz" class="alert-danger alert"><b>{{$parent.alertz}}</b> </div>
+    </div>
     <top-bar></top-bar>
     <left-bar></left-bar>
     <div class="middle col">
@@ -16,5 +19,8 @@
 
     <div overlay="overlay">
         <comp element="overlay"></comp>
+        <div ng-if="user.id">
+            <user-info></user-info>
+        </div>
     </div>
 </div>
