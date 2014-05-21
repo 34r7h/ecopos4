@@ -1,4 +1,4 @@
-describe('inventory', function() {
+describe('stock', function() {
 
   beforeEach(module('ecoposApp'));
 

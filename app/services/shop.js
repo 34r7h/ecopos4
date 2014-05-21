@@ -1,6 +1,6 @@
 angular.module('ecoposApp').factory('shop',function($q, system, syncData, firebaseRef, $firebase, $filter, FBURL, FBSHOPSROOT, $log) {
     var data = {
-        store: {products: {}, catalogs: {}, browser: {}},
+        store: {products: {}, catalogs: {}, browser: {}, inventory: {}},
         shops: {},
 
         invoice: { order: {}, orderRef: null, items:{}, delivery: false }
@@ -909,29 +909,6 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             return defer.promise;
         },
 
-        loadInventoryProductsAll: function(shopName){
-            var defer = $q.defer();
-            if(shopName && data.shops[shopName] && data.shops[shopName].inventory){
-                var inventoryPath = data.shops[shopName].inventory;
-                if(!data.store.products[inventoryPath]){
-                    data.store.products[inventoryPath] = {};
-                }
-                var invRef = firebaseRef(inventoryPath);
-                invRef.on('child_added', function(childSnap){
-                    api.loadInventoryProduct(childSnap.name(), inventoryPath);
-                });
-                invRef.on('child_removed', function(oldChildSnap){
-                    api.unloadInventoryProduct(oldChildSnap.name(), inventoryPath);
-                });
-
-                defer.resolve(data.store.products[inventoryPath]);
-            }
-            else{
-                defer.reject('Shop \''+shopName+'\' could not be loaded.');
-            }
-            return defer.promise;
-        },
-
         unloadInventoryProduct: function(productID, inventoryPath){
             if(data.store.products[inventoryPath] && data.store.products[inventoryPath][productID]){
                 delete data.store.products[inventoryPath][productID];
@@ -944,16 +921,48 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             });
         },
 
-        unloadInventoryProductsAll: function(shopName){
+        loadShopCatalog: function(shopName){
+            var defer = $q.defer();
+            if(shopName && data.shops[shopName] && data.shops[shopName].catalog){
+                api.loadCatalog(data.shops[shopName].catalog).then(function(catalog){
+                    defer.resolve(catalog);
+                });
+            }
+            else{
+                defer.reject('Could not load catalog for shop \''+shopName+'\'.');
+            }
+            return defer.promise;
+        },
+
+        loadShopInventory: function(shopName){
+            var defer = $q.defer();
             if(shopName && data.shops[shopName] && data.shops[shopName].inventory) {
                 var inventoryPath = data.shops[shopName].inventory;
-                for(var prop in data.store.products[inventoryPath]){
-                    if (data.store.products[inventoryPath].hasOwnProperty(prop)){
-                        delete data.store.products[inventoryPath][prop];
-                    }
+                if(data.store.inventory[inventoryPath]){
+                    defer.resolve(data.store.inventory[inventoryPath]);
+                }
+                else{
+                    var inventorySheet = syncData(inventoryPath);
+                    inventorySheet.$on('loaded', function(){
+                        data.store.inventory[inventoryPath] = inventorySheet;
+                        defer.resolve(data.store.inventory[inventoryPath]);
+                    });
                 }
             }
+            else{
+                defer.reject('Could not load inventory for shop \''+shopName+'\'.');
+            }
+            return defer.promise;
+        },
+
+        unloadShopInventory: function(shopName){
+            if(shopName && data.shops[shopName] && data.shops[shopName].inventory && data.store.inventory[data.shops[shopName].inventory]){
+                delete data.store.inventory[data.shops[shopName].inventory];
+            }
         }
+
+
+
     };
 
 	var shop = {
