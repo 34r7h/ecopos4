@@ -13,7 +13,7 @@ angular.module('ecoposApp').directive('rightBar', function() {
 					scope.rightmd = false;
 					scope.rightlg = false;
 					if(scope.leftlg){
-						scope.leftlg = false
+						scope.leftlg = false;
 					}
 				}
 				if(name==="rightmd"){
@@ -34,7 +34,7 @@ angular.module('ecoposApp').directive('rightBar', function() {
 					scope.leftlg = false;
 
 				}
-			}
+			};
 
 
 		}

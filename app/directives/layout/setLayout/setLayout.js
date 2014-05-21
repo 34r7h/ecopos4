@@ -5,6 +5,7 @@ angular.module('ecoposApp').directive('setLayout', function($rootScope) {
 
 		templateUrl: 'app/directives/layout/setLayout/setLayout.html',
 		link: function(scope, element, attrs, fn) {
+			scope.components=[{name:'orders',icon:'truck'},{name:'shop',icon:'gift'},{name:'inventory',icon:'barcode'},{name:'messages',icon:'envelope'},{name:'events',icon:'calendar'},{name:'infos',icon:'globe'},{name:'notifications',icon:'globe'},{name:'settings',icon:'gear'}];
 			scope.barSize = function(button, name){
 				scope.actionCountLeft = 0;
 				scope.actionCountRight = 0;
@@ -15,7 +16,7 @@ angular.module('ecoposApp').directive('setLayout', function($rootScope) {
 					scope.leftmd = false;
 					scope.leftlg = false;
 					if(scope.rightlg){
-						scope.rightlg = false
+						scope.rightlg = false;
 					}
 				}
 				if(name==="leftmd"){
@@ -41,7 +42,7 @@ angular.module('ecoposApp').directive('setLayout', function($rootScope) {
 					scope.rightmd = false;
 					scope.rightlg = false;
 					if(scope.leftlg){
-						scope.leftlg = false
+						scope.leftlg = false;
 					}
 				}
 				if(name==="rightmd"){
@@ -74,7 +75,7 @@ angular.module('ecoposApp').directive('setLayout', function($rootScope) {
 				if(name==="overlay"){
 					$rootScope.toggle('overlay');
 				}
-			}
+			};
 
 		}
 	};

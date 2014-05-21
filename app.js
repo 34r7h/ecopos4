@@ -17,7 +17,8 @@ angular.module('ecoposApp', [
 	'mobile-angular-ui.scrollable',
 	// 'ngAnimate',
 	'ngTable',
-	'xeditable'
+	'xeditable',
+	'ngPrettyJson'//for development
 ]);
 
 angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) {
