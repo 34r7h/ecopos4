@@ -7,10 +7,10 @@ angular.module('ecoposApp')
 
 		// REFACTOR popdown exclusion group
 		$scope.popDown = function(name){
-			/* var popDowns = ['notifications','cart','messages','events','user'];
+			/* var popDowns = ['activity','cart','messages','events','user'];
 			angular.forEach(popDowns,function(){
 				if(popDowns===name){
-					$scope.notifications = false;
+					$scope.activity = false;
 					$scope.messages = false;
 					$scope.cart = false;
 					$scope.events = false;
@@ -18,38 +18,38 @@ angular.module('ecoposApp')
 				}
 			});
 			*/
-			if(name==='notifications' && $scope.popDownnotifications === false){
-				$scope.popDownnotifications = true;
+			if(name==='activity' && $scope.popDownactivity === false){
+				$scope.popDownactivity = true;
 				$scope.popDownmessages = false;
 				$scope.popDowncart = false;
 				$scope.popDownevents = false;
 				$scope.popDownlogin = false;
 			} else if(name==='cart' && $scope.popDowncart === false){
-				$scope.popDownnotifications = false;
+				$scope.popDownactivity = false;
 				$scope.popDownmessages = false;
 				$scope.popDowncart = true;
 				$scope.popDownevents = false;
 				$scope.popDownlogin = false;
 			} else if(name==='messages' && $scope.popDownmessages === false){
-				$scope.popDownnotifications = false;
+				$scope.popDownactivity = false;
 				$scope.popDownmessages = true;
 				$scope.popDowncart = false;
 				$scope.popDownevents = false;
 				$scope.popDownlogin = false;
 			} else if(name==='events' && $scope.popDownevents === false){
-				$scope.popDownnotifications = false;
+				$scope.popDownactivity = false;
 				$scope.popDownmessages = false;
 				$scope.popDowncart = false;
 				$scope.popDownevents = true;
 				$scope.popDownlogin = false;
 			} else if(name==='login' && $scope.popDownlogin === false){
-				$scope.popDownnotifications = false;
+				$scope.popDownactivity = false;
 				$scope.popDownmessages = false;
 				$scope.popDowncart = false;
 				$scope.popDownevents = false;
 				$scope.popDownlogin = true;
 			} else {
-				$scope.popDownnotifications = false;
+				$scope.popDownactivity = false;
 				$scope.popDownmessages = false;
 				$scope.popDowncart = false;
 				$scope.popDownevents = false;
@@ -90,7 +90,7 @@ angular.module('ecoposApp')
         $scope.product = system.ui.content.product;
 
         $scope.$location = $location;
-        var handleParams = { layout: ['overlay','main','rightbar','leftbar'], content: ['event','info','inventory','message','notification','order','product'] };
+        var handleParams = { layout: ['overlay','main','rightbar','leftbar'], content: ['event','info','inventory','message','activity','order','product'] };
         var handleComps = ['events','inventory','messages','orders'];
 
         $scope.$watch('$location.url()', function(newVal){
