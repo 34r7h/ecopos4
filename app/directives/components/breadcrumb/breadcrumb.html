@@ -5,7 +5,7 @@
     </div>
 
         <div ng-if="!$parent.main" class="row breadcrumb"
-             ng-repeat="cPath in breadcrumb.path"
+             ng-repeat="cPath in $parent.breadcrumb.path"
             ng-click="dropdowns=true"
             ng-mouseover="dropdowns=true;dropIcon='fa-rotate-90';"
             ng-mouseleave="dropdowns=false;dropIcon='';"
