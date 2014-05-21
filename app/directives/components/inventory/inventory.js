@@ -145,14 +145,12 @@ angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, 
             scope.shopSelected = function(){
                 if(scope.invShop){
                     console.log('load shop '+scope.invShop);
-                    shop.api.loadInventoryProductsAll(scope.invShop).then(function(inventory){
+                    shop.api.loadShopInventory(scope.invShop).then(function(inventory){
                         scope.inventory = inventory;
                     });
-                    if(scope.shops[scope.invShop].catalog){
-                        shop.api.loadCatalog(scope.shops[scope.invShop].catalog).then(function(catalog){
-                            scope.catalog = catalog;
-                        });
-                    }
+                    shop.api.loadShopCatalog(scope.invShop).then(function(catalog){
+                        scope.catalog = catalog;
+                    });
                 }
             };
             scope.sortBy = function(key){
