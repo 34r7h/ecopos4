@@ -5,7 +5,7 @@ angular.module('ecoposApp').directive('setLayout', function($rootScope) {
 
 		templateUrl: 'app/directives/layout/setLayout/setLayout.html',
 		link: function(scope, element, attrs, fn) {
-			scope.components=[{name:'orders',icon:'truck'},{name:'shop',icon:'gift'},{name:'inventory',icon:'barcode'},{name:'messages',icon:'envelope'},{name:'events',icon:'calendar'},{name:'infos',icon:'globe'},{name:'notifications',icon:'globe'},{name:'settings',icon:'gear'},{name:'cart',icon:'shopping-cart'}];
+			scope.components=[{name:'orders',icon:'truck'},{name:'shop',icon:'gift'},{name:'stock',icon:'barcode'},{name:'messages',icon:'envelope'},{name:'events',icon:'calendar'},{name:'infos',icon:'globe'},{name:'notifications',icon:'globe'},{name:'settings',icon:'gear'},{name:'cart',icon:'shopping-cart'}];
 			scope.barSize = function(button, name){
 				scope.actionCountLeft = 0;
 				scope.actionCountRight = 0;
