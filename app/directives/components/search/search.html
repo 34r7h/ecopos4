@@ -1,14 +1,28 @@
-<div>
-    <div ng-if="search.results" class="search-results">
-        <div class="col-xs-12 search-items">
+<div class="col-xs-12 " ng-mouseover="expandSearchBar='col-xs-8';searching=true;" ng-mouseleave="expandSearchBar='col-xs-3';searching=false;">
+    <div class="search">
+        <input ng-blur="" ng-click="expandSearchBar='col-xs-8';searching=true;" ng-model="search.value" ng-change="doSearch('value')" placeholder=" ">
+    </div>
 
-            <h4>Search Results: {{searchItems}}</h4>
-            <br>
+    <div ng-if="search.results" class="search-results">
+            <div class="btn-group pull-left search-nav">
+
+                <div ng-click="searchItems.products= false; searchItems.orders= false; searchItems.messages = false;searchItems.products=true" class="btn btn-navbar">
+                    <i class="fa fa-gift"><div ng-show="searching">Products</div></i>
+
+                </div>
+                <div ng-click="searchItems.products= false; searchItems.orders= true; searchItems.messages = false;searchItems.products=false" class="btn btn-navbar">
+                    <i class="fa fa-truck"><div ng-show="searching">Orders</div></i>
+                </div>
+                <div ng-click="searchItems.products= false; searchItems.orders= false; searchItems.messages = true;searchItems.products=false" class="btn btn-navbar">
+                    <i class="fa fa-envelope"><div ng-show="searching">Messages</div></i>
+                </div>
+            </div>
+        <div class="search-items">
             <div ng-show="searchItems.products">
-                <div class="col-xs-12">
+                <div >
                     <strong><em ng-if="search.results.products && search.results.products.length">{{search.results.products.length}}</em><em ng-if="!search.results.products || !search.results.products.length">0</em></strong> products found.
                 </div>
-                <div class="col-xs-12" ng-repeat="res in search.results.products">{{res.name}}, <b>{{res.price | currency}}</b></div>
+                <div ng-repeat="res in search.results.products">{{res.name}}, <b>{{res.price | currency}}</b></div>
             </div>
 
             <div ng-show="searchItems.orders">
@@ -17,6 +31,7 @@
                 </div>
                 <div class="col-xs-12" ng-repeat="res in search.results.orders"><b>{{res.name}}</b></div>
             </div>
+
             <div ng-show="searchItems.messages">
                 <div class="col-xs-12">
                     <strong><em ng-if="search.results.messages && search.results.messages.length">{{search.results.messages.length}}</em><em ng-if="!search.results.messages || !search.results.messages.length">0</em></strong> messages found.
@@ -25,22 +40,6 @@
             </div>
 
         </div>
+    </div>
 
-        <div class="navbar navbar-absolute-bottom search-nav">
-            <div class="btn-group pull-left">
-                <div ng-click="searchItems.products= false; searchItems.orders= false; searchItems.messages = false;searchItems.products=true" class="btn btn-navbar">
-                    <i class="fa fa-gift"></i> Products
-                </div>
-                <div ng-click="searchItems.products= false; searchItems.orders= true; searchItems.messages = false;searchItems.products=false" class="btn btn-navbar">
-                    <i class="fa fa-truck"></i> Orders
-                </div>
-                <div ng-click="searchItems.products= false; searchItems.orders= false; searchItems.messages = true;searchItems.products=false" class="btn btn-navbar">
-                    <i class="fa fa-envelope"></i> Messages
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="search pull-right">
-        <input ng-model="search.value" ng-change="doSearch('value')" placeholder="Search">
-    </div>
 </div>

@@ -1,15 +1,23 @@
-<div>
-    {{dropdowns}}
-    <ul class="breadcrumb">
-        <li ng-repeat="cPath in breadcrumb.path" ng-mouseover="dropdowns=true" ng-mouseleave="dropdowns=false" >
-            <a ng-if="!$last" eco-ref="cPath.path">{{cPath.name.$value}}</a>
-            <strong ng-if="$last">{{cPath.name.$value}}</strong>
-            <ul ng-show="dropdowns" >
-                <li ng-repeat="cChild in cPath.children">
-                    <span ng-if="cChild.productID">$$$ </span><a eco-ref="cChild.url">{{cChild.name}}</a>
-                </li>
-            </ul>
-        </li>
-    </ul>
+<div class="col-xs-12 crumb-container">
+
+    <div ng-if="$parent.main" class="row breadcrumb">
+        <h5>{{$parent.$parent.main}}</h5>
+    </div>
+
+        <div ng-if="!$parent.main" class="row breadcrumb"
+             ng-repeat="cPath in $parent.breadcrumb.path"
+            ng-click="dropdowns=true"
+            ng-mouseover="dropdowns=true;dropIcon='fa-rotate-90';"
+            ng-mouseleave="dropdowns=false;dropIcon='';"
+        >
+            <h5 ng-if="!$last" eco-ref="cPath.path"><a href>{{cPath.name.$value}} <i class="fa fa-chevron-right" ng-class="dropIcon"></i> </a></h5>
+            <h5 ng-if="$last" eco-ref="cPath.path">{{cPath.name.$value}}</h5>
+                <ul ng-show="dropdowns && !$last" >
+                    <li ng-repeat="cChild in cPath.children">
+                        <i ng-init="dropBread='fa fa-angle-right'" ng-class="dropBread"> <a ng-mouseover="dropBread='fa fa-angle-double-right'" ng-mouseleave="dropBread='fa fa-angle-right'" eco-ref="cChild.url">{{cChild.name}}</a></i>
+                    </li>
+                </ul>
+
+        </div>
 
 </div>

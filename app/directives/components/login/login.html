@@ -1,37 +1,47 @@
-<div>
-    <div class="row">
-        <div class="well">
+<div class="login">
+    <div ng-show="user.id || $parent.user.id || $parent.$parent.user.id">
+        <a class="list-group-item" ng-if="user.id || $parent.user.id" href="#" ng-click="logout()">
+            <i class="fa fa-unlock"></i> Log Out <i class="fa fa-chevron-right pull-right"></i></a>
 
-            <ul class="nav nav-tabs">
+        <h5 >Hello <strong>{{ user.id || $parent.user.id}}</strong> <em>[{{ user.activeRole || $parent.user.activeRole}}]</em></h5>
+        <h5  ng-show="employee.shiftType">
+            <p>scheduled as: <em>{{ employee.shiftType }}</em><span ng-show="user.session.activeShift.end"> until {{ user.session.activeShift.end | date:'shortTime' }}</span></p>
+        </h5>
+        <div>
+            <span ng-repeat="(role, assigned) in userBind.roles" ng-if="assigned">
+                <input type="radio" name="roleSelect" value="{{ role }}" ng-model="user.activeRole" />
+            </span>
+        </div>
+    </div>
+
+    <div ng-show="!user.id  && !$parent.user.id && !$parent.$parent.user.id">
+
+            <ul>
                 <li ng-class="{active:loginMode||passwordMode}"><a ng-click="setMode('login')">Login</a></li>
                 <li ng-class="{active:createMode||profileMode}"><a ng-click="setMode('register')">Register</a></li>
             </ul>
 
-            <div ng-show="loginMode || createMode" class="col-sm-12">
-                <button class="btn btn-lg btn-primary" ng-click="login('facebook')">Facebook</button>
-                <legend>Email/Password</legend>
-
-                        <div class="row">
-                            <div class="col-md-6">
+            <div ng-show="loginMode || createMode">
+                        <div>
+                            <div>
                                 <div class="form-group">
-                                    <label>email</label>
-                                    <input class="form-control" type="text" ng-model="email" />
+                                    <input class="form-control" type="text" ng-model="email" placeholder="email"/>
                                 </div>
 
                                 <div class="form-group">
-                                    <label>password</label>
-                                    <input class="form-control" type="password" ng-model="pass" />
+                                    <input class="form-control" type="password" ng-model="pass" placeholder="password"/>
                                 </div>
 
                                 <div class="form-group" ng-show="createMode">
-                                    <label>confirm pass</label>
-                                    <input class="form-control" type="password" ng-model="confirm" />
+                                    <input class="form-control" type="password" ng-model="confirm" placeholder="confirm pass"/>
                                 </div>
 
-                                <button ng-if="loginMode" class="btn btn-primary" ng-click="loginPassword()">Log In</button>
-                                <button ng-if="loginMode" class="btn btn-warning btn-sm" ng-click="setMode('password')">Forgot Password</button>
-                                <button ng-if="createMode" class="btn btn-success" ng-click="createAccount()">Create Account</button>
-                                <button ng-if="createMode" class="btn btn-default btn-sm" ng-click="setMode('login')">Cancel</button>
+                                <button ng-if="loginMode && email && pass" class="col-xs-12 btn btn-sm btn-primary" ng-click="loginPassword()">Log in</button>
+                                <button ng-hide="email && pass" class="col-xs-12 btn btn-sm btn-primary" ng-click="login('facebook')">Log in Facebook</button>
+                                <a href ng-if="loginMode" class="" ng-click="setMode('password')">Forgot Password?</a>
+
+                                <button ng-if="createMode" class="btn btn-success" ng-click="createAccount()">Sign Up</button>
+                                <a ng-if="createMode" ng-click="setMode('login')">Cancel</a>
                             </div>
                         </div>
                     </fieldset>
@@ -41,16 +51,15 @@
                 </form>
             </div>
 
-            <div ng-show="passwordMode" class="col-sm-12">
+            <div ng-show="passwordMode">
                 <form role="form">
                     <fieldset>
-                        <div class="row">
-                            <div class="col-md-6">
+                        <div>
+                            <div>
                                 <p>Please enter your email address to continue...</p>
 
                                 <div class="form-group">
-                                    <label>email</label>
-                                    <input class="form-control" type="text" ng-model="email" />
+                                    <input class="form-control" type="text" ng-model="email" placeholder="email"/>
                                 </div>
 
                                 <button class="btn btn-success" ng-click="recoverPassword()">Recover Password</button>
@@ -64,11 +73,11 @@
                 </form>
             </div>
 
-            <div ng-show="profileMode" class="col-sm-12">
+            <div ng-show="profileMode">
                 <form role="form">
                     <fieldset>
-                        <div class="row">
-                            <div class="col-md-6">
+                        <div>
+                            <div>
                                 <p>Please confirm your username to continue...</p>
 
                                 <div class="form-group">
@@ -81,12 +90,10 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label>username</label>
-                                    <input class="form-control" type="text" ng-model="username" />
+                                    <input class="form-control" type="text" ng-model="username" placeholder="username"/>
                                 </div>
                                 <div class="form-group">
-                                    <label>email</label>
-                                    <input class="form-control" type="text" ng-model="email" />
+                                    <input class="form-control" type="text" ng-model="email" placeholder="email"/>
                                 </div>
 
                                 <button class="btn btn-success" ng-click="createProfile()">Create Account</button>
@@ -99,7 +106,5 @@
                     <div ng-show="err" class="alert alert-danger"><strong>{{err}}</strong></div>
                 </form>
             </div>
-            <user-info></user-info>
         </div>
     </div>
-</div>

@@ -3,7 +3,7 @@ angular.module('ecoposApp').directive('bottomBar', function(system) {
 		restrict: 'E',
 		replace: true,
 		templateUrl: 'app/directives/layout/bottomBar/bottomBar.html',
-		link: function(scope, element, attrs, fn, $scope) {
+		link: function($scope, scope, element, attrs, fn) {
 
 		}
 	};

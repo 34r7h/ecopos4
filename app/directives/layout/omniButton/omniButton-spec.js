@@ -1,4 +1,4 @@
-describe('prefs', function() {
+describe('omniButton', function() {
 
   beforeEach(module('ecoposApp'));
 

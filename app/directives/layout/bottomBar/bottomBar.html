@@ -1,21 +1,15 @@
 <div class="footer rowz col-xs-12">
-    <div class="col-xs-4">
-        <p toggle target="overlay">X</p>
-        <img ng-src="app/images/eco-logo.png" style="position:absolute;bottom:0px;width: 70%; margin:.62% 10%">
 
+    <div class="col-xs-3">
+        <omni-button></omni-button>
     </div>
-    <div class="col-xs-4">
+
+    <div class="col-xs-4 col-xs-push-1 col-xs-pull-1" ng-hide="searching">
+        <set-layout></set-layout>
+    </div>
+
+    <div class="pull-right" ng-class="expandSearchBar" ng-init="{expandSearchBar:'col-xs-3'}">
         <search></search>
     </div>
-    <div class="col-xs-4">
-        <div class="col-xs-12 btn-group">
-            <div class="col-xs-4 text-center footnav fa-lg" ng-repeat="icon in navify">
-                <a class="btn">
-                    <i class="fa fa-circle fa-stack-2x fa-inverse"></i>
-                    <i class="fa fa-{{icon.icon}} fa-2x fa-fw fa-stack-1x"> </i>
-                    <p>{{icon.name}}</p>
-                </a>
-            </div>
-        </div>
-    </div>
+
 </div>

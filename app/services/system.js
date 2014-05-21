@@ -705,8 +705,8 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
     };
 
 	var ui = {
-		navify:{},
-		notify:{},
+		navify:'',
+		notify:'',
 		layout:{
 			overlay:false,
 			main:"",
