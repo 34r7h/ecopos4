@@ -83,15 +83,15 @@ angular.module('ecoposApp')
 
         $scope.event = system.ui.content.event;
         $scope.info = system.ui.content.info;
-        $scope.inventory = system.ui.content.inventory;
+        $scope.stock = system.ui.content.stock;
         $scope.message = system.ui.content.message;
         $scope.notification = system.ui.content.notification;
         $scope.order = system.ui.content.order;
         $scope.product = system.ui.content.product;
 
         $scope.$location = $location;
-        var handleParams = { layout: ['overlay','main','rightbar','leftbar'], content: ['event','info','inventory','message','notification','order','product'] };
-        var handleComps = ['events','inventory','messages','orders'];
+        var handleParams = { layout: ['overlay','main','rightbar','leftbar'], content: ['event','info','stock','message','notification','order','product'] };
+        var handleComps = ['events','stock','messages','orders'];
 
         $scope.$watch('$location.url()', function(newVal){
             var params = $location.search();

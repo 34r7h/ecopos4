@@ -96,7 +96,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 			// Layout parameters: main, leftbar, rightbar, overlay, alert
 			// Personal parameters: role, preferences, history, store
 			// Content parameters: event, info, inventory, notification, order, product, message
-			url:'*path?role&preferences&history&store&overlay&main&leftbar&rightbar&event&info&inventory&notification&message&order&product',
+			url:'*path?role&preferences&history&store&overlay&main&leftbar&rightbar&event&info&stock&notification&message&order&product',
             reloadOnSearch: false,
 			data:{
 
@@ -141,7 +141,7 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) 
 						// Params Content
 						system.ui.content.event = resolution.params.event;
 						system.ui.content.info = resolution.params.info;
-						system.ui.content.inventory = resolution.params.inventory;
+						system.ui.content.stock = resolution.params.stock;
 						system.ui.content.message = resolution.params.message;
 						system.ui.content.notification = resolution.params.notification;
 						system.ui.content.order = resolution.params.order;

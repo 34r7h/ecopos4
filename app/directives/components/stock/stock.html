@@ -11,7 +11,7 @@
             <br/>{{selectedCats}}
         </div>
 
-        <div ng-if="catalog">
+        <div ng-if="false && catalog">
             <script type="text/ng-template" id="category_parent_path.html">
 
             </script>
@@ -44,7 +44,7 @@
             <button class="btn btn-success">Save Products</button>
         </div>
 
-        <table class="inventory">
+        <table class="stock">
             <tr>
                 <th><a ng-click="sortBy('upc')">UPC</a><span ng-show="productOrder==='upc'"><span ng-show="!productReverse">*</span><span ng-show="productReverse">**</span></span></th>
                 <th><a ng-click="sortBy('name')">Product</a><span ng-show="productOrder==='name'"><span ng-show="!productReverse">*</span><span ng-show="productReverse">**</span></span></th>

@@ -1,9 +1,9 @@
-angular.module('ecoposApp').directive('inventory', function($q, $log, $timeout, system, shop, firebaseRef) {
+angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, system, shop, firebaseRef) {
 	return {
 		restrict: 'E',
 		replace: true,
 		scope:'@',
-		templateUrl: 'app/directives/components/inventory/inventory.html',
+		templateUrl: 'app/directives/components/stock/stock.html',
 		link: function(scope, element, attrs, fn) {
             scope.shops = shop.data.shops;
 
