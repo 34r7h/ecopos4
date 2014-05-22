@@ -1,11 +1,16 @@
 <div class="col-xs-12 settings">
     <h1 data-fittext="1" data-fittext-min="16" data-fittext-max="56">Settings</h1>
     <div>{{inputSettings}}</div>
+    <div>{{user.settings}}</div>
 
     <ul ng-repeat="(setID,sets) in ($parent.settings)" class="col-xs-12">
         <li ng-repeat="setting in sets | orderByPriority">
-            <label for="{{setID}}-{{setting.model}}">{{ setting.name }}:</label> <prefs ng-model="inputSettings[setting.model]" type="setting.type" element="setting.element" name="{{setID}}-{{setting.model}}" placeholder="{{setting.name}}"></prefs>
+            <label for="{{setID}}-{{setting.model}}">{{ setting.name }}:</label> <prefs ng-model="user.settings[setID][setting.model]" type="setting.type" element="setting.element" name="{{setID}}-{{setting.model}}" placeholder="{{setting.name}}"></prefs>
         </li>
     </ul>
+
+    <div>
+        <button ng-click="saveSettings()" class="btn btn-primary">Save Settings</button>
+    </div>
 
 </div>
