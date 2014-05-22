@@ -5,12 +5,12 @@
 
     <ul ng-repeat="(setID,sets) in ($parent.settings)" class="col-xs-12">
         <li ng-repeat="setting in sets | orderByPriority">
-            <label for="{{setID}}-{{setting.model}}">{{ setting.name }}:</label> <prefs ng-model="user.settings[setID][setting.model]" type="setting.type" element="setting.element" name="{{setID}}-{{setting.model}}" placeholder="{{setting.name}}"></prefs>
+            <label for="{{setID}}-{{setting.model}}">{{ setting.name }}:</label> <prefs ng-model="userSettings[setID][setting.model]" type="setting.type" element="setting.element" name="{{setID}}-{{setting.model}}" placeholder="{{setting.name}}"></prefs>
         </li>
     </ul>
 
-    <div>
+    <!--div>
         <button ng-click="saveSettings()" class="btn btn-primary">Save Settings</button>
-    </div>
+    </div-->
 
 </div>
