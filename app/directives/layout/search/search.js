@@ -2,7 +2,7 @@ angular.module('ecoposApp').directive('search', function(system) {
 	return {
 		restrict: 'E',
 		replace: true,
-		templateUrl: 'app/directives/components/search/search.html',
+		templateUrl: 'app/directives/layout/search/search.html',
 		link: function(scope, element, attrs, fn) {
 
             scope.searchItems = {products: true};

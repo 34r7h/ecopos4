@@ -1,8 +1,7 @@
-<div>
+<div class="col-xs-12 orders">
+    <h1 data-fittext="1" data-fittext-min="16" data-fittext-max="56">Orders</h1>
+
     <div ng-if="order|| $parent.order">Hello Specific Order</div>
-    <h3>Orders</h3>
-
-
     <div class="clearfix">
         <button ng-click="tableParams.sorting({})" class="btn btn-default pull-right">Clear sorting</button>
         <p><strong>Sorting:</strong> {{tableParams.sorting()|json}}

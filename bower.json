@@ -32,7 +32,8 @@
     "json3": "latest",
     "angular-google-maps": "latest",
     "angular-md5": "latest",
-    "angular-datepicker": "~1.0.3"
+    "angular-datepicker": "~1.0.3",
+    "ngFitText": "~2.4.0"
   },
   "resolutions": {
     "angular": "1.2.15-build.2399+sha.ca4ddfa"

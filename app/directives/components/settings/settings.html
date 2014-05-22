@@ -1,4 +1,6 @@
-<div>
+<div class="col-xs-12 settings">
+    <h1 data-fittext="1" data-fittext-min="16" data-fittext-max="56">Settings</h1>
+
     <ul ng-repeat="sets in ($parent.settings)" class="col-xs-12">
         <li ng-repeat="setting in sets | orderByPriority">
             {{ setting.name }}: <prefs ng-model="setting.model" type="setting.type" element="setting.element" placeholder="{{ setting.name }}"></prefs>

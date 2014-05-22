@@ -6,7 +6,10 @@
             </div>
             <div ng-show="navPop" class="nav-pop" >
                 <div ng-repeat="component in components">
-                    <button ng-mouseover="componentName=true;" ng-mouseleave="componentName=false;" class="btn-success btn-sm col-xs-12" eco-ref="$parent.$parent.system.data.params.data.path +'/?'+ $parent.icon.name +'='+component.name"><div class="fa fa-2x fa-{{component.icon}}"></div><div ng-show="componentName">{{component.name}}</div></button>
+                    <button ng-mouseover="componentName=true;" ng-mouseleave="componentName=false;" class="btn-success btn-sm col-xs-12" eco-ref="$parent.$parent.system.data.params.data.path +'/?'+ $parent.icon.name +'='+component.name">
+                        <div class="fa fa-2x fa-{{component.icon}}"></div>
+                        <div ng-show="componentName">{{component.name}}</div>
+                    </button>
 
                 </div>
             </div>

@@ -17,10 +17,14 @@ angular.module('ecoposApp', [
 	'mobile-angular-ui.scrollable',
 	// 'ngAnimate',
 	'ngTable',
-	'xeditable'
+	'xeditable',
+	'ngFitText'
 ]);
 
-angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider) {
+angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, fitTextConfigProvider) {
+
+	fitTextConfigProvider.config.debounce = true;
+	fitTextConfigProvider.config.delay = 50;
 
 
 	$stateProvider.

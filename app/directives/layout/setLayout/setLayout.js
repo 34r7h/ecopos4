@@ -5,7 +5,17 @@ angular.module('ecoposApp').directive('setLayout', function($rootScope) {
 
 		templateUrl: 'app/directives/layout/setLayout/setLayout.html',
 		link: function(scope, element, attrs, fn) {
-			scope.components=[{name:'orders',icon:'truck'},{name:'shop',icon:'gift'},{name:'stock',icon:'barcode'},{name:'messages',icon:'envelope'},{name:'events',icon:'calendar'},{name:'infos',icon:'globe'},{name:'activity',icon:'globe'},{name:'settings',icon:'gear'},{name:'cart',icon:'shopping-cart'}];
+			scope.components=[
+				{name:'orders',icon:'truck'},
+				{name:'shop',icon:'gift'},
+				{name:'stock',icon:'barcode'},
+				{name:'messages',icon:'envelope'},
+				{name:'events',icon:'calendar'},
+				{name:'infos',icon:'globe'},
+				{name:'activity',icon:'globe'},
+				{name:'settings',icon:'gear'},
+				{name:'cart',icon:'shopping-cart'}
+			];
 
 			scope.barSize = function(button, name){
 				scope.actionCountLeft = 0;
@@ -71,9 +81,16 @@ angular.module('ecoposApp').directive('setLayout', function($rootScope) {
 					scope.leftsm = false;
 					scope.leftmd = false;
 					scope.leftlg = false;
+					$rootScope.toggle('overlay', 'off');
 				}
 				// TODO REFACTOR from $rootScope
 				if(name==="overlay"){
+					scope.rightsm = false;
+					scope.rightmd = false;
+					scope.rightlg = false;
+					scope.leftsm = false;
+					scope.leftmd = false;
+					scope.leftlg = false;
 					$rootScope.toggle('overlay');
 				}
 			};
