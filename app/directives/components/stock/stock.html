@@ -2,30 +2,32 @@
     <h1 data-fittext="1" data-fittext-min="16" data-fittext-max="56">Stock</h1>
 
     <div ng-if="inventory|| $parent.inventory">Hello Specific Inventory Tree</div>
-
     <div>
-        <select ng-model="invShop" ng-change="shopSelected()" ng-options="shopID as shop.name for (shopID,shop) in shops">
-            <option value="">-- choose shop --</option>
-        </select>
+        <a ng-click="stockShow('stock')" ng-class="{'btn': true, 'btn-default': show.stock}">Stock</a>
+        <a ng-click="stockShow('import')" ng-class="{'btn': true, 'btn-default': show.import}">Import</a>
+        <a ng-click="stockShow('createShop')" ng-class="{'btn': true, 'btn-default': show.createShop}">Create Shop</a>
+    </div>
 
+    <div ng-show="show.stock">
+        <div>
+            <select ng-model="invShop" ng-change="shopSelected()" ng-options="shopID as shop.name for (shopID,shop) in shops">
+                <option value="">-- choose shop --</option>
+            </select>
+        </div>
         <div>
             {{productCount()}} products.
-            <br/>{{selectedCats}}
         </div>
 
-        <div ng-if="false && catalog">
-            <script type="text/ng-template" id="category_parent_path.html">
-
-            </script>
+        <div ng-if="catalog">
             <script type="text/ng-template" id="category_tree_select.html">
-                {{childCat.name}} <input type="checkbox" ng-model="selectedCats[parentID+'/'+childCat.$id]" />
+                {{childCat.name}} <input type="checkbox" ng-model="selectedCats[parentName+'/'+childCat.name]" />
                 <ul ng-if="childCat.children">
-                    <li ng-repeat="childCat in childCat.children | orderByPriority | isCategory" ng-include="'category_tree_select.html'" onload="parentID=parentID+'/'+$parent.$parent.$parent.childCat.$id"></li>
+                    <li ng-repeat="childCat in childCat.children | orderByPriority | isCategory" ng-include="'category_tree_select.html'" onload="parentID=parentID+'/'+$parent.$parent.$parent.childCat.$id; parentName=parentName+(parentName?'/':'')+$parent.$parent.$parent.childCat.name"></li>
                 </ul>
             </script>
 
             <ul ng-if="catalog.children">
-                <li ng-repeat="childCat in catalog.children | orderByPriority | isCategory" ng-include="'category_tree_select.html'" onload="parentID=''"></li>
+                <li ng-repeat="childCat in catalog.children | orderByPriority | isCategory" ng-include="'category_tree_select.html'" onload="parentID='';parentName=''"></li>
             </ul>
         </div>
 
@@ -71,7 +73,7 @@
         <p><br/><br/><br/><br/><br/></p>
     </div>
 
-    <div ng-show="showImport">
+    <div ng-show="show.import">
         <div>
             <div>
                 <select ng-model="importShop" ng-disabled="importing" multiple="multiple" ng-options="shopID as shop.name for (shopID,shop) in shops">
@@ -114,7 +116,7 @@
         </div>
     </div>
 
-    <div ng-show="showCreateShop">
+    <div ng-show="show.createShop">
         <h3>Shop Maker</h3>
 
         <div>

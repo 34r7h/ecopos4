@@ -5,6 +5,17 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
 		scope:'@',
 		templateUrl: 'app/directives/components/stock/stock.html',
 		link: function(scope, element, attrs, fn) {
+            scope.show = {
+                stock: true,
+                import: false,
+                createShop: false
+            };
+            scope.stockShow = function(what){
+                angular.forEach(scope.show, function(val, key){
+                    scope.show[key] = (key === what);
+                });
+            };
+
             scope.shops = shop.data.shops;
 
             scope.selectedCats = {};
@@ -27,16 +38,15 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
 
                 if(scope.selectedCats){
                     var selectCats = [];
-                    angular.forEach(scope.selectedCats, function(selected, catID){
+                    angular.forEach(scope.selectedCats, function(selected, catName){
                         if(selected){
-                            selectCats.push(catID);
+                            selectCats.push(catName);
                         }
                     });
                     if(selectCats.length){
-                        // TODO: need to update to handle multiple categories (ie. contains when field and value are both arrays)
                         args.push({
-                            field: 'shops[\''+scope.invShop+'\'].categories[0]',
-                            match: 'contains',
+                            field: 'shops[\''+scope.invShop+'\'].categories',
+                            match: 'containsAny',
                             value: selectCats
                         });
                     }
@@ -167,7 +177,6 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             };
 
             // importing
-            scope.showImport = false;
             scope.importHistory = [];
             scope.importShop = '';
             scope.startImport = function(){
@@ -198,7 +207,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             scope.importers = {
                 'inventory': {
                     name: 'Inventory Sheet',
-                    'raw-table': 'inventory-apr19',
+                    'raw-table': 'inventory-may13',
                     import: function(shopConfigs){
                         var defer = $q.defer();
 
@@ -275,7 +284,6 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
 
 
 			// Shop Maker stuff
-            scope.showCreateShop = false;
 			scope.shopName = '';
 			scope.shopCatalogBranch = '';
 			scope.shopCatalogBranchMod = false;
