@@ -172,15 +172,21 @@ angular.module('ecoposApp').directive('comp', function($compile,$timeout) {
 	};
 });
 
-angular.module("ecoposApp").directive("prefs", function(){
+angular.module("ecoposApp").directive("prefs", function($compile){
 		return {
 			restrict:"E",
-			scope:{element:"=", type:"=", model:"=ngModel"},
+			scope:{element:"=", type:"=", model:"=ngModel", placeholder:'@', name:'@'},
 			link:function(scope, iElem, iAttrs) {
-				var domElement = document.createElement(scope.element);
-				domElement.type = scope.type;
-				domElement.ngModel = scope.name;
-				iElem.append(domElement);
+                var angElement = angular.element(document.createElement(scope.element));
+                angElement.attr('name', scope.name);
+                angElement.attr('id', scope.name);
+                angElement.attr('placeholder', scope.placeholder);
+                angElement.attr('ng-model', "model");
+                if(scope.element === 'input'){
+                    angElement.attr('type', scope.type);
+                }
+                $compile(angElement)(scope);
+				iElem.append(angElement);
 			}
 		};
 	}

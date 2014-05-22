@@ -4,7 +4,7 @@ angular.module('ecoposApp').directive('settings', function() {
 		replace: true,
 		templateUrl: 'app/directives/components/settings/settings.html',
 		link: function(scope, element, attrs, fn) {
-
+            scope.inputSettings = {};
 
 		}
 	};
