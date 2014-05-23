@@ -5,13 +5,17 @@ angular.module('ecoposApp').directive('cart', function(shop, system, $filter) {
 
 		templateUrl: 'app/directives/components/cart/cart.html',
 		link: function($scope, element, attrs, fn) {
-			$scope.title = "assmuncher";
             $scope.orders = system.data.user.orders;
             $scope.user = system.data.user; // needed for user.activeOrder binding
             $scope.activateOrder = function(){
                 shop.api.loadOrder($scope.user.activeOrder).then(function(order){
                     $scope.order = shop.data.invoice.order;
                 });
+            };
+            $scope.removeOrder = function(){
+                if($scope.user.activeOrder){
+                    shop.api.removeOrder($scope.user.activeOrder);
+                }
             };
 
 			$scope.addProduct = shop.api.addProduct;
