@@ -6,19 +6,23 @@ angular.module('ecoposApp').directive('settings', function(system, $timeout) {
 		link: function(scope, element, attrs, fn) {
             scope.user = system.data.user.profile;
 
-            if(scope.user && !scope.user.settings){
-                scope.user.settings = {};
-                if(scope.$parent.settings){
-                    scope.$parent.settings.$on('loaded', function() {
-                        angular.forEach(scope.$parent.settings, function(setting, setID){
-                            if(setID.charAt(0) !== '$'){
-                                if(angular.isUndefined(scope.user.settings[setID])){
-                                    scope.user.settings[setID] = {};
-                                }
-                            }
-                        });
-                    });
-                }
+            if(scope.user){
+                scope.user.$on('loaded', function(){
+                    if(!scope.user.settings){
+                        scope.user.settings = {};
+                        if(scope.$parent.settings){
+                            scope.$parent.settings.$on('loaded', function() {
+                                angular.forEach(scope.$parent.settings, function(setting, setID){
+                                    if(setID.charAt(0) !== '$'){
+                                        if(angular.isUndefined(scope.user.settings[setID])){
+                                            scope.user.settings[setID] = {};
+                                        }
+                                    }
+                                });
+                            });
+                        }
+                    }
+                });
             }
             scope.saveSettings = function(){
                 if(scope.user){
