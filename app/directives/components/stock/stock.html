@@ -66,7 +66,7 @@
                 </tr>
             </thead>
             <tr>
-                <th ng-repeat="sort in sortables | orderBy:'priority'" ng-if="sort.show"><a ng-click="sortBy(sort[name])">{{sort.name | uppercase}}</a><span ng-show="productOrder===sort.name"><span ng-show="!productReverse">*</span><span ng-show="productReverse">**</span></span></th>
+                <th ng-repeat="sort in sortables | orderBy:'priority'" ng-if="sort.show"><a ng-click="sortBy(sort.name)">{{sort.name | uppercase}}</a><span ng-show="productOrder===sort.name"><span ng-show="!productReverse">*</span><span ng-show="productReverse">**</span></span></th>
             </tr>
             <tr ng-repeat="(idx,product) in inventory| orderByPriority | ecoFilter:filterArgs():filters.matchAll | orderBy:productOrder:productReverse" ng-class="{active: (focusProduct===product.$id), changed: (changedProducts[product.$id]?true:false)}">
                 <td class="stock-list" ng-if="sort.show" ng-repeat="sort in sortables | orderBy:'priority'"><input type="{{sort.type}}" ng-model="$parent.product[sort.name]" ng-change="productChanged($parent.product.$id, sort.name)" ng-focus="productFocus($parent.product.$id, sort.name)" ng-blur="productBlur($parent.product.$id, sort.name)" /></td>

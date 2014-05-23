@@ -1,0 +1,16 @@
+<div>
+    <i ng-click="addNewMenu=!addNewMenu" class="fa fa-2x fa-plus"></i>
+    <div class="col-xs-12 add-new" ng-show="addNewMenu">
+        <h4 class="fa fa-plus"> Add New..</h4>
+        <div ng-repeat="(newID,newOne) in addNewThings"  >
+            <h5 ng-click="addNewThing=!addNewThing"><i class="fa-fw fa fa-{{newOne.icon}}"></i> {{newID | uppercase}}</h5>
+            <div ng-show="addNewThing">
+                <div ng-repeat="option in newOne.options">
+                    <input ng-if="option.type!=='select'" type="{{option.type}}" placeholder="{{option.name}}">
+                    <select ng-if="option.type==='select'"><option value="">Choose {{option.name}}</option><option ng-repeat="option in option.options" value="{{option}}">{{option}}</option></select>
+                </div>
+                <button ng-click="$parent.addNewMenu=false;addNewThing=false;">Save {{newID}} </button>
+            </div>
+        </div>
+    </div>
+</div>

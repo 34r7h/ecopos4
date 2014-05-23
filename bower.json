@@ -22,7 +22,7 @@
     "angular-bootstrap": "~0.10.0",
     "moment": "~2.5",
     "less.js": "~1.5",
-    "font-awesome": "~4.0",
+    "font-awesome": "~4.1",
     "angular-gestures": "latest",
     "firebase": "~1.0.2",
     "angularfire": "~0.7.1",
