@@ -8,21 +8,21 @@ angular.module('ecoposApp').directive('settings', function(system, $timeout) {
 
             if(scope.user){
                 scope.user.$on('loaded', function(){
-                    if(!scope.user.settings){
+                    if(!scope.user.settings) {
                         scope.user.settings = {};
-                        if(scope.$parent.settings){
-                            scope.$parent.settings.$on('loaded', function() {
-                                angular.forEach(scope.$parent.settings, function(setting, setID){
-                                    if(setID.charAt(0) !== '$'){
-                                        if(angular.isUndefined(scope.user.settings[setID])){
-                                            scope.user.settings[setID] = {};
-                                        }
-                                    }
-                                });
-                            });
-                        }
+                    }
+                    if(scope.$parent.settings){
+                        angular.forEach(scope.$parent.settings, function(setting, setID){
+                            if(setID.charAt(0) !== '$'){
+                                if(angular.isUndefined(scope.user.settings[setID])){
+                                    scope.user.settings[setID] = {};
+                                }
+                            }
+                        });
                     }
                 });
+
+
             }
             scope.saveSettings = function(){
                 if(scope.user){
