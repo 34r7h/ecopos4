@@ -13,8 +13,11 @@
                       </a>
                       <div ng-mouseleave="$parent.$parent.popDown();" ng-show="$parent.$parent.popDown{{notification.name}}" ng-hide="!$parent.$parent.popDown{{notification.name}}" class="my-dropdown-menu"  ng-style="dirDim">
                           <ul>
-                              <li eco-panel title="{{notification.name}}" iconz="iconx">
+                              <li class="col-xs-12">
                                   <comp element="notification.name"></comp>
+                                  <div class="" ng-repeat="nav in $parent.$parent.navify">
+                                      <div eco-ref="$parent.$parent.system.data.params.data.path +'/?'+ nav.name +'='+$parent.notification.name" class="btn btn-default col-xs-3"><i class="fa fa-{{nav.icon}}"></i></div>
+                                  </div>
 
                               </li>
                           </ul>

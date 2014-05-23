@@ -6,15 +6,11 @@ angular.module('ecoposApp').directive('setLayout', function($rootScope) {
 		templateUrl: 'app/directives/layout/setLayout/setLayout.html',
 		link: function(scope, element, attrs, fn) {
 			scope.components=[
-				{name:'orders',icon:'truck'},
-				{name:'shop',icon:'gift'},
-				{name:'stock',icon:'barcode'},
-				{name:'messages',icon:'envelope'},
-				{name:'events',icon:'calendar'},
-				{name:'infos',icon:'globe'},
-				{name:'activity',icon:'globe'},
-				{name:'settings',icon:'gear'},
-				{name:'cart',icon:'shopping-cart'}
+				{name:'orders',icon:'truck',priority:3},
+				{name:'shop',icon:'gift',priority:1},
+				{name:'stock',icon:'barcode',priority:5},
+				{name:'settings',icon:'gears',priority:10},
+				{name:'cart',icon:'shopping-cart',priority:8}
 			];
 
 			scope.barSize = function(button, name){

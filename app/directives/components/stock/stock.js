@@ -5,6 +5,13 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
 		scope:'@',
 		templateUrl: 'app/directives/components/stock/stock.html',
 		link: function(scope, element, attrs, fn) {
+			scope.sortables=[
+				{name:'name','show':true, type:'text', priority:1},
+				{name:'stock',show:false, type:'number', priority:5},
+				{name:'price',show:false, type:'number', priority:3},
+				{name:'category',show:false, type:'text', priority:7},
+				{name:'suppliers',show:false, type:'text', priority:10}
+			];
             scope.show = {
                 stock: true,
                 import: false,

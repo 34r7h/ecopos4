@@ -5,6 +5,7 @@ angular.module('ecoposApp').directive('cart', function(shop, system, $filter) {
 
 		templateUrl: 'app/directives/components/cart/cart.html',
 		link: function($scope, element, attrs, fn) {
+			$scope.title = "assmuncher";
             $scope.orders = system.data.user.orders;
             $scope.user = system.data.user; // needed for user.activeOrder binding
             $scope.activateOrder = function(){
