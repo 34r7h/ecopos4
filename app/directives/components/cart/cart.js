@@ -12,6 +12,11 @@ angular.module('ecoposApp').directive('cart', function(shop, system, $filter) {
                     $scope.order = shop.data.invoice.order;
                 });
             };
+            $scope.removeOrder = function(){
+                if($scope.user.activeOrder){
+                    shop.api.removeOrder($scope.user.activeOrder);
+                }
+            };
 
 			$scope.addProduct = shop.api.addProduct;
 			$scope.removeItem = shop.api.removeItem;
