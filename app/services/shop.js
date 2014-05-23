@@ -454,6 +454,16 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 }
             });
         },
+        removeOrder: function(orderID){
+            var order = syncData('order/'+orderID)
+            order.$on('loaded', function(){
+                angular.forEach(order.users, function(usertime, userID){
+                    syncData('user/'+userID+'/orders/'+orderID).$remove();
+                });
+                order.$remove();
+            });
+
+        },
 
         orderCheckout: function(){
             api.assertOrderOnline().then(function(order){

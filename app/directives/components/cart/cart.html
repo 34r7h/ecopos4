@@ -1,11 +1,14 @@
 <div class="col-xs-12 cart">
     <h1 data-fittext="1" data-fittext-min="16" data-fittext-max="56">Cart</h1>
     <div class="col-xs-2"><a>Empty Cart</a></div>
+    <div class="col-xs-2">
+        [<a ng-click="removeOrder()">X</a>]
+    </div>
     <div class="col-xs-4"><select ng-model="user.activeOrder" ng-change="activateOrder()">
         <option value="new">-- New Order --</option>
         <option ng-repeat="(orderIdx,order) in orders | orderByPriority" value="{{order.$id}}" ng-selected="order.$id===user.activeOrder">{{order.name}}</option>
     </select></div>
-    <div class="col-xs-6"><button class="col-xs-12" ng-click="checkout()" ng-show="order.status===0">Checkout</button></div>
+    <div class="col-xs-4"><button class="col-xs-12" ng-click="checkout()" ng-show="order.status===0">Checkout</button></div>
 
 
     <table class="table">
