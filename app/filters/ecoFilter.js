@@ -20,35 +20,46 @@ angular.module('ecoposApp').filter('ecoFilter', function() {
                 result = (value <= target);
                 break;
             case 'contains':
-                if(angular.isObject(value)){
-                    value = Object.keys(value);
+                //contains: does value contain target? (value is array or string)
+                if(!angular.isString(value) && !angular.isArray(value)){
+                    if(angular.isObject(value)){
+                        value = Object.keys(value);
+                    }
+                    else{
+                        value = [value];
+                    }
                 }
-                else if(!angular.isArray(value)){
-                    value = [value];
-                }
-                result = (angular.isArray(value) && value.indexOf(target) !== -1);
+                result = (value.indexOf(target) !== -1);
                 break;
             case 'containedIn':
-                if(angular.isObject(target)){
-                    target = Object.keys(target);
+                //containedIn: is value found in target? (target is array or string)
+                if(!angular.isString(target) && !angular.isArray(target)){
+                    if(angular.isObject(target)){
+                        target = Object.keys(target);
+                    }
+                    else{
+                        target = [target];
+                    }
                 }
-                else if(!angular.isArray(target)){
-                    target = [target];
-                }
-                result = (angular.isArray(target) && target.indexOf(value) !== -1);
+                result = (target.indexOf(value) !== -1);
                 break;
             case 'containsAny':
-                if(!angular.isArray(target) && angular.isObject(target)){
-                    target = Object.keys(target);
+                //containsAny: does value contain any of the items in target? (target is array, value is array or string)
+                if(!angular.isArray(target)){
+                    if(angular.isObject(target)){
+                        target = Object.keys(target);
+                    }
+                    else{
+                        target = [target];
+                    }
                 }
-                else if(!angular.isArray(target)){
-                    target = [target];
-                }
-                if(!angular.isArray(value) && angular.isObject(value)){
-                    value = Object.keys(value);
-                }
-                else if(!angular.isArray(value)){
-                    value = [value];
+                if(!angular.isArray(value)){
+                    if(!angular.isString(value) && angular.isObject(value)){
+                        value = Object.keys(value);
+                    }
+                    else{
+                        value = [value];
+                    }
                 }
                 angular.forEach(value, function(cValue){
                     if(target.indexOf(cValue) !== -1){
@@ -84,9 +95,9 @@ angular.module('ecoposApp').filter('ecoFilter', function() {
          *      value: <matchValue>,
          * }]
          *
-         * contains: does value contain target? (value is array)
-         * containedIn: is value found in target? (target is array)
-         * containsAny: does value contain any of the items in target? (target and value are arrays)
+         * contains: does value contain target? (value is array or string)
+         * containedIn: is value found in target? (target is array or string)
+         * containsAny: does value contain any of the items in target? (target is array, value is array or string)
          *
          * if match is an array of operands, value must also be an array and conditions will be applied to values sequentially
          *
