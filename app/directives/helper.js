@@ -8,6 +8,10 @@ angular.module('ecoposApp').directive('comp', function($compile,$timeout) {
 			var domElement;
             scope.$watch('element', function(newVal){
                 if(newVal && (!domElement || !domElement.nodeName || newVal.toLowerCase() !== domElement.nodeName.toLowerCase())){
+                    if(domElement){
+                        //angular.element(domElement).scope().$destroy();
+                    }
+
                     domElement = document.createElement(newVal);
 
                     iElem.empty();
@@ -190,4 +194,39 @@ angular.module("ecoposApp").directive("prefs", function($compile){
 			}
 		};
 	}
+);
+
+angular.module("ecoposApp").filter('startAt', function(){
+    return function(input, offset) {
+        return input.slice(offset);
+    };
+});
+
+angular.module('ecoposApp')
+    .directive('scrollPages', function () {
+        return {
+            link: function (scope, element, attrs) {
+                var offset = parseInt(attrs.threshold) || 0;
+                var e = element[0];
+                var nextPage = attrs.nextPage?attrs.nextPage:null;
+                var prevPage = attrs.prevPage?attrs.prevPage:null;
+                var lastTop = -1;
+
+                element.bind('scroll', function () {
+                    if(prevPage && e.scrollTop < lastTop && e.scrollTop <= offset){
+                        if(scope.$apply(prevPage) && attrs.backScroll){
+                            lastTop = -1;
+                            e.scrollTop = e.scrollHeight-e.offsetHeight-offset-1;
+                        }
+                    }
+                    if(nextPage && e.scrollTop + e.offsetHeight >= e.scrollHeight - offset) {
+                        if(scope.$apply(nextPage) && attrs.backScroll){
+                            e.scrollTop = offset+1;
+                        }
+                    }
+                    lastTop = e.scrollTop;
+                });
+            }
+        };
+    }
 );
