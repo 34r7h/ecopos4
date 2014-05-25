@@ -9,7 +9,7 @@
 
     <div ng-if="inventory || $parent.inventory">Hello Specific Inventory Tree</div>
 
-    <div ng-show="stockOptions" ng-mouseleave="stockOptions=false">
+    <div ng-show="stockOptions">
         <span class="col-xs-3">
             <select ng-model="invShop" ng-change="shopSelected()" ng-options="shopID as shop.name for (shopID,shop) in shops">
                 <option value="">-- choose shop --</option>
@@ -22,7 +22,7 @@
 
     <div ng-if="show.stock">
 
-        <div ng-mouseleave="propertyFilters=false" ng-show="propertyFilters">
+        <div ng-show="propertyFilters">
             <input type="checkbox" ng-model="filters.matchAll" id="filter-match-all" /> <label for="filter-match-all">Match All Criteria</label><br/>
             <label for="filter-name">Name</label> <input type="text" ng-model="filters.name" id="filter-name" /> <input type="checkbox" ng-model="filters.nameExact" id="filter-name-exact" /> <label for="filter-name-exact">Exact</label><br/>
             <label for="filter-upc">UPC</label> <input type="text" ng-model="filters.upc" id="filter-upc" /> <input type="checkbox" ng-model="filters.upcExact" id="filter-upc-exact" /> <label for="filter-upc-exact">Exact</label><br/>
@@ -31,9 +31,9 @@
             <input type="checkbox" ng-model="filters.changedProducts" id="filter-show-changed" /> <label for="filter-show-changed">Show changed</label><br/>
         </div>
 
-        <div ng-mouseleave="categories=false" ng-if="catalog && categories">
+        <div ng-if="catalog && categories">
             <script type="text/ng-template" id="category_tree_select.html">
-                <input type="checkbox" ng-model="selectedCats[parentName+'/'+childCat.name]" /> {{childCat.name}}
+                <input type="checkbox" ng-model="filters.selectedCats[parentName+'/'+childCat.name]" /> {{childCat.name}}
                 <div ng-if="childCat.children">
                     <span ng-repeat="childCat in childCat.children | orderByPriority | isCategory" ng-include="'category_tree_select.html'" onload="parentID=parentID+'/'+$parent.$parent.$parent.childCat.$id; parentName=parentName+(parentName?'/':'')+$parent.$parent.$parent.childCat.name"></span>
                 </div>
@@ -45,7 +45,8 @@
         </div>
 
         <div>
-            {{productCount()}} products.
+            {{filteredProductCount()}}/{{productCount()}} products.
+            {{filters.selectedCats}}
         </div>
 
         <div ng-show="changedProductsCount()">
@@ -56,23 +57,53 @@
             <button class="btn btn-success">Save Products</button>
         </div>
 
-        <table class="stock" ng-if="inventory">
-            <thead>
+        <div ng-show="inventory" class="row">
+            <label for="showCount">Show: </label>
+            <select id="showCount" ng-model="showCount" ng-change="setPageNumbers()">
+                <option>20</option>
+                <option>50</option>
+                <option>100</option>
+                <option>250</option>
+                <option>500</option>
+                <option>1000</option>
+                <option>2500</option>
+                <option>5000</option>
+            </select>
+            <div>
+                Show: <span ng-repeat="sort in sortables | orderBy:'priority'">
+                <input type="checkbox" ng-model="sort.show"> {{sort.name | uppercase}}</span>
+            </div>
+            <table class="stock col-xs-12">
+                <thead>
                 <tr>
-                    <td>
-                        Show: <span ng-repeat="sort in sortables | orderBy:'priority'">
-                        <input type="checkbox" ng-model="sort.show"> {{sort.name | uppercase}}</span>
+                    <th ng-repeat="sort in sortables | orderBy:'priority'" ng-if="sort.show"><a ng-click="sortBy(sort.name)">{{sort.name | uppercase}}</a><span ng-show="productOrder===sort.name"><span ng-show="!productReverse">*</span><span ng-show="productReverse">**</span></span></th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+
+        <div ng-show="inventory" class="row" style="height:400px;overflow-y:auto;overflow-x:hidden;" scroll-pages next-page="nextPage()" prev-page="prevPage()" back-scroll="true">
+        <table class="stock col-xs-12">
+            <tbody>
+                <tr ng-repeat="(idx,product) in inventoryFiltered | orderBy:productOrder:productReverse | startAt:showOffset | limitTo:showCount" ng-class="{active: (focusProduct===product.$id), changed: (changedProducts[product.$id]?true:false)}">
+                    <td class="stock-list" ng-if="sort.show" ng-repeat="sort in sortables | orderBy:'priority'">
+                        <span ng-if="sort.type!=='select'">
+                            <input type="{{sort.type}}" ng-model="$parent.product[sort.name]" ng-change="productChanged($parent.product.$id, sort.name)" ng-focus="productFocus($parent.product.$id, sort.name)" ng-blur="productBlur($parent.product.$id, sort.name)" />
+                        </span>
+                        <span ng-if="sort.type==='select'">
+                            <span ng-if="sort.name==='category'">
+                                {{$parent.product.shops[invShop].categories}}
+                            </span>
+                            <span ng-if="sort.name!=='category'">
+                                {{$parent.product[sort.name]}}
+                            </span>
+                        </span>
                     </td>
                 </tr>
-            </thead>
-            <tr>
-                <th ng-repeat="sort in sortables | orderBy:'priority'" ng-if="sort.show"><a ng-click="sortBy(sort[name])">{{sort.name | uppercase}}</a><span ng-show="productOrder===sort.name"><span ng-show="!productReverse">*</span><span ng-show="productReverse">**</span></span></th>
-            </tr>
-            <tr ng-repeat="(idx,product) in inventory| orderByPriority | ecoFilter:filterArgs():filters.matchAll | orderBy:productOrder:productReverse" ng-class="{active: (focusProduct===product.$id), changed: (changedProducts[product.$id]?true:false)}">
-                <td class="stock-list" ng-if="sort.show" ng-repeat="sort in sortables | orderBy:'priority'"><input type="{{sort.type}}" ng-model="$parent.product[sort.name]" ng-change="productChanged($parent.product.$id, sort.name)" ng-focus="productFocus($parent.product.$id, sort.name)" ng-blur="productBlur($parent.product.$id, sort.name)" /></td>
-            </tr>
+            </tbody>
 
         </table>
+        </div>
 
     </div>
 

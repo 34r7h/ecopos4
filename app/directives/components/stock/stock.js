@@ -1,4 +1,4 @@
-angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, system, shop, firebaseRef) {
+angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, system, shop, firebaseRef, $filter) {
 	return {
 		restrict: 'E',
 		replace: true,
@@ -9,8 +9,8 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
 				{name:'name','show':true, type:'text', priority:1},
 				{name:'stock',show:false, type:'number', priority:5},
 				{name:'price',show:false, type:'number', priority:3},
-				{name:'category',show:false, type:'text', priority:7},
-				{name:'suppliers',show:false, type:'text', priority:10}
+				{name:'category',show:false, type:'select', priority:7},
+				{name:'suppliers',show:false, type:'select', priority:10}
 			];
             scope.show = {
                 stock: true,
@@ -25,8 +25,6 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
 
             scope.shops = shop.data.shops;
 
-            scope.selectedCats = {};
-
             // filtering
             scope.filters = {
                 matchAll: true,
@@ -38,14 +36,15 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 priceLow: 0,
                 priceHigh: 0,
                 stockLow: 1,
-                stockHigh: 0
+                stockHigh: 0,
+                selectedCats: {}
             };
-            scope.filterArgs = function(){
+            function filterArgs(){
                 var args = [];
 
-                if(scope.selectedCats){
+                if(scope.filters.selectedCats){
                     var selectCats = [];
-                    angular.forEach(scope.selectedCats, function(selected, catName){
+                    angular.forEach(scope.filters.selectedCats, function(selected, catName){
                         if(selected){
                             selectCats.push(catName);
                         }
@@ -124,7 +123,21 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                     });
                 }
                 return args;
+            }
+            scope.filterInventory = function(){
+                scope.inventoryFiltered = $filter('ecoFilter')(scope.inventory, filterArgs(), scope.filters.matchAll);
             };
+
+            scope.$watchCollection('filters', function(){
+                //scope.filterArgs = scope.refreshFilterArgs();
+                //scope.inventoryFiltered = $filter('ecoFilter')(scope.inventory, scope.filterArgs(), scope.filters.matchAll);
+                scope.filterInventory();
+            });
+            scope.$watchCollection('filters.selectedCats', function(){
+                //scope.filterArgs = scope.refreshFilterArgs();
+                scope.filterInventory();
+            });
+
 
             // product management
             scope.changedProducts = {};
@@ -151,19 +164,41 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 }
             };
 
-
             // inventory table
+            scope.showCount = 50;
+            scope.showOffset = 0;
+            scope.setPage = function(pageNum){
+                scope.showOffset = pageNum*scope.showCount;
+            };
+            scope.nextPage = function(){
+                var maxOff = (Object.keys(scope.inventoryFiltered).length - scope.showCount);
+                if(scope.showOffset <= maxOff){
+                    scope.showOffset += scope.showCount;
+                }
+                return (scope.showOffset <= maxOff);
+            };
+            scope.prevPage = function(){
+                if(scope.showOffset >= 1){
+                    scope.showOffset -= scope.showCount;
+                }
+                return (scope.showOffset >= 1);
+            };
+
             scope.invShop = '';
             scope.productOrder = '';
             scope.productReverse = false;
             scope.productCount = function(){
                 return (scope.inventory?Object.keys(scope.inventory).length:0);
             };
+            scope.filteredProductCount = function(){
+                return (scope.inventoryFiltered?Object.keys(scope.inventoryFiltered).length:0);
+            };
             scope.shopSelected = function(){
                 if(scope.invShop){
                     console.log('load shop '+scope.invShop);
                     shop.api.loadShopInventory(scope.invShop).then(function(inventory){
                         scope.inventory = inventory;
+                        scope.filterInventory();
                     });
                     shop.api.loadShopCatalog(scope.invShop).then(function(catalog){
                         scope.catalog = catalog;
