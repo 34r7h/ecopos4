@@ -58,12 +58,12 @@
 
         <table class="stock" ng-if="inventory">
             <thead>
-                <tr>
-                    <td>
-                        Show: <span ng-repeat="sort in sortables | orderBy:'priority'">
+            <tr>
+                <td>
+                    Show: <span ng-repeat="sort in sortables | orderBy:'priority'">
                         <input type="checkbox" ng-model="sort.show"> {{sort.name | uppercase}}</span>
-                    </td>
-                </tr>
+                </td>
+            </tr>
             </thead>
             <tr>
                 <th ng-repeat="sort in sortables | orderBy:'priority'" ng-if="sort.show"><a ng-click="sortBy(sort.name)">{{sort.name | uppercase}}</a><span ng-show="productOrder===sort.name"><span ng-show="!productReverse">*</span><span ng-show="productReverse">**</span></span></th>

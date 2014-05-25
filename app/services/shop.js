@@ -952,11 +952,16 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                     defer.resolve(data.store.inventory[inventoryPath]);
                 }
                 else{
-                    var inventorySheet = syncData(inventoryPath);
-                    inventorySheet.$on('loaded', function(){
-                        data.store.inventory[inventoryPath] = inventorySheet;
+                    firebaseRef(inventoryPath).once('value', function(snap){
+                        data.store.inventory[inventoryPath] = $filter('orderByPriority')(snap.val());
                         defer.resolve(data.store.inventory[inventoryPath]);
                     });
+
+                    /**var inventorySheet = syncData(inventoryPath);
+                    inventorySheet.$on('loaded', function(){
+                        data.store.inventory[inventoryPath] = $filter('orderByPriority')(inventorySheet);
+                        defer.resolve(data.store.inventory[inventoryPath]);
+                    });*/
                 }
             }
             else{
