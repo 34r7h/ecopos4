@@ -1,4 +1,4 @@
-angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q, $filter, $http) {
+angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q, $filter, $http, Firebase, $firebase) {
 
     var data = {
         user: {id: null, anonID: '', profile: null, activeRole: 'anonymous', activeOrder: '', geoIP: {}, messages: {}, events: {}, orders: {}, calendar: {}, session: {anonCheckTime: 0, firstActiveRole: true, calendarEvents: {}}},
@@ -347,6 +347,30 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
 
         // Messages API
 
+	    addNewMessage: function(time, subject, users, message){
+		    var fireRef = new Firebase('https://opentest.firebaseio.com/message/');
+		    var fire = $firebase(fireRef);
+		    var newMessage = {users:{},subject:subject,conversation:{}};
+		    function CreateObject(propName, propValue){
+			    this[propName] = propValue;
+		    }
+		    angular.forEach(users, function(active, username){
+			    syncData('user/'+username+'/messages/unseen/'+fireRef.name()).$set(active);
+		    });
+		    var MyObj1 = new CreateObject(users,'true');
+		    newMessage.conversation[new Date().getTime()] = {user:"irthism",text:message};
+		    newMessage.users = MyObj1;
+		    syncData('message').$add({
+			    subject: newMessage.subject,
+			    users: newMessage.users,
+			    conversation: newMessage.conversation
+		    }).then(function(messageRef){
+			    angular.forEach(newMessage.users, function(active, username){
+				    syncData('user/'+username+'/messages/unseen/'+messageRef.name()).$set(active);
+			    });
+		    });
+		    console.log(time+": time added? "+subject+": subject added? "+users+": users added? "+message+": message added? ");
+	    },
         createConversation: function(subject, fromUser, toUsers, text){
             toUsers = (toUsers instanceof Array)?toUsers:[toUsers];
 

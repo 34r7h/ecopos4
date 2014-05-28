@@ -5,11 +5,30 @@
         <div ng-repeat="(newID,newOne) in addNewThings"  >
             <h5 ng-click="addNewThing=!addNewThing"><i class="fa-fw fa fa-{{newOne.icon}}"></i> {{newID | uppercase}}</h5>
             <div ng-show="addNewThing">
+                <form name="theform" ng-submit="addNew[newID](theform.$valid)" novalidate>
                 <div ng-repeat="option in newOne.options">
-                    <input ng-if="option.type!=='select'" type="{{option.type}}" placeholder="{{option.name}}">
-                    <select ng-if="option.type==='select'"><option value="">Choose {{option.name}}</option><option ng-repeat="option in option.options" value="{{option}}">{{option}}</option></select>
+                    <input
+                        name="$parent.option.model"
+                        ng-if="option.type!=='select'"
+                        type="{{option.type}}"
+                        ng-model="$parent.option.name"
+                        placeholder="{{$parent.option.model}}"
+                        ng-minlength="3" ng-maxlength="8"
+                        required
+                        novalidate
+                    >
+                    <select ng-if="option.type==='select'" ng-model="$parent.option.name" ng-options="user as user for user in $parent.option.options">
+                        <option value="">Choose</option>
+                    </select>
                 </div>
-                <button ng-click="$parent.addNewMenu=false;addNewThing=false;">Save {{newID}} </button>
+                <button ng-disabled="theform.$invalid || theform.name.$pristine"
+                    type="submit"
+                    >
+                <!-- $parent.addNewMenu=false;addNewThing=false; -->
+
+                    Save {{newID}}
+                </button>
+                </form>
             </div>
         </div>
     </div>

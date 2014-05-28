@@ -2,10 +2,8 @@ angular.module('ecoposApp').directive('addNew', function(system) {
 	return {
 		restrict: 'E',
 		replace: true,
-
-		templateUrl: 'app/directives/layout/addNew/addNew.html',
-		link: function(scope, element, attrs, fn) {
-			scope.addNewByRole = {
+		controller: function($scope, system){
+			$scope.addNewByRole = {
 				admin : {
 					product:{
 						options:[{name:'name',type:'text'},{name:'upc',type:'text'},{name:'supplier',type:'select', options:['supplier1','supplier2']},{name:'price',type:'number'}],
@@ -24,7 +22,11 @@ angular.module('ecoposApp').directive('addNew', function(system) {
 						icon:"calendar"
 					},
 					message:{
-						options:[{name:'users',type:'select',options:['user1','user2']},{name:'subject',type:'text'},{name:'content',type:'text'}],
+						options:[
+							{model: 'users', name:'',type:'select',options:['irthism','user2']},
+							{model: 'subject', name:'',type:'text'},
+							{model: 'message', name:'',type:'text'}
+						],
 						icon:"envelope"
 					},
 					activity:{
@@ -45,8 +47,30 @@ angular.module('ecoposApp').directive('addNew', function(system) {
 				employee:{},
 				customer:{}
 			};
-			scope.userActiveRole = system.data.user.activeRole;
-			scope.addNewThings = scope.addNewByRole[scope.userActiveRole];
+
+
+			$scope.addNew = {
+				message:function(){
+					$scope.subjectModel=$scope.addNewByRole.admin.message.options[1].name;
+					$scope.messageModel =$scope.addNewByRole.admin.message.options[2].name;
+					$scope.usersModel=$scope.addNewByRole.admin.message.options[0].name;
+					$scope.timestampModel=Date();
+					system.api.addNewMessage($scope.timestampModel, $scope.subjectModel, $scope.usersModel, $scope.messageModel);
+				},
+				users:function(){console.log('new users');},
+				info:function(){console.log('new info');},
+				event:function(){console.log('new event');},
+				category:function(){console.log('new category');},
+				store:function(){console.log('new store');},
+				activity:function(){console.log('new activity');},
+				product:function(){console.log('new product');}
+			};
+			$scope.userActiveRole = system.data.user.activeRole;
+			$scope.addNewThings = $scope.addNewByRole[$scope.userActiveRole];
+		},
+		templateUrl: 'app/directives/layout/addNew/addNew.html',
+		link: function(scope, element, attrs, fn) {
+			
 		}
 	};
 });
