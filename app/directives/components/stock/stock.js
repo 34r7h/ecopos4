@@ -28,9 +28,9 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 });
             };
 
-
             scope.catalogs = {};
             scope.inventories = {};
+            scope.loadingInventory = {};
 
             shop.data.shops.$on('loaded', function(){
                 scope.shops = shop.data.shops;
@@ -40,11 +40,19 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                     });
                 });
             });
-            scope.loadShopInventory = function(shopID){
+            scope.shopLoadInventory = function(shopID){
+                scope.loadingInventory[shopID] = true;
                 shop.api.loadShopInventory(shopID).then(function(inventory){
                     scope.inventories[shopID] = inventory;
-                    //scope.filterInventory();
+                    if(scope.loadingInventory[shopID]){
+                        delete scope.loadingInventory[shopID];
+                    }
+                    scope.combineInventory();
+                    scope.filterInventory();
                 });
+            };
+            scope.shopProductCount = function(shopID){
+                return (scope.inventories[shopID]?Object.keys(scope.inventories[shopID]).length:0);
             };
 
             // filtering
@@ -59,7 +67,8 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 priceHigh: 0,
                 stockLow: 1,
                 stockHigh: 0,
-                selectedCats: {}
+                selectedCats: {},
+                selectedShops: {}
             };
             function filterArgs(){
                 var args = [];
@@ -154,12 +163,29 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                     }
                 }
             };
+            scope.combineInventory = function(){
+                var invIncluded = [];
+                scope.inventory = [];
+                angular.forEach(scope.filters.selectedShops, function(shopActive, shopID){
+                    if(shopActive && scope.inventories[shopID] && scope.inventories[shopID].length){
+                        var cInv = scope.shops[shopID].inventory;
+                        if(invIncluded.indexOf(cInv) === -1){
+                            invIncluded.push(cInv);
+                            scope.inventory = scope.inventory.concat(scope.inventories[shopID]);
+                        }
+                    }
+                });
+            };
 
             // if we watch our own filter collections, it is more efficient than the ng-repeat watching them
             scope.$watchCollection('filters', function(){
                 scope.filterInventory();
             });
             scope.$watchCollection('filters.selectedCats', function(){
+                scope.filterInventory();
+            });
+            scope.$watchCollection('filters.selectedShops', function(){
+                scope.combineInventory();
                 scope.filterInventory();
             });
 

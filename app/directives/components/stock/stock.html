@@ -37,14 +37,14 @@
 
         <div ng-repeat="(shopID, shop) in shops" class="shop-catalog col-xs-4">
             <a ng-show="catalogs[shopID]" ng-click="toggleShop(shopID)" class="fa fa-fw" ng-class="{'fa-plus':!openShops[shopID], 'fa-minus':openShops[shopID]}"></a>
-            <strong>{{shop.name}}</strong>
-            (<span ng-show="inventories[shopID]"> {{shopProductCount(shopID)}} products</span>
-            <span ng-show="!inventories[shopID]"> inventory not loaded</span> <a ng-click="loadS")
+            <label for="select-shop-{{shopID}}"><strong>{{shop.name}}</strong></label>
+            (<a ng-click="shopLoadInventory(shopID)" ng-show="!loadingInventory[shopID]" class="fa fa-fw fa-refresh"></a><i ng-show="loadingInventory[shopID]" class="fa fa-fw fa-spin fa-spinner"></i> <input type="checkbox" ng-model="filters.selectedShops[shopID]" id="select-shop-{{shopID}}" /><span ng-show="inventories[shopID]">{{shopProductCount(shopID)}} products</span><span ng-show="!inventories[shopID]">inventory not loaded</span>)
 
             <div ng-show="openShops[shopID] && catalogs[shopID] && catalogs[shopID].children">
                 <span ng-repeat="childCat in catalogs[shopID].children | orderByPriority | isCategory" ng-include="'category_list_recur.html'" onload="shopID=shopID;parentID='';parentName=''"></span>
             </div>
         </div>
+        {{filters.selectedCats}}
     </div>
 
     <div ng-if="show.stock">
@@ -79,8 +79,7 @@
         </div>
 
         <div>
-            {{filteredProductCount()}}/{{productCount()}} products.
-            {{filters.selectedCats}}
+            Showing {{filteredProductCount()}}/{{productCount()}} products.
         </div>
 
         <div ng-show="changedProductsCount()">
@@ -143,8 +142,11 @@
                             <input type="{{sort.type}}" ng-model="$parent.product[sort.name]" ng-change="productChanged($parent.product.$id, sort.name)" ng-focus="productFocus($parent.product.$id, sort.name)" ng-blur="productBlur($parent.product.$id, sort.name)" />
                         </span>
                         <span ng-if="sort.type==='select'">
-                            <span ng-if="sort.name==='category'">
-                                {{$parent.product.shops[invShop].categories}}
+                            <span ng-if="sort.name==='category'" ng-repeat="(catShopID,catShop) in $parent.product.shops">
+                                <strong>{{shops[catShopID].name}}</strong>
+                                <ul>
+                                    <li ng-repeat="cShopCat in catShop.categories">{{cShopCat}}</li>
+                                </ul>
                             </span>
                             <span ng-if="sort.name!=='category'">
                                 {{$parent.product[sort.name]}}
