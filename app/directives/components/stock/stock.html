@@ -20,6 +20,33 @@
         <a class="col-xs-3" ng-click="stockShow('createShop')" ng-class="{'btn': true, 'btn-default': show.createShop}">Create Shop</a>
     </div>
 
+    <div class="row shops">
+        <script type="text/ng-template" id="category_list_recur.html">
+            <div ng-switch="hasChildCategories(childCat)">
+                <a ng-switch-when="true" ng-click="toggleCategory(shopID+'/'+parentID+'/'+childCat.$id)" class="fa fa-fw" ng-class="{'fa-plus':!openCategories[shopID+'/'+parentID+'/'+childCat.$id], 'fa-minus':openCategories[shopID+'/'+parentID+'/'+childCat.$id]}"></a>
+                <i ng-switch-when="false" class="fa fa-fw"> </i>
+
+                <input type="checkbox" ng-model="filters.selectedCats[parentName+'/'+childCat.name]" id="select-cat-{{shopID}}/{{parentName}}/{{childCat.name}}" />
+                <label for="select-cat-{{shopID}}/{{parentName}}/{{childCat.name}}"><strong>{{childCat.name}}</strong></label>
+
+                <div ng-switch-when="true" ng-if="childCat.children && openCategories[shopID+'/'+parentID+'/'+childCat.$id]">
+                    <span ng-repeat="childCat in childCat.children | orderByPriority | isCategory" ng-include="'category_list_recur.html'" onload="shopID=shopID;parentID=parentID+'/'+$parent.$parent.$parent.childCat.$id; parentName=parentName+(parentName?'/':'')+$parent.$parent.$parent.childCat.name"></span>
+                </div>
+            </div>
+        </script>
+
+        <div ng-repeat="(shopID, shop) in shops" class="shop-catalog col-xs-4">
+            <a ng-show="catalogs[shopID]" ng-click="toggleShop(shopID)" class="fa fa-fw" ng-class="{'fa-plus':!openShops[shopID], 'fa-minus':openShops[shopID]}"></a>
+            <strong>{{shop.name}}</strong>
+            (<span ng-show="inventories[shopID]"> {{shopProductCount(shopID)}} products</span>
+            <span ng-show="!inventories[shopID]"> inventory not loaded</span> <a ng-click="loadS")
+
+            <div ng-show="openShops[shopID] && catalogs[shopID] && catalogs[shopID].children">
+                <span ng-repeat="childCat in catalogs[shopID].children | orderByPriority | isCategory" ng-include="'category_list_recur.html'" onload="shopID=shopID;parentID='';parentName=''"></span>
+            </div>
+        </div>
+    </div>
+
     <div ng-if="show.stock">
 
         <div ng-show="propertyFilters">
@@ -33,15 +60,22 @@
 
         <div ng-if="catalog && categories">
             <script type="text/ng-template" id="category_tree_select.html">
-                <input type="checkbox" ng-model="filters.selectedCats[parentName+'/'+childCat.name]" /> {{childCat.name}}
-                <div ng-if="childCat.children">
-                    <span ng-repeat="childCat in childCat.children | orderByPriority | isCategory" ng-include="'category_tree_select.html'" onload="parentID=parentID+'/'+$parent.$parent.$parent.childCat.$id; parentName=parentName+(parentName?'/':'')+$parent.$parent.$parent.childCat.name"></span>
+                <div ng-switch="hasChildCategories(childCat)">
+                    <a ng-switch-when="true" ng-click="toggleCategory(parentID+'/'+childCat.$id)" class="fa fa-fw" ng-class="{'fa-plus':!openCategories[parentID+'/'+childCat.$id], 'fa-minus':openCategories[parentID+'/'+childCat.$id]}"></a>
+                    <i ng-switch-when="false" class="fa fa-fw"> </i>
+
+                    <input type="checkbox" ng-model="filters.selectedCats[parentName+'/'+childCat.name]" id="select-cat-{{parentName}}/{{childCat.name}}" />
+                    <label for="select-cat-{{parentName}}/{{childCat.name}}"><strong>{{childCat.name}}</strong></label>
+
+                    <div ng-switch-when="true" ng-if="childCat.children && openCategories[parentID+'/'+childCat.$id]">
+                        <span ng-repeat="childCat in childCat.children | orderByPriority | isCategory" ng-include="'category_tree_select.html'" onload="parentID=parentID+'/'+$parent.$parent.$parent.childCat.$id; parentName=parentName+(parentName?'/':'')+$parent.$parent.$parent.childCat.name"></span>
+                    </div>
                 </div>
             </script>
 
-            <ul ng-if="catalog.children">
-                <li ng-repeat="childCat in catalog.children | orderByPriority | isCategory" ng-include="'category_tree_select.html'" onload="parentID='';parentName=''"></li>
-            </ul>
+            <div ng-if="catalog.children">
+                <span ng-repeat="childCat in catalog.children | orderByPriority | isCategory" ng-include="'category_tree_select.html'" onload="parentID='';parentName=''"></span>
+            </div>
         </div>
 
         <div>
@@ -55,6 +89,19 @@
                 <li ng-repeat="(changedID,changedFields) in changedProducts"><span ng-if="inventory[changedID]">{{inventory[changedID].name}}</span><span ng-if="!inventory[changedID]">{{changedID}}</span>: {{changedFields}}</li>
             </ul>
             <button class="btn btn-success">Save Products</button>
+        </div>
+
+        <div ng-show="productBatchCount()">
+            {{productBatchCount()}} products in batch.
+            <div>
+                <label for="batch-stock">Stock:</label> <input id="batch-stock" ng-model="batch.stock" type="number" />
+            </div>
+            <div>
+                <label for="batch-sale">Sale:</label> <input id="batch-sale" ng-model="batch.sale" type="text" />
+            </div>
+            <ul>
+                <li ng-repeat="(entryID, batchEntry) in productBatch">{{entryID}}</li>
+            </ul>
         </div>
 
         <div ng-show="inventory" class="row">
@@ -71,11 +118,12 @@
             </select>
             <div>
                 Show: <span ng-repeat="sort in sortables | orderBy:'priority'">
-                <input type="checkbox" ng-model="sort.show"> {{sort.name | uppercase}}</span>
+                <input type="checkbox" ng-model="sort.show" ng-change="setColumnCount()"> {{sort.name | uppercase}}</span>
             </div>
             <table class="stock col-xs-12">
                 <thead>
                 <tr>
+                    <th class="col-controls">&nbsp;</th>
                     <th ng-repeat="sort in sortables | orderBy:'priority'" ng-if="sort.show"><a ng-click="sortBy(sort.name)">{{sort.name | uppercase}}</a><span ng-show="productOrder===sort.name"><span ng-show="!productReverse">*</span><span ng-show="productReverse">**</span></span></th>
                 </tr>
                 </thead>
@@ -83,9 +131,13 @@
         </div>
 
         <div ng-show="inventory" class="row" style="height:400px;overflow-y:auto;overflow-x:hidden;" scroll-pages next-page="nextPage()" prev-page="prevPage()" back-scroll="true">
-            <table class="stock col-xs-12">
+            <div style="min-height:410px;overflow:hidden;"><table class="stock col-xs-12">
                 <tbody>
-                <tr ng-repeat="(idx,product) in inventoryFiltered | orderBy:productOrder:productReverse | startAt:showOffset | limitTo:showCount" ng-class="{active: (focusProduct===product.$id), changed: (changedProducts[product.$id]?true:false)}">
+                <tr ng-repeat-start="(idx,product) in inventoryFiltered | orderBy:productOrder:productReverse | startAt:showOffset | limitTo:showCount" ng-class="{active: (focusProduct===product.$id), changed: (changedProducts[product.$id]?true:false)}">
+                    <td class="col-controls">
+                        <input type="checkbox" ng-model="productBatch[product.$id]" ng-change="productBatchToggle(product.$id)" />
+                        <a ng-click="toggleProduct(product.$id)" class="fa fa-fw" ng-class="{'fa-plus':!openProducts[product.$id], 'fa-minus':openProducts[product.$id]}"></a>
+                    </td>
                     <td class="stock-list" ng-if="sort.show" ng-repeat="sort in sortables | orderBy:'priority'">
                         <span ng-if="sort.type!=='select'">
                             <input type="{{sort.type}}" ng-model="$parent.product[sort.name]" ng-change="productChanged($parent.product.$id, sort.name)" ng-focus="productFocus($parent.product.$id, sort.name)" ng-blur="productBlur($parent.product.$id, sort.name)" />
@@ -100,9 +152,14 @@
                         </span>
                     </td>
                 </tr>
+                <tr ng-repeat-end ng-show="openProducts[product.$id]" class="product-full">
+                    <td class="col-controls">&nbsp;</td>
+                    <td colspan="{{columnCount}}">
+                        oh ya we be winning the lorem ipsum delorian time travelin' mofreakin zilla squashing building rampage
+                    </td>
+                </tr>
                 </tbody>
-
-            </table>
+            </table></div>
         </div>
 
     </div>

@@ -12,6 +12,11 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
 				{name:'category',show:false, type:'select', priority:7},
 				{name:'suppliers',show:false, type:'select', priority:10}
 			];
+            scope.columnCount = 1;
+            scope.setColumnCount = function(){
+                scope.columnCount = $filter('filter')(scope.sortables, {show:true}).length;
+            };
+
             scope.show = {
                 stock: true,
                 import: false,
@@ -23,7 +28,24 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 });
             };
 
-            scope.shops = shop.data.shops;
+
+            scope.catalogs = {};
+            scope.inventories = {};
+
+            shop.data.shops.$on('loaded', function(){
+                scope.shops = shop.data.shops;
+                angular.forEach(scope.shops, function(cShop, shopID){
+                    shop.api.loadShopCatalog(shopID).then(function(catalog){
+                        scope.catalogs[shopID] = catalog;
+                    });
+                });
+            });
+            scope.loadShopInventory = function(shopID){
+                shop.api.loadShopInventory(shopID).then(function(inventory){
+                    scope.inventories[shopID] = inventory;
+                    //scope.filterInventory();
+                });
+            };
 
             // filtering
             scope.filters = {
@@ -126,20 +148,33 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             }
             scope.filterInventory = function(){
                 scope.inventoryFiltered = $filter('ecoFilter')(scope.inventory, filterArgs(), scope.filters.matchAll);
+                if(scope.inventoryFiltered){
+                    while(scope.inventoryFiltered.length < scope.showOffset){
+                        scope.prevPage();
+                    }
+                }
             };
 
+            // if we watch our own filter collections, it is more efficient than the ng-repeat watching them
             scope.$watchCollection('filters', function(){
-                //scope.filterArgs = scope.refreshFilterArgs();
-                //scope.inventoryFiltered = $filter('ecoFilter')(scope.inventory, scope.filterArgs(), scope.filters.matchAll);
                 scope.filterInventory();
             });
             scope.$watchCollection('filters.selectedCats', function(){
-                //scope.filterArgs = scope.refreshFilterArgs();
                 scope.filterInventory();
             });
 
 
             // product management
+            scope.productBatch = {};
+            scope.productBatchToggle = function(productID){
+                if(!scope.productBatch[productID] && angular.isDefined(scope.productBatch[productID])){
+                    delete scope.productBatch[productID];
+                }
+            };
+            scope.productBatchCount = function(){
+                return (scope.productBatch?Object.keys(scope.productBatch).length:0);
+            };
+
             scope.changedProducts = {};
             scope.focusProduct = '';
             scope.focusField = '';
@@ -162,6 +197,82 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 if(scope.focusProduct === productID){
                     scope.focusProduct = '';
                 }
+            };
+
+            scope.openProducts = {};
+            scope.openProduct = function(productID){
+                if(!scope.openProducts){
+                    scope.openProducts = {};
+                }
+                scope.openProducts[productID] = true;
+            };
+            scope.closeProduct = function(productID){
+                if(scope.openProducts && scope.openProducts[productID]){
+                    delete scope.openProducts[productID];
+                }
+            };
+            scope.toggleProduct = function(productID){
+                if(!scope.openProducts[productID]){
+                    scope.openProduct(productID);
+                }
+                else{
+                    scope.closeProduct(productID);
+                }
+            };
+
+            // shops
+            scope.openShops = {};
+            scope.openShop = function(shopID){
+                if(!scope.openShops){
+                    scope.openShops = {};
+                }
+                scope.openShops[shopID] = true;
+            };
+            scope.closeShop = function(shopID){
+                if(scope.openShops && scope.openShops[shopID]){
+                    delete scope.openShops[shopID];
+                }
+            };
+            scope.toggleShop = function(shopID){
+                if(!scope.openShops[shopID]){
+                    scope.openShop(shopID);
+                }
+                else{
+                    scope.closeShop(shopID);
+                }
+            };
+
+            // cateogries
+            scope.openCategories = {};
+            scope.openCategory = function(categoryID){
+                if(!scope.openCategories){
+                    scope.openCategories = {};
+                }
+                scope.openCategories[categoryID] = true;
+            };
+            scope.closeCategory = function(categoryID){
+                if(scope.openCategories && scope.openCategories[categoryID]){
+                    delete scope.openCategories[categoryID];
+                }
+            };
+            scope.toggleCategory = function(categoryID){
+                if(!scope.openCategories[categoryID]){
+                    scope.openCategory(categoryID);
+                }
+                else{
+                    scope.closeCategory(categoryID);
+                }
+            };
+            scope.hasChildCategories = function(category){
+                var result = false;
+                if(category && category.children){
+                    angular.forEach(category.children, function(cSub, cSubName){
+                        if(cSub && cSub.children){
+                            result = true;
+                        }
+                    });
+                }
+                return result;
             };
 
             // inventory table
