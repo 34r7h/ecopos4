@@ -1,24 +1,5 @@
 <div class="stock col-xs-12">
-    <span class="col-xs-5"><h1 data-fittext="1" data-fittext-min="16" data-fittext-max="56">Stock</h1></span>
-    <span class="col-xs-7">
-        <div><b>Filters:</b></div>
-        <span class="col-xs-4 btn btn-default"  ng-click="stockOptions=!stockOptions">Options</span>
-        <span class="col-xs-4 btn btn-default"  ng-click="propertyFilters=!propertyFilters">Properties</span>
-        <span class="col-xs-4 btn btn-default"  ng-click="categories=!categories">Categories</span>
-    </span>
-
-    <div ng-if="inventory || $parent.inventory">Hello Specific Inventory Tree</div>
-
-    <div ng-show="stockOptions">
-        <span class="col-xs-3">
-            <select ng-model="invShop" ng-change="shopSelected()" ng-options="shopID as shop.name for (shopID,shop) in shops">
-                <option value="">-- choose shop --</option>
-            </select>
-        </span>
-        <a class="col-xs-3" ng-click="stockShow('stock')" ng-class="{'btn': true, 'btn-default': show.stock}">Stock</a>
-        <a class="col-xs-3" ng-click="stockShow('import')" ng-class="{'btn': true, 'btn-default': show.import}">Import</a>
-        <a class="col-xs-3" ng-click="stockShow('createShop')" ng-class="{'btn': true, 'btn-default': show.createShop}">Create Shop</a>
-    </div>
+    <h1 data-fittext="1" data-fittext-min="16" data-fittext-max="56">Stock</h1>
 
     <div class="row shops">
         <script type="text/ng-template" id="category_list_recur.html">
@@ -26,11 +7,11 @@
                 <a ng-switch-when="true" ng-click="toggleCategory(shopID+'/'+parentID+'/'+childCat.$id)" class="fa fa-fw" ng-class="{'fa-plus':!openCategories[shopID+'/'+parentID+'/'+childCat.$id], 'fa-minus':openCategories[shopID+'/'+parentID+'/'+childCat.$id]}"></a>
                 <i ng-switch-when="false" class="fa fa-fw"> </i>
 
-                <input type="checkbox" ng-model="filters.selectedCats[parentName+'/'+childCat.name]" id="select-cat-{{shopID}}/{{parentName}}/{{childCat.name}}" />
+                <input type="checkbox" ng-model="filters.selectedCats[parentName+(parentName?'/':'')+childCat.name]" ng-change="selectedCatToggle(parentName+(parentName?'/':'')+childCat.name)" id="select-cat-{{shopID}}/{{parentName}}/{{childCat.name}}" />
                 <label for="select-cat-{{shopID}}/{{parentName}}/{{childCat.name}}"><strong>{{childCat.name}}</strong></label>
 
                 <div ng-switch-when="true" ng-if="childCat.children && openCategories[shopID+'/'+parentID+'/'+childCat.$id]">
-                    <span ng-repeat="childCat in childCat.children | orderByPriority | isCategory" ng-include="'category_list_recur.html'" onload="shopID=shopID;parentID=parentID+'/'+$parent.$parent.$parent.childCat.$id; parentName=parentName+(parentName?'/':'')+$parent.$parent.$parent.childCat.name"></span>
+                    <span ng-repeat="childCat in childCat.children | orderByPriority | isCategory" ng-include="'category_list_recur.html'" onload="shopID=shopID;parentID=parentID+(parentID?'/':'')+$parent.$parent.$parent.childCat.$id; parentName=parentName+(parentName?'/':'')+$parent.$parent.$parent.childCat.name"></span>
                 </div>
             </div>
         </script>
@@ -38,87 +19,66 @@
         <div ng-repeat="(shopID, shop) in shops" class="shop-catalog col-xs-4">
             <a ng-show="catalogs[shopID]" ng-click="toggleShop(shopID)" class="fa fa-fw" ng-class="{'fa-plus':!openShops[shopID], 'fa-minus':openShops[shopID]}"></a>
             <label for="select-shop-{{shopID}}"><strong>{{shop.name}}</strong></label>
-            (<a ng-click="shopLoadInventory(shopID)" ng-show="!loadingInventory[shopID]" class="fa fa-fw fa-refresh"></a><i ng-show="loadingInventory[shopID]" class="fa fa-fw fa-spin fa-spinner"></i> <input type="checkbox" ng-model="filters.selectedShops[shopID]" id="select-shop-{{shopID}}" /><span ng-show="inventories[shopID]">{{shopProductCount(shopID)}} products</span><span ng-show="!inventories[shopID]">inventory not loaded</span>)
+            (<a ng-click="shopLoadInventory(shopID)" ng-show="!loadingInventory[shopID]" class="fa fa-fw fa-refresh"></a><i ng-show="loadingInventory[shopID]" class="fa fa-fw fa-spin fa-spinner"></i> <input type="checkbox" ng-model="filters.selectedShops[shopID]" id="select-shop-{{shopID}}" /><span>{{shopProductCount(shopID)}} products</span>)
 
             <div ng-show="openShops[shopID] && catalogs[shopID] && catalogs[shopID].children">
                 <span ng-repeat="childCat in catalogs[shopID].children | orderByPriority | isCategory" ng-include="'category_list_recur.html'" onload="shopID=shopID;parentID='';parentName=''"></span>
             </div>
         </div>
-        {{filters.selectedCats}}
     </div>
 
-    <div ng-if="show.stock">
-
-        <div ng-show="propertyFilters">
+    <div class="row filters" ng-show="totalProductCount()">
+        <a ng-click="showFilters=!showFilters">Filters</a>
+        <div class="filters" ng-show="showFilters">
             <input type="checkbox" ng-model="filters.matchAll" id="filter-match-all" /> <label for="filter-match-all">Match All Criteria</label><br/>
             <label for="filter-name">Name</label> <input type="text" ng-model="filters.name" id="filter-name" /> <input type="checkbox" ng-model="filters.nameExact" id="filter-name-exact" /> <label for="filter-name-exact">Exact</label><br/>
             <label for="filter-upc">UPC</label> <input type="text" ng-model="filters.upc" id="filter-upc" /> <input type="checkbox" ng-model="filters.upcExact" id="filter-upc-exact" /> <label for="filter-upc-exact">Exact</label><br/>
             <label for="filter-price-low">Price</label> <input type="number" ng-model="filters.priceLow" id="filter-price-low" /> to <input type="number" ng-model="filters.priceHigh" id="filter-price-high" /><br/>
             <label for="filter-stock-low">Stock</label> <input type="number" ng-model="filters.stockLow" id="filter-stock-low" /> to <input type="number" ng-model="filters.stockHigh" id="filter-stock-high" />
             <input type="checkbox" ng-model="filters.changedProducts" id="filter-show-changed" /> <label for="filter-show-changed">Show changed</label><br/>
+
+            <div ng-show="selectedCategoriesCount()">
+                Categories:
+                <ul>
+                    <li ng-repeat="(cCat,cCatSelected) in filters.selectedCats">{{cCat}}</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+    <div clas="row inventory" ng-show="totalProductCount()">
+        <div class="summary">
+            <strong>Showing {{filteredProductCount()}}/{{totalProductCount()}} products</strong>
         </div>
 
-        <div ng-if="catalog && categories">
-            <script type="text/ng-template" id="category_tree_select.html">
-                <div ng-switch="hasChildCategories(childCat)">
-                    <a ng-switch-when="true" ng-click="toggleCategory(parentID+'/'+childCat.$id)" class="fa fa-fw" ng-class="{'fa-plus':!openCategories[parentID+'/'+childCat.$id], 'fa-minus':openCategories[parentID+'/'+childCat.$id]}"></a>
-                    <i ng-switch-when="false" class="fa fa-fw"> </i>
-
-                    <input type="checkbox" ng-model="filters.selectedCats[parentName+'/'+childCat.name]" id="select-cat-{{parentName}}/{{childCat.name}}" />
-                    <label for="select-cat-{{parentName}}/{{childCat.name}}"><strong>{{childCat.name}}</strong></label>
-
-                    <div ng-switch-when="true" ng-if="childCat.children && openCategories[parentID+'/'+childCat.$id]">
-                        <span ng-repeat="childCat in childCat.children | orderByPriority | isCategory" ng-include="'category_tree_select.html'" onload="parentID=parentID+'/'+$parent.$parent.$parent.childCat.$id; parentName=parentName+(parentName?'/':'')+$parent.$parent.$parent.childCat.name"></span>
-                    </div>
+        <div class="product-batch" ng-show="productBatchCount()">
+            <strong>{{productBatchCount()}} products in batch</strong>
+            <ul>
+                <li ng-repeat="(cProdID,cProdBatched) in productBatch">{{cProdID}}</li>
+            </ul>
+            <div>
+                <div>
+                    <label for="batch-stock">Stock:</label> <input id="batch-stock" ng-model="batch.stock" type="number" />
                 </div>
-            </script>
-
-            <div ng-if="catalog.children">
-                <span ng-repeat="childCat in catalog.children | orderByPriority | isCategory" ng-include="'category_tree_select.html'" onload="parentID='';parentName=''"></span>
+                <div>
+                    <label for="batch-sale">Sale:</label> <input id="batch-sale" ng-model="batch.sale" type="text" />
+                </div>
             </div>
         </div>
 
-        <div>
-            Showing {{filteredProductCount()}}/{{productCount()}} products.
-        </div>
-
-        <div ng-show="changedProductsCount()">
-            {{changedProductsCount()}} products changed.
+        <div class="products-changed" ng-show="changedProductCount()">
+            <strong>{{changedProductCount()}} products changed</strong>
             <ul>
-                <li ng-repeat="(changedID,changedFields) in changedProducts"><span ng-if="inventory[changedID]">{{inventory[changedID].name}}</span><span ng-if="!inventory[changedID]">{{changedID}}</span>: {{changedFields}}</li>
-            </ul>
-            <button class="btn btn-success">Save Products</button>
-        </div>
-
-        <div ng-show="productBatchCount()">
-            {{productBatchCount()}} products in batch.
-            <div>
-                <label for="batch-stock">Stock:</label> <input id="batch-stock" ng-model="batch.stock" type="number" />
-            </div>
-            <div>
-                <label for="batch-sale">Sale:</label> <input id="batch-sale" ng-model="batch.sale" type="text" />
-            </div>
-            <ul>
-                <li ng-repeat="(entryID, batchEntry) in productBatch">{{entryID}}</li>
+                <li ng-repeat="(cProdID,cProdChanges) in changedProducts">{{cProdID}}:{{cProdChanges}}</li>
             </ul>
         </div>
 
-        <div ng-show="inventory" class="row">
-            <label for="showCount">Show: </label>
-            <select id="showCount" ng-model="showCount" ng-change="setPageNumbers()">
-                <option>20</option>
-                <option>50</option>
-                <option>100</option>
-                <option>250</option>
-                <option>500</option>
-                <option>1000</option>
-                <option>2500</option>
-                <option>5000</option>
-            </select>
+        <div class="row">
             <div>
                 Show: <span ng-repeat="sort in sortables | orderBy:'priority'">
                 <input type="checkbox" ng-model="sort.show" ng-change="setColumnCount()"> {{sort.name | uppercase}}</span>
             </div>
+
             <table class="stock col-xs-12">
                 <thead>
                 <tr>
@@ -128,9 +88,8 @@
                 </thead>
             </table>
         </div>
-
-        <div ng-show="inventory" class="row" style="height:400px;overflow-y:auto;overflow-x:hidden;" scroll-pages next-page="nextPage()" prev-page="prevPage()" back-scroll="true">
-            <div style="min-height:410px;overflow:hidden;"><table class="stock col-xs-12">
+        <div class="row" style="height:400px;overflow-y:auto;overflow-x:hidden;" scroll-pages next-page="nextPage()" prev-page="prevPage()" back-scroll="true">
+            <div ng-show="inventoryFiltered" style="min-height:410px;overflow:hidden;"><table class="stock col-xs-12">
                 <tbody>
                 <tr ng-repeat-start="(idx,product) in inventoryFiltered | orderBy:productOrder:productReverse | startAt:showOffset | limitTo:showCount" ng-class="{active: (focusProduct===product.$id), changed: (changedProducts[product.$id]?true:false)}">
                     <td class="col-controls">
@@ -166,68 +125,5 @@
 
     </div>
 
-    <div ng-show="show.import">
-        <div>
-            <div>
-                <select ng-model="importShop" ng-disabled="importing" multiple="multiple" ng-options="shopID as shop.name for (shopID,shop) in shops">
-                    <option value="">-- choose shop --</option>
-                </select>
-                <select ng-model="import" ng-disabled="importing" ng-options="importID as importer.name for (importID,importer) in importers">
-                    <option value="">-- choose import --</option>
-                </select>
-            </div>
 
-            <div ng-show="import && importers[import] && importShop">
-                <div ng-show="!importing">
-                    Import <strong>{{importers[import].name}}</strong> from <strong>{{importers[import]['raw-table']}}</strong>...<br/>
-                    <!-- Into <strong>{{shops[importShop].name}}</strong> @ <em>{{shops[importShop].catalog}}</em><br/ -->
-                    Into <span ng-repeat="cShop in importShop">
-                            <span ng-if="!$first">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                            <strong>{{shops[cShop].name}}</strong> @ <em>{{shops[cShop].catalog}}</em><br/>
-                        </span>
-
-                    <button ng-click="startImport()" class="btn btn-warning">Import!</button>
-                </div>
-
-                <div ng-show="importing">
-                    Importing <strong>{{importing.import.name}}</strong> from <strong>{{importing.import['raw-table']}}</strong>...<br/>
-                    <!-- Into <strong>{{importing.shop.name}}</strong> @ <em>{{importing.shop.catalog}}</em><br/ -->
-                    Into <span ng-repeat="cShop in importing.shop">
-                            <span ng-if="!$first">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                            <strong>{{cShop.name}}</strong> @ <em>{{cShop.catalog}}</em><br/>
-                        </span>
-                    Started at {{importing.startTime | date:'mediumTime'}} on {{importing.startTime | date:'shortDate'}}
-                </div>
-            </div>
-        </div>
-
-        <div ng-show="importHistory.length">
-            <h4>History</h4>
-            <ul>
-                <li ng-repeat="history in importHistory"><strong>{{history.name}}</strong> into <strong ng-repeat="cShop in history.shop"><span ng-if="!$first">, </span>{{cShop.name}}</strong> @ {{history.start | date:'mediumTime'}} to {{history.finish | date:'mediumTime'}} ({{ (history.finish-history.start)/1000 }}s) on {{history.finish | date:'shortDate'}}</li>
-            </ul>
-        </div>
-    </div>
-
-    <div ng-show="show.createShop">
-        <h3>Shop Maker</h3>
-
-        <div>
-            <label for="shopName">Name</label>
-            <input type="text" ng-model="shopName" ng-change="autoBranchName()" id="shopName" placeholder="Shop Name" />
-        </div>
-        <div ng-show="mess" ng-model="mess">
-            {{mess}}
-        </div>
-        <div>
-            <button ng-click="createShop()" class="btn btn-success">Create Shop</button>
-        </div>
-
-        <h4>Active Shop</h4>
-        {{activeShop}}
-        <select ng-model="$parent.activeShop" ng-change="activateShop()">
-
-            <option ng-repeat="(cShopID, cShop) in shops" ng-value="cShopID">{{cShop.name}}</option>
-        </select>
-    </div>
 </div>

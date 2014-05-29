@@ -1,33 +1,12 @@
 angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, system, shop, firebaseRef, $filter) {
-	return {
-		restrict: 'E',
-		replace: true,
-		scope:'@',
-		templateUrl: 'app/directives/components/stock/stock.html',
-		link: function(scope, element, attrs, fn) {
-			scope.sortables=[
-				{name:'name','show':true, type:'text', priority:1},
-				{name:'stock',show:false, type:'number', priority:5},
-				{name:'price',show:false, type:'number', priority:3},
-				{name:'category',show:false, type:'select', priority:7},
-				{name:'suppliers',show:false, type:'select', priority:10}
-			];
-            scope.columnCount = 1;
-            scope.setColumnCount = function(){
-                scope.columnCount = $filter('filter')(scope.sortables, {show:true}).length;
-            };
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: '@',
+        templateUrl: 'app/directives/components/stock/stock.html',
+        link: function (scope, element, attrs, fn) {
 
-            scope.show = {
-                stock: true,
-                import: false,
-                createShop: false
-            };
-            scope.stockShow = function(what){
-                angular.forEach(scope.show, function(val, key){
-                    scope.show[key] = (key === what);
-                });
-            };
-
+            // shop catalogs and inventory
             scope.catalogs = {};
             scope.inventories = {};
             scope.loadingInventory = {};
@@ -51,11 +30,105 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                     scope.filterInventory();
                 });
             };
-            scope.shopProductCount = function(shopID){
-                return (scope.inventories[shopID]?Object.keys(scope.inventories[shopID]).length:0);
+
+            scope.combineInventory = function(){
+                var invIncluded = [];
+                scope.inventory = [];
+                angular.forEach(scope.filters.selectedShops, function(shopActive, shopID){
+                    if(shopActive && scope.inventories[shopID] && scope.inventories[shopID].length){
+                        var cInv = scope.shops[shopID].inventory;
+                        if(invIncluded.indexOf(cInv) === -1){
+                            invIncluded.push(cInv);
+                            scope.inventory = scope.inventory.concat(scope.inventories[shopID]);
+                        }
+                    }
+                });
+            };
+            scope.filterInventory = function(){
+                scope.inventoryFiltered = $filter('ecoFilter')(scope.inventory, filterArgs(), scope.filters.matchAll);
+                if(scope.inventoryFiltered){
+                    while(scope.inventoryFiltered.length < scope.showOffset){
+                        scope.prevPage();
+                    }
+                }
             };
 
-            // filtering
+            scope.shopProductCount = function(shopID){
+                return ((shopID && scope.inventories[shopID])?Object.keys(scope.inventories[shopID]).length:0);
+            };
+            scope.totalProductCount = function(){
+                return (scope.inventory?Object.keys(scope.inventory).length:0);
+            };
+            scope.filteredProductCount = function(){
+                return (scope.inventoryFiltered?Object.keys(scope.inventoryFiltered).length:0);
+            };
+
+
+            // shop displays
+            scope.openShops = {};
+            scope.openShop = function(shopID){
+                if(!scope.openShops){
+                    scope.openShops = {};
+                }
+                scope.openShops[shopID] = true;
+            };
+            scope.closeShop = function(shopID){
+                if(scope.openShops && scope.openShops[shopID]){
+                    delete scope.openShops[shopID];
+                }
+            };
+            scope.toggleShop = function(shopID){
+                if(!scope.openShops[shopID]){
+                    scope.openShop(shopID);
+                }
+                else{
+                    scope.closeShop(shopID);
+                }
+            };
+
+            // categories
+            scope.openCategories = {};
+            scope.openCategory = function(categoryID){
+                if(!scope.openCategories){
+                    scope.openCategories = {};
+                }
+                scope.openCategories[categoryID] = true;
+            };
+            scope.closeCategory = function(categoryID){
+                if(scope.openCategories && scope.openCategories[categoryID]){
+                    delete scope.openCategories[categoryID];
+                }
+            };
+            scope.toggleCategory = function(categoryID){
+                if(!scope.openCategories[categoryID]){
+                    scope.openCategory(categoryID);
+                }
+                else{
+                    scope.closeCategory(categoryID);
+                }
+            };
+            scope.hasChildCategories = function(category){
+                var result = false;
+                if(category && category.children){
+                    angular.forEach(category.children, function(cSub, cSubName){
+                        if(cSub && cSub.children){
+                            result = true;
+                        }
+                    });
+                }
+                return result;
+            };
+            scope.selectedCatToggle = function(catID){
+                if(angular.isDefined(scope.filters.selectedCats[catID]) && !scope.filters.selectedCats[catID]){
+                    delete scope.filters.selectedCats[catID];
+                }
+            };
+            scope.selectedCategoriesCount = function(){
+                return (scope.filters.selectedCats?Object.keys(scope.filters.selectedCats).length:0);
+            };
+
+            // inventory filtering
+            scope.showFilters = true;
             scope.filters = {
                 matchAll: true,
                 changedProducts: false,
@@ -81,11 +154,12 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                         }
                     });
                     if(selectCats.length){
-                        args.push({
+                    /**    args.push({
                             field: 'shops[\''+scope.invShop+'\'].categories',
                             match: 'containsAny',
                             value: selectCats
                         });
+                     */
                     }
                 }
 
@@ -155,27 +229,6 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 }
                 return args;
             }
-            scope.filterInventory = function(){
-                scope.inventoryFiltered = $filter('ecoFilter')(scope.inventory, filterArgs(), scope.filters.matchAll);
-                if(scope.inventoryFiltered){
-                    while(scope.inventoryFiltered.length < scope.showOffset){
-                        scope.prevPage();
-                    }
-                }
-            };
-            scope.combineInventory = function(){
-                var invIncluded = [];
-                scope.inventory = [];
-                angular.forEach(scope.filters.selectedShops, function(shopActive, shopID){
-                    if(shopActive && scope.inventories[shopID] && scope.inventories[shopID].length){
-                        var cInv = scope.shops[shopID].inventory;
-                        if(invIncluded.indexOf(cInv) === -1){
-                            invIncluded.push(cInv);
-                            scope.inventory = scope.inventory.concat(scope.inventories[shopID]);
-                        }
-                    }
-                });
-            };
 
             // if we watch our own filter collections, it is more efficient than the ng-repeat watching them
             scope.$watchCollection('filters', function(){
@@ -190,7 +243,57 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             });
 
 
-            // product management
+            // inventory listing
+            scope.sortables=[
+                {name:'name','show':true, type:'text', priority:1},
+                {name:'stock',show:false, type:'number', priority:5},
+                {name:'price',show:false, type:'number', priority:3},
+                {name:'category',show:false, type:'select', priority:7},
+                {name:'suppliers',show:false, type:'select', priority:10}
+            ];
+            scope.columnCount = 1;
+            scope.setColumnCount = function(){
+                scope.columnCount = $filter('filter')(scope.sortables, {show:true}).length;
+            };
+            scope.productOrder = '';
+            scope.productReverse = false;
+
+            // TODO: fix this up so it can work for categories
+            scope.sortBy = function(key){
+                if(key === 'category'){
+                    //key = 'shops[\''+scope.invShop+'\'].categories[0]';
+                }
+                if(scope.productOrder === key){
+                    scope.productReverse = !scope.productReverse;
+                }
+                else{
+                    scope.productOrder = key;
+                    scope.productReverse = false;
+                }
+            };
+
+            scope.showCount = 50;
+            scope.showOffset = 0;
+            scope.nextPage = function(){
+                var maxOff = (Object.keys(scope.inventoryFiltered).length - scope.showCount);
+                if(scope.showOffset <= maxOff){
+                    scope.showOffset += scope.showCount;
+                }
+                return (scope.showOffset <= maxOff);
+            };
+            scope.prevPage = function(){
+                if(scope.showOffset >= 1){
+                    scope.showOffset -= scope.showCount;
+                }
+                return (scope.showOffset >= 1);
+            };
+
+
+            // product editing
+            scope.batch = {
+                stock: 0,
+                sale: 0
+            };
             scope.productBatch = {};
             scope.productBatchToggle = function(productID){
                 if(!scope.productBatch[productID] && angular.isDefined(scope.productBatch[productID])){
@@ -199,30 +302,6 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             };
             scope.productBatchCount = function(){
                 return (scope.productBatch?Object.keys(scope.productBatch).length:0);
-            };
-
-            scope.changedProducts = {};
-            scope.focusProduct = '';
-            scope.focusField = '';
-            scope.changedProductsCount = function(){
-                return (scope.changedProducts?Object.keys(scope.changedProducts).length:0);
-            };
-            scope.productChanged = function(productID, changedField){
-                if(!scope.changedProducts[productID]){
-                    scope.changedProducts[productID] = [];
-                }
-                if(scope.changedProducts[productID].indexOf(changedField) === -1){
-                    scope.changedProducts[productID].push(changedField);
-                }
-            };
-            scope.productFocus = function(productID, focusField){
-                scope.focusProduct = productID;
-                scope.focusField = focusField;
-            };
-            scope.productBlur = function(productID, blurField){
-                if(scope.focusProduct === productID){
-                    scope.focusProduct = '';
-                }
             };
 
             scope.openProducts = {};
@@ -246,254 +325,36 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 }
             };
 
-            // shops
-            scope.openShops = {};
-            scope.openShop = function(shopID){
-                if(!scope.openShops){
-                    scope.openShops = {};
-                }
-                scope.openShops[shopID] = true;
+            scope.changedProducts = {};
+            scope.focusProduct = '';
+            scope.focusField = '';
+            scope.changedProductCount = function(){
+                return (scope.changedProducts?Object.keys(scope.changedProducts).length:0);
             };
-            scope.closeShop = function(shopID){
-                if(scope.openShops && scope.openShops[shopID]){
-                    delete scope.openShops[shopID];
+            scope.productChanged = function(productID, changedField){
+                if(!scope.changedProducts[productID]){
+                    scope.changedProducts[productID] = [];
                 }
-            };
-            scope.toggleShop = function(shopID){
-                if(!scope.openShops[shopID]){
-                    scope.openShop(shopID);
-                }
-                else{
-                    scope.closeShop(shopID);
+                if(scope.changedProducts[productID].indexOf(changedField) === -1){
+                    scope.changedProducts[productID].push(changedField);
                 }
             };
-
-            // cateogries
-            scope.openCategories = {};
-            scope.openCategory = function(categoryID){
-                if(!scope.openCategories){
-                    scope.openCategories = {};
-                }
-                scope.openCategories[categoryID] = true;
+            scope.productFocus = function(productID, focusField){
+                scope.focusProduct = productID;
+                scope.focusField = focusField;
             };
-            scope.closeCategory = function(categoryID){
-                if(scope.openCategories && scope.openCategories[categoryID]){
-                    delete scope.openCategories[categoryID];
-                }
-            };
-            scope.toggleCategory = function(categoryID){
-                if(!scope.openCategories[categoryID]){
-                    scope.openCategory(categoryID);
-                }
-                else{
-                    scope.closeCategory(categoryID);
-                }
-            };
-            scope.hasChildCategories = function(category){
-                var result = false;
-                if(category && category.children){
-                    angular.forEach(category.children, function(cSub, cSubName){
-                        if(cSub && cSub.children){
-                            result = true;
-                        }
-                    });
-                }
-                return result;
-            };
-
-            // inventory table
-            scope.showCount = 50;
-            scope.showOffset = 0;
-            scope.setPage = function(pageNum){
-                scope.showOffset = pageNum*scope.showCount;
-            };
-            scope.nextPage = function(){
-                var maxOff = (Object.keys(scope.inventoryFiltered).length - scope.showCount);
-                if(scope.showOffset <= maxOff){
-                    scope.showOffset += scope.showCount;
-                }
-                return (scope.showOffset <= maxOff);
-            };
-            scope.prevPage = function(){
-                if(scope.showOffset >= 1){
-                    scope.showOffset -= scope.showCount;
-                }
-                return (scope.showOffset >= 1);
-            };
-
-            scope.invShop = '';
-            scope.productOrder = '';
-            scope.productReverse = false;
-            scope.productCount = function(){
-                return (scope.inventory?Object.keys(scope.inventory).length:0);
-            };
-            scope.filteredProductCount = function(){
-                return (scope.inventoryFiltered?Object.keys(scope.inventoryFiltered).length:0);
-            };
-            scope.shopSelected = function(){
-                if(scope.invShop){
-                    console.log('load shop '+scope.invShop);
-                    shop.api.loadShopInventory(scope.invShop).then(function(inventory){
-                        scope.inventory = inventory;
-                        scope.filterInventory();
-                    });
-                    shop.api.loadShopCatalog(scope.invShop).then(function(catalog){
-                        scope.catalog = catalog;
-                    });
-                }
-            };
-            scope.sortBy = function(key){
-                if(key === 'category'){
-                    key = 'shops[\''+scope.invShop+'\'].categories[0]';
-                }
-                if(scope.productOrder === key){
-                    scope.productReverse = !scope.productReverse;
-                }
-                else{
-                    scope.productOrder = key;
-                    scope.productReverse = false;
-                }
-            };
-
-            // importing
-            scope.importHistory = [];
-            scope.importShop = '';
-            scope.startImport = function(){
-                if(!scope.importing && scope.import && scope.importers[scope.import] && typeof scope.importers[scope.import].import === 'function' && scope.importShop){
-                    var impShops = {};
-                    var shopsStr = '';
-                    angular.forEach(scope.importShop, function(cShop){
-                        if(scope.shops[cShop]){
-                            impShops[cShop] = scope.shops[cShop];
-                            shopsStr += (shopsStr?', ':'')+'\''+scope.shops[cShop].name+'\'';
-                        }
-                    });
-
-                    scope.importing = {import: scope.importers[scope.import], shop: impShops, startTime: system.api.currentTime()};
-
-                    $log.debug('importing \''+scope.importers[scope.import].name+'\' from \''+scope.importers[scope.import]['raw-table']+'\' to '+shopsStr);
-
-                    scope.importers[scope.import].import(impShops).then(function(){
-                        scope.importing.finishTime = system.api.currentTime();
-                        scope.importHistory.push({name: scope.importing.import.name, shop: impShops, start: scope.importing.startTime, finish: scope.importing.finishTime});
-                        scope.importing = false;
-                    });
-                }
-            };
-
-            scope.importing = false;
-            scope.import = '';
-            scope.importers = {
-                'inventory': {
-                    name: 'Inventory Sheet',
-                    'raw-table': 'inventory-may13',
-                    import: function(shopConfigs){
-                        var defer = $q.defer();
-
-                        var rawData = firebaseRef(this['raw-table']);
-                        rawData.once('value', function(snap) {
-                            var inv = snap.val();
-                            if(inv) {
-                                $log.debug('found '+inv.length+' products to import');
-
-                                var invCount = 0;
-                                angular.forEach(inv, function(prod, prodIdx) {
-                                    var cSuppliers = [];
-
-                                    var supNum = 1;
-                                    while (supNum <= 4) {
-                                        if (prod['supplier' + supNum + ' name']) {
-                                            cSuppliers.push({
-                                                name: prod['supplier' + supNum + ' name'],
-                                                cost: prod['supplier' + supNum + ' cost'],
-                                                item: prod['supplier' + supNum + ' itemnumber']
-                                            });
-                                        }
-                                        supNum++;
-                                    }
-
-                                    var cCat = '';
-                                    cCat += prod['department'];
-                                    cCat += (cCat?'/':'')+prod['category'];
-
-                                    var cShops = {};
-                                    angular.forEach(shopConfigs, function(intoShop, shopID){
-                                        cShops[shopID] = {
-                                            available: 'stock',
-                                            categories: [cCat]
-                                        };
-                                    });
-
-                                    var cProd = {
-                                        upc: prod['upc'],
-                                        name: prod['description'],
-                                        price: prod['retail'],
-                                        taxID: prod['taxid'],
-                                        stock: prod['stock'],
-                                        suppliers: cSuppliers,
-                                        shops: cShops
-                                    };
-
-                                    shop.api.setProduct(cProd);
-                                    invCount++;
-                                });
-                            }
-                            defer.resolve(true);
-                        });
-
-                        return defer.promise;
-                    }
-                },
-                'horizon': {
-                    'name': 'Horizon',
-                    'raw-table': 'horizon-products',
-                    import: function(shopConfigs){
-                        var defer = $q.defer();
-
-                        angular.forEach(shopConfigs, function(intoShop, shopID){
-                            console.log('import horizon into '+intoShop.name+' ('+intoShop.catalog+')');
-                        });
-
-                        $timeout(function(){ defer.resolve(); }, 2567);
-
-                        return defer.promise;
-                    }
+            scope.productBlur = function(productID, blurField){
+                if(scope.focusProduct === productID){
+                    scope.focusProduct = '';
                 }
             };
 
 
-			// Shop Maker stuff
-			scope.shopName = '';
-			scope.shopCatalogBranch = '';
-			scope.shopCatalogBranchMod = false;
-			scope.shopCacheBranch = '';
-			scope.shopCacheBranchMod = false;
-			scope.mess = '';
 
-			scope.createShop = function(){
-				shop.api.createShop(scope.shopName).then(function(success){
-					if(success){
-						scope.mess = 'shop created successfully!';
-						scope.shopName = '';
-						scope.shopCatalogBranch = '';
-						scope.shopCatalogBranchMod = false;
-						scope.shopCacheBranch = '';
-						scope.shopCacheBranchMod = false;
-					}
-				}, function(error){
-					scope.mess = 'error creating shop: \''+error+'\'';
-				});
-			};
 
-			scope.autoBranchName = function(){
-				if(!scope.shopCatalogBranchMod){
-					scope.shopCatalogBranch = system.api.fbSafeKey(scope.shopName);
-				}
-				if(!scope.shopCacheBranchMod){
-					scope.shopCacheBranch = system.api.fbSafeKey(scope.shopName);
-				}
-			};
 
-		}
-	};
+
+
+        }
+    };
 });
