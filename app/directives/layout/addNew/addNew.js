@@ -3,14 +3,23 @@ angular.module('ecoposApp').directive('addNew', function(system) {
 		restrict: 'E',
 		replace: true,
 		controller: function($scope, system){
+
+			/*
+			addNewByRole
+			 */
 			$scope.addNewByRole = {
 				admin : {
 					product:{
 						options:[{name:'name',type:'text'},{name:'upc',type:'text'},{name:'supplier',type:'select', options:['supplier1','supplier2']},{name:'price',type:'number'}],
 						icon:"gift"
 					},
-					users:{
-						options:[{name:'name',type:'text'},{name:'roles',type:'select',options:['role1','role2']},{name:'email',type:'text'}],
+					user:{
+						options:[
+							{model:'id', name:'',type:'text'},
+							{model:'name', name:'',type:'text'},
+							{model:'email', name:'',type:'text'},
+							{model:'roles', name:'',type:'select',options:['admin','manager','employee','supplier','customer']}
+						],
 						icon:"child"
 					},
 					info:{
@@ -48,16 +57,29 @@ angular.module('ecoposApp').directive('addNew', function(system) {
 				customer:{}
 			};
 
-
+			$scope.theform = {};
 			$scope.addNew = {
 				message:function(){
-					$scope.subjectModel=$scope.addNewByRole.admin.message.options[1].name;
-					$scope.messageModel =$scope.addNewByRole.admin.message.options[2].name;
-					$scope.usersModel=$scope.addNewByRole.admin.message.options[0].name;
-					$scope.timestampModel=Date();
-					system.api.addNewMessage($scope.timestampModel, $scope.subjectModel, $scope.usersModel, $scope.messageModel);
+					$scope.subjectModel = $scope.addNewByRole[$scope.userActiveRole].message.options[1].name;
+					$scope.messageModel = $scope.addNewByRole[$scope.userActiveRole].message.options[2].name;
+					$scope.usersModel = $scope.addNewByRole[$scope.userActiveRole].message.options[0].name;
+					system.api.createConversation($scope.subjectModel, system.data.user.id, $scope.usersModel, $scope.messageModel);
+					$scope.addNewByRole[$scope.userActiveRole].message.options[1].name = "";
+					$scope.addNewByRole[$scope.userActiveRole].message.options[2].name = "";
+					$scope.addNewByRole[$scope.userActiveRole].message.options[0].name = "";
 				},
-				users:function(){console.log('new users');},
+				user:function(){
+					console.log('new user');
+					$scope.idModel = $scope.addNewByRole[$scope.userActiveRole].user.options[0].name;
+					$scope.emailModel = $scope.addNewByRole[$scope.userActiveRole].user.options[2].name;
+					$scope.displayNameModel = $scope.addNewByRole[$scope.userActiveRole].user.options[1].name;
+					$scope.rolesModel = $scope.addNewByRole[$scope.userActiveRole].user.options[3].name;
+					system.api.addNewUser($scope.idModel,$scope.displayNameModel, $scope.emailModel, $scope.rolesModel);
+					$scope.addNewByRole[$scope.userActiveRole].user.options[0].name = "";
+					$scope.addNewByRole[$scope.userActiveRole].user.options[1].name = "";
+					$scope.addNewByRole[$scope.userActiveRole].user.options[2].name = "";
+					$scope.addNewByRole[$scope.userActiveRole].user.options[3].name = "";
+				},
 				info:function(){console.log('new info');},
 				event:function(){console.log('new event');},
 				category:function(){console.log('new category');},
