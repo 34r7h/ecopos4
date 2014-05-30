@@ -75,7 +75,7 @@
         </div>
 
         <script type="text/ng-template" id="category_select_recur.html">
-            <select ng-if="cCat" ng-attr-size="{{shopCount()}}" ng-change="addProductToCategory(prodID,level,cCat)" ng-model="productAddCats[prodID][level]">
+            <select ng-if="cCat" ng-attr-size="{{shopCount()}}" ng-change="addProductToCategory(prodID,level)" ng-model="productAddCats[prodID][level]">
                 <option value="">-- {{cCat.name}} --</option>
                 <option ng-repeat="(subCatID,subCat) in cCat.children | isCategory" ng-value="subCatID">{{subCat.name}}</option>
             </select>
@@ -126,14 +126,14 @@
                 <tr ng-repeat-end ng-show="openProducts[product.$id]" class="product-full">
                     <td class="col-controls">&nbsp;</td>
                     <td colspan="{{columnCount}}">
-                        <div><strong>Add to:</strong> {{productAddCats[product.$id]}}</div>
+                        <div><strong>Add to:</strong> {{catPathToStr(productAddCats[product.$id])}}</div>
                         <div class="col-xs-3">
                             <select ng-attr-size="{{shopCount()}}" ng-change="addProductToShop(product.$id)" ng-model="productAddShop[product.$id]">
                                 <option value="">-- Choose Shop --</option>
                                 <option ng-repeat="(cShopID,cShop) in shops" ng-value="cShopID">{{cShop.name}}</option>
                             </select>
 
-                            <div ng-if="productAddShop[product.$id] && catalogs[productAddShop[product.$id]] && productAddCats[product.$id]" ng-include="'category_select_recur.html'" onload="prodID=product.$id;level=1;cCat=catalogs[productAddShop[product.$id]]">
+                            <div id="pac-{{product.$id}}-1" ng-if="productAddShop[product.$id] && catalogs[productAddShop[product.$id]] && productAddCats[product.$id]" ng-include="'category_select_recur.html'" onload="prodID=product.$id;level=1;cCat=catalogs[productAddShop[product.$id]]">
                             </div>
                         </div>
 

@@ -129,6 +129,19 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             scope.selectedCategoriesCount = function(){
                 return (scope.filters.selectedCats?Object.keys(scope.filters.selectedCats).length:0);
             };
+            scope.catPathToStr = function(catPath){
+                var result = catPath;
+                if(angular.isArray(catPath)){
+                    result = '';
+                    var cCatIdx = 0;
+                    var cCat = (scope.catalogs[catPath[cCatIdx]]?scope.catalogs[catPath[cCatIdx++]]:null);
+                    while(cCat != null){
+                        result += (result?'/':'')+cCat.name;
+                        cCat = (cCat.children && cCat.children[catPath[cCatIdx]]?cCat.children[catPath[cCatIdx++]]:null);
+                    }
+                }
+                return result;
+            };
 
             // inventory filtering
             scope.showFilters = true;
@@ -358,14 +371,9 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             };
 
             // add to category
-            scope.getChildCat = function(funny){
-                console.log('fun:'+JSON.stringify(funny)+':');
-            };
             scope.productAddCats = {};
             scope.productAddShop = {};
-            scope.addProductToCategory = function(productID, catLevel, parentCat){
-                console.log('add '+productID+' to '+scope.productAddCats[productID].join('/')+' ('+catLevel+')');
-
+            scope.addProductToCategory = function(productID, catLevel){
                 if(!scope.productAddCats[productID][catLevel] && angular.isDefined(scope.productAddCats[productID][catLevel])){
                     scope.productAddCats[productID] = scope.productAddCats[productID].slice(0, catLevel);
                 }
@@ -373,17 +381,19 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                     scope.productAddCats[productID] = scope.productAddCats[productID].slice(0, catLevel+1);
                 }
 
+                var currElement = angular.element(document.getElementById('pac-'+productID+'-'+catLevel));
                 var nextElement = angular.element(document.getElementById('pac-'+productID+'-'+(catLevel+1)));
-                if(parentCat && nextElement && nextElement.scope() && parentCat.children && parentCat.children[scope.productAddCats[productID][catLevel]]){
-                    // this is what you call gangsta codez
-                    nextElement.scope().cCat = parentCat.children[scope.productAddCats[productID][catLevel]];
+                if(nextElement && currElement && nextElement.scope() && currElement.scope()){
+                    var parentCat = currElement.scope().cCat;
+                    if(parentCat && parentCat.children && parentCat.children[scope.productAddCats[productID][catLevel]]){
+                        nextElement.scope().cCat = parentCat.children[scope.productAddCats[productID][catLevel]];
+                    }
                 }
             };
             scope.addProductToShop = function(productID){
                 if(scope.productAddShop[productID]){
                     console.log('add '+productID+' to '+JSON.stringify(scope.productAddShop[productID]));
                     scope.productAddCats[productID] = [scope.productAddShop[productID]];
-                    //scope.addProductToCategory(productID, 0);
                 }
                 else if(angular.isDefined(scope.productAddCats[productID])){
                     delete scope.productAddCats[productID];
