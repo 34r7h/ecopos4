@@ -1,6 +1,6 @@
 angular.module('ecoposApp').directive('addNew', function(system) {
 	return {
-		restrict: 'E',
+		restrict: 'EA',
 		replace: true,
 		controller: function($scope, system){
 
@@ -15,10 +15,10 @@ angular.module('ecoposApp').directive('addNew', function(system) {
 					},
 					user:{
 						options:[
-							{model:'id', name:'',type:'text'},
-							{model:'name', name:'',type:'text'},
-							{model:'email', name:'',type:'text'},
-							{model:'roles', name:'',type:'select',options:['admin','manager','employee','supplier','customer']}
+							{model:'id', name:'',type:'text',valid:{required:true, pattern:"/^[a-zA-Z0-9]{4,60}$/"}},
+							{model:'name', name:'',type:'text',valid:{required:true,pattern:"/^[-_. \a-zA-Z]{4,60}$/"}},
+							{model:'email', name:'',type:'email',valid:{required:true,maxLength:60,minLength:5}},
+							{model:'roles', name:'',type:'select',options:['admin','manager','employee','supplier','customer'],valid:{required:true,minLength:1}}
 						],
 						icon:"child"
 					},
