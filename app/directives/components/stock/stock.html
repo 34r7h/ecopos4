@@ -18,8 +18,9 @@
 
         <div ng-repeat="(shopID, shop) in shops" class="shop-catalog col-xs-4">
             <a ng-show="catalogs[shopID]" ng-click="toggleShop(shopID)" class="fa fa-fw" ng-class="{'fa-plus':!openShops[shopID], 'fa-minus':openShops[shopID]}"></a>
+            <input type="checkbox" ng-model="filters.selectedShops[shopID]" ng-change="shopSelected(shopID)" id="select-shop-{{shopID}}" />
             <label for="select-shop-{{shopID}}"><strong>{{shop.name}}</strong></label>
-            (<a ng-click="shopLoadInventory(shopID)" ng-show="!loadingInventory[shopID]" class="fa fa-fw fa-refresh"></a><i ng-show="loadingInventory[shopID]" class="fa fa-fw fa-spin fa-spinner"></i> <input type="checkbox" ng-model="filters.selectedShops[shopID]" id="select-shop-{{shopID}}" /><span>{{shopProductCount(shopID)}} products</span>)
+            (<a ng-click="shopLoadInventory(shopID)" ng-show="!loadingInventory[shopID]" class="fa fa-fw fa-refresh"></a><i ng-show="loadingInventory[shopID]" class="fa fa-fw fa-spin fa-spinner"></i><span>{{shopProductCount(shopID)}} products</span>)
 
             <div ng-show="openShops[shopID] && catalogs[shopID] && catalogs[shopID].children">
                 <span ng-repeat="childCat in catalogs[shopID].children | orderByPriority | isCategory" ng-include="'category_list_recur.html'" onload="shopID=shopID;parentID='';parentName=''"></span>
@@ -73,6 +74,15 @@
             </ul>
         </div>
 
+        <script type="text/ng-template" id="category_select_recur.html">
+            <select ng-if="cCat" ng-attr-size="{{shopCount()}}" ng-change="addProductToCategory(prodID,level,cCat)" ng-model="productAddCats[prodID][level]">
+                <option value="">-- {{cCat.name}} --</option>
+                <option ng-repeat="(subCatID,subCat) in cCat.children | isCategory" ng-value="subCatID">{{subCat.name}}</option>
+            </select>
+            <div id="pac-{{prodID}}-{{level}}" ng-if="level < productAddCats[prodID].length && productAddCats[prodID][level] && cCat.children[productAddCats[prodID][level]] && cCat.children[productAddCats[prodID][level]].children" ng-include="'category_select_recur.html'" onload="cCat=cCat.children[productAddCats[prodID][level]];level=level+1;">
+            </div>
+        </script>
+
         <div class="row">
             <div>
                 Show: <span ng-repeat="sort in sortables | orderBy:'priority'">
@@ -116,12 +126,61 @@
                 <tr ng-repeat-end ng-show="openProducts[product.$id]" class="product-full">
                     <td class="col-controls">&nbsp;</td>
                     <td colspan="{{columnCount}}">
-                        oh ya we be winning the lorem ipsum delorian time travelin' mofreakin zilla squashing building rampage
+                        <div><strong>Add to:</strong> {{productAddCats[product.$id]}}</div>
+                        <div class="col-xs-3">
+                            <select ng-attr-size="{{shopCount()}}" ng-change="addProductToShop(product.$id)" ng-model="productAddShop[product.$id]">
+                                <option value="">-- Choose Shop --</option>
+                                <option ng-repeat="(cShopID,cShop) in shops" ng-value="cShopID">{{cShop.name}}</option>
+                            </select>
+
+                            <!--select ng-attr-size="{{shopCount()}}" ng-repeat="(pacIdx,paCat) in productAddCats[product.$id]" ng-change="addProductToCategory(product.$id, pacIdx)" ng-model="productAddCats[product.$id][pacIdx+1]" ng-if="productAddCats[product.$id] && productAddShop[product.$id] && catalogs[productAddShop[product.$id]] && (!cCat || (cCat.children && cCat.children[paCat]))" ng-init="cCat=(pacIdx===0)?catalogs[productAddShop[product.$id]]:getChildCat(cCat)">
+                                <option value="">-- ({{pacIdx}}:{{paCat}}) {{cCat.name}} --</option>
+                                <option ng-repeat="(subCatID,subCat) in cCat.children | isCategory" ng-value="subCatID">{{subCat.name}}</option>
+                            </select-->
+
+                            <div ng-if="productAddShop[product.$id] && catalogs[productAddShop[product.$id]] && productAddCats[product.$id]" ng-include="'category_select_recur.html'" onload="prodID=product.$id;level=1;cCat=catalogs[productAddShop[product.$id]]">
+                            </div>
+
+                            <!--
+                            ng-repeat="(pacIdx, paCatID) in productAddCats[product.$id]"
+                                - show a select ng-model=productAddCats[product.$id][pacIdx+1] ng-if
+                                    - with options in parentCat.children
+
+                            -->
+
+                            <!--div ng-repeat="(pacIdx, paCat) in productAddCats[product.$id]">
+                                halla:{{pacIdx}}:{{paCat}}:{{catalogs[productAddShop[product.$id]].name}}:
+                            </div-->
+
+                            <!--select ng-repeat="(pacIdx, paCat) in productAddCats[product.$id]" ng-model="productAddCats[product.$id][pacIdx+1]">
+                                <select value="">--{{paCat}}--</select>
+                                <select ng-if="pacIdx===0 && catalogs[productAddShop[product.$id]] && catalogs[productAddShop[product.$id]].children" ng-repeat="(subCatID,subCat) in catalogs[productAddShop[product.$id]].children">{{subCat.name}}</select>
+                            </select-->
+
+                            <!--select size="4" ng-repeat="(pacIdx,paCat) in productAddCats[product.$id]" ng-model="productAddCats[product.$id][1]" ng-if="productAddShop[product.$id] && catalogs[paCat]" ng-include="'category_select_recur.html'" onload="parentCat=catalogs[paCat];catDepth=1">
+
+                            </select-->
+                        </div>
+
+
+                        <!--div class="col-xs-3" ng-repeat="(cShopID,cShop) in shops" ng-if="catalogs[cShopID] && catalogs[cShopID].children">
+                            <label for="{{productID}}-add-to-{{cShopID}}-category">{{cShop.name}}</label>
+                            <select id="{{productID}}-add-to-{{cShopID}}-category">
+                                <option value="">-- select category --</option>
+                                <option ng-repeat="cCat in catalogs[cShopID].children | orderByPriority | isCategory" value="{{cCat.$id}}">{{cCat.name}}</option>
+                            </select>
+
+                        </div-->
+
+                        <div>
+                            oh ya we be winning the lorem ipsum delorian time travelin' mofreakin zilla squashing building rampage
+                        </div>
                     </td>
                 </tr>
                 </tbody>
             </table></div>
         </div>
+
 
     </div>
 
