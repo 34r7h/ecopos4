@@ -1,0 +1,12 @@
+<div>
+    <script type="text/ng-template" id="select_tree_recur.html">
+        <select ng-if="cItem" ng-attr-size="{{selectSize(cItem)}}" ng-model="path[level]" ng-change="pathChanged(level, cItem)">
+            <option value="">-- {{cItem.name}} --</option>
+            <option ng-repeat="(subID,subItem) in cItem.children" ng-value="subID">{{subItem.name}}</option>
+        </select>
+
+        <div class="select-tree-branch" id="{{id}}-{{level}}" ng-if="level < path.length && path[level] && cItem.children[path[level]] && cItem.children[path[level]].children" ng-include="'select_tree_recur.html'" onload="cItem=cItem.children[path[level]];level=level+1;"></div>
+    </script>
+
+    <div class="select-tree select-tree-branch" id="{{id}}-0" ng-include="'select_tree_recur.html'" onload="cItem=tree;level=0"></div>
+</div>
