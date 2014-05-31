@@ -7,7 +7,7 @@
         <p><strong>Sorting:</strong> {{tableParams.sorting()|json}}
 
         <table ng-table="tableParams" class="table">
-            <tr ng-repeat="order in (user.orders || $parent.$parent.user.orders)">
+            <tr ng-repeat="order in orders">
                 <td data-title="'Date'" sortable="'date'">
                     {{order.createdTime | date:'yyyy-MM-dd'}}
                 </td>
