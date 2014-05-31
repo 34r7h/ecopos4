@@ -2,23 +2,53 @@
     <h1 data-fittext="1" data-fittext-min="16" data-fittext-max="56">Orders</h1>
 
     <div ng-if="order|| $parent.order">Hello Specific Order</div>
-    <div class="clearfix">
-        <button ng-click="tableParams.sorting({})" class="btn btn-default pull-right">Clear sorting</button>
-        <p><strong>Sorting:</strong> {{tableParams.sorting()|json}}
 
-        <table ng-table="tableParams" class="table">
-            <tr ng-repeat="order in orders">
-                <td data-title="'Date'" sortable="'date'">
-                    {{order.createdTime | date:'yyyy-MM-dd'}}
-                </td>
-                <td data-title="'Items'" sortable="'items'">
-                    <span ng-repeat="item in (order.items || $parent.$parent.order.items)">{{item.name}}, {{item.qty}}{{item.units}} - {{item.price | currency}}<br></span>
-                </td>
-                <td data-title="'Total'" sortable="'total'">
-                    {{order.total | currency}}
-                </td>
+    <div class="row">
+        <div>
+            Show:
+            <span ng-repeat="sort in sortables | orderBy:'priority'">
+                <label for="sort-toggle-{{sort.name}}" ng-if="sort.title">{{sort.title | uppercase}}</label><label for="sort-toggle-{{sort.name}}" ng-if="!sort.title">{{sort.name | uppercase}}</label>
+                <input type="checkbox" ng-model="sort.show" id="sort-toggle-{{sort.name}}" ng-change="setColumnCount()">
+            </span>
+        </div>
+
+        <table class="orders col-xs-12">
+            <thead>
+            <tr>
+                <th class="col-controls">&nbsp;</th>
+                <th ng-repeat="sort in sortables | orderBy:'priority'" ng-if="sort.show"><a ng-click="sortBy(sort.name)"><span ng-if="sort.title">{{sort.title | uppercase}}</span><span ng-if="!sort.title">{{sort.name | uppercase}}</span></a><span ng-show="orderSort===sort.name"><i class="fa fa-fw" ng-class="{'fa-sort-asc': !sortReverse, 'fa-sort-desc': sortReverse}"></i></span></th>
             </tr>
+            </thead>
         </table>
     </div>
-
+    <div class="row" style="height:400px;overflow-y:auto;overflow-x:hidden;" scroll-pages next-page="nextPage()" prev-page="prevPage()" back-scroll="true">
+        <div ng-show="ordersFiltered" style="min-height:410px;overflow:hidden;"><table class="orders col-xs-12">
+            <tbody>
+            <tr ng-repeat-start="(idx,order) in ordersFiltered | orderBy:orderSort:sortReverse | startAt:showOffset | limitTo:showCount" ng-class="{active: (focusOrder===order.$id), changed: (changedOrders[order.$id]?true:false)}">
+                <td class="col-controls">
+                    <input type="checkbox" ng-model="orderBatch[order.$id]" ng-change="orderBatchToggle(order.$id)" />
+                    <a ng-click="toggleOrder(order.$id)"><i class="fa fa-fw" ng-class="{'fa-plus-square':!openOrders[order.$id], 'fa-minus-square':openOrders[order.$id]}"></i></a>
+                </td>
+                <td class="order-list" ng-if="sort.show" ng-repeat="sort in sortables | orderBy:'priority'" ng-switch="sort.type">
+                    <span ng-switch-when="static">
+                        {{order[sort.name]}}
+                    </span>
+                    <span ng-switch-when="date">
+                        {{order[sort.name] | date:'yyyy-MM-dd @ h:mm a'}}
+                    </span>
+                    <span ng-switch-default>
+                        <input type="{{sort.type}}" ng-model="order[sort.name]" ng-change="orderChanged(order.$id, sort.name)" ng-focus="orderFocus(order.$id, sort.name)" ng-blur="orderBlur(order.$id, sort.name)" />
+                    </span>
+                </td>
+            </tr>
+            <tr ng-repeat-end ng-show="openOrders[order.$id]" class="order-full">
+                <td class="col-controls">&nbsp;</td>
+                <td colspan="{{columnCount}}">
+                    TODO: Build the full order form here ;)
+                    {{order}}
+                </td>
+            </tr>
+            </tbody>
+        </table></div>
+    </div>
 </div>
