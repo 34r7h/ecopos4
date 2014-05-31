@@ -2,7 +2,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
 
     var data = {
         user: {id: null, anonID: '', profile: null, activeRole: 'anonymous', activeOrder: '', geoIP: {}, messages: {}, events: {}, orders: {}, calendar: {}, session: {anonCheckTime: 0, firstActiveRole: true, calendarEvents: {}}},
-        employee: {shiftType: null},
+        employee: {shiftType: null, orders: {}},
         manager: {orders: {}},
         params:{},
         breadcrumb:[],
@@ -595,8 +595,11 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
 
             // load role-specific data
             if(data.user && data.user.profile.roles){
-                if(data.user.profile.roles.admin || data.user.profile.roles.manager){
+                if(data.user.profile.roles.manager || data.user.profile.roles.admin){
                     api.loadManagerData();
+                }
+                if(data.user.profile.roles.employee || data.user.profile.roles.manager || data.user.profile.roles.admin) {
+                    api.loadEmployeeData();
                 }
             }
         },
@@ -696,12 +699,17 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
             }
         },
 
+        loadEmployeeData: function(){
+            data.employee.orders = {};
+            // TODO: we should load all the orders that this employee is associated with
+        },
+
         loadManagerData: function(){
             data.manager.orders = {};
             if(data.user && data.user.profile && data.user.profile.roles && (data.user.profile.roles.admin || data.user.profile.roles.manager)) {
                 var orderBind = firebaseRef('order');
                 orderBind.on('child_added', function (childSnapshot, prevChildName) {
-                    data.manager.orders[childSnapshot.name()] = childSnapshot.val();
+                    data.manager.orders[childSnapshot.name()] = syncData('order/'+childSnapshot.name());
                     api.searchableAdd('orders-manager', [data.manager.orders[childSnapshot.name()]]);
                 });
                 orderBind.on('child_removed', function (oldChildSnapshot) {

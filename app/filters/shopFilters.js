@@ -1,23 +1,11 @@
 angular.module('ecoposApp').
-    filter('isCategory', function() {
+    filter('isCategory', function($filter) {
         return function(input) {
-            var output = {};
-            angular.forEach(input, function(item, key){
-                if(item.name && item.children){
-                    output[key] = item;
-                }
-            });
-            return output;
+            return $filter('filter')(input, function(item){ return(item.name && item.children); });
         };
     }).
-    filter('isProduct', function() {
+    filter('isProduct', function($filter) {
         return function(input) {
-            var output = {};
-            angular.forEach(input, function(item, key){
-                if(item.name && !item.children){
-                    output[key] = item;
-                }
-            });
-            return output;
+            return $filter('filter')(input, function(item){ return(item.name && !item.children); });
         };
     });

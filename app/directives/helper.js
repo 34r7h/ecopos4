@@ -198,7 +198,7 @@ angular.module("ecoposApp").directive("prefs", function($compile){
 
 angular.module("ecoposApp").filter('startAt', function(){
     return function(input, offset) {
-        return input.slice(offset);
+        return ((angular.isArray(input) && offset < input.length)?input.slice(offset):[]);
     };
 });
 

@@ -601,7 +601,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                         name: name,
                         catalog: catalogPath,
                         cache: cachePath,
-                        inventory: 'product'
+                        inventory: 'shops/product'
                     };
 
                     firebaseRef(configPath).set(shopConfig, function(error) {
@@ -622,6 +622,17 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             });
 
             return defer.promise;
+        },
+        deleteShop: function(shopID){
+            if(shopID && data.shops[shopID]){
+                if(data.shops[shopID].cache){
+                    firebaseRef(data.shops[shopID].cache).remove();
+                }
+                if(data.shops[shopID].catalog){
+                    firebaseRef(data.shops[shopID].catalog).remove();
+                }
+                firebaseRef('shops/config/'+shopID).remove();
+            }
         },
         loadShops: function(){
             var defer = $q.defer();
@@ -824,6 +835,52 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             angular.forEach(product.suppliers, function(supplier, supplierID){
             });
              */
+        },
+
+        shopCategoryPath: function(path){
+            var result = '';
+            var pathParts = path.split('/');
+            if(pathParts.length) {
+                var shopName = pathParts.shift();
+                if(shopName && data.shops[shopName]) {
+                    result = data.shops[shopName].catalog+'/children/'+pathParts.join('/children/');
+                }
+            }
+            return result;
+        },
+
+        addCategory: function(name, path){
+            var defer = $q.defer();
+            path += ((path.charAt(path.length-1)!=='/')?'/':'')+system.api.fbSafeKey(name);
+            var dbPath = api.shopCategoryPath(path);
+            if(dbPath){
+                system.api.fbSafePath(dbPath).then(function(safePath){
+                    firebaseRef(safePath).set({name:name,children:true});
+                    defer.resolve(true);
+                });
+            }
+            else{
+                defer.reject('Could not get path in database.');
+            }
+            return defer.promise;
+        },
+        deleteCategory: function(path){
+            var dbPath = api.shopCategoryPath(path);
+            if(dbPath){
+                var siblingRef = firebaseRef(dbPath.substring(0, dbPath.lastIndexOf('/')));
+                siblingRef.once('value', function(snap){
+                    var siblings = snap.val();
+                    if(snap.numChildren() > 1){
+                        // one of many children, so we can just remove it
+                        siblingRef.child(path.substr(path.lastIndexOf('/')+1)).remove();
+                    }
+                    else{
+                        // last child, set parent's children: true; so it still operates as category
+                        siblingRef.set(true);
+                    }
+                });
+            }
+
         },
 
         getCatalogBrowser: function(browserID, shopName){
