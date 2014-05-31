@@ -11,7 +11,7 @@ angular.module('ecoposApp', [
 	'angular-gestures',
 	// 'google-maps',
 	'ui.bootstrap',
-    'datePicker',
+	'ui.bootstrap.tpls',
 	'mobile-angular-ui',
 	'mobile-angular-ui.touch',
 	'mobile-angular-ui.scrollable',
