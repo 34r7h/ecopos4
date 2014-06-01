@@ -5,32 +5,42 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
         scope: '@',
         templateUrl: 'app/directives/components/stock/stock.html',
         link: function (scope, element, attrs, fn) {
+            scope.shops = {
+                name: 'Shops',
+                children: {}
+            };
 
             // shop catalogs and inventory
-            scope.catalogs = {};
+            scope.shopConfigs = {};
             scope.inventories = {};
             scope.loadingInventory = {};
 
             shop.data.shops.$on('loaded', function(){
-                scope.shops = shop.data.shops;
-                angular.forEach(scope.shops, function(cShop, shopID){
+                scope.shopConfigs = shop.data.shops;
+                angular.forEach(scope.shopConfigs, function(cShop, shopID){
                     shop.api.loadShopCatalog(shopID).then(function(catalog){
-                        scope.catalogs[shopID] = catalog;
+                        scope.shops.children[shopID] = catalog;
+                        if(!scope.shops.children[shopID].children){
+                            scope.shops.children[shopID].children = {};
+                        }
                     });
                 });
             });
             shop.data.shops.$on('child_added', function(newChild){
                 var shopSnap = newChild.snapshot;
-                if(!scope.catalogs[shopSnap.name]){
+                if(!scope.shops.children[shopSnap.name]){
                     shop.api.loadShopCatalog(shopSnap.name).then(function(catalog){
-                        scope.catalogs[shopSnap.name] = catalog;
+                        scope.shops.children[shopSnap.name] = catalog;
+                        if(!scope.shops.children[shopSnap.name].children){
+                            scope.shops.children[shopSnap.name].children = {};
+                        }
                     });
                 }
             });
             shop.data.shops.$on('child_removed', function(oldChild) {
                 var shopSnap = oldChild.snapshot;
-                if(scope.catalogs[shopSnap.name]){
-                    delete scope.catalogs[shopSnap.name];
+                if(scope.shops.children[shopSnap.name]){
+                    delete scope.shops.children[shopSnap.name];
                 }
                 if(scope.inventories[shopSnap.name]){
                     delete scope.inventories[shopSnap.name];
@@ -53,7 +63,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 scope.inventory = [];
                 angular.forEach(scope.filters.selectedShops, function(shopActive, shopID){
                     if(shopActive && scope.inventories[shopID] && scope.inventories[shopID].length){
-                        var cInv = scope.shops[shopID].inventory;
+                        var cInv = scope.shopConfigs[shopID].inventory;
                         if(invIncluded.indexOf(cInv) === -1){
                             invIncluded.push(cInv);
                             scope.inventory = scope.inventory.concat(scope.inventories[shopID]);
@@ -71,7 +81,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             };
 
             scope.shopCount = function(){
-                return (scope.shops?scope.shops.$getIndex().length:0);
+                return (scope.shops.children?scope.shops.children.$getIndex().length:0);
             };
             scope.shopProductCount = function(shopID){
                 return ((shopID && scope.inventories[shopID])?Object.keys(scope.inventories[shopID]).length:0);
@@ -314,7 +324,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 }
                 if(angular.isArray(catPath)){
                     var cCatIdx = 0;
-                    var cCat = (scope.catalogs[catPath[cCatIdx]]?scope.catalogs[catPath[cCatIdx++]]:null);
+                    var cCat = (scope.shops.children[catPath[cCatIdx]]?scope.shops.children[catPath[cCatIdx++]]:null);
                     while(cCat != null){
                         result = cCat;
                         cCat = (cCat.children && cCat.children[catPath[cCatIdx]]?cCat.children[catPath[cCatIdx++]]:null);
@@ -330,7 +340,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 if(angular.isArray(catPath)){
                     result = '';
                     var cCatIdx = 0;
-                    var cCat = (scope.catalogs[catPath[cCatIdx]]?scope.catalogs[catPath[cCatIdx++]]:null);
+                    var cCat = (scope.shops.children[catPath[cCatIdx]]?scope.shops.children[catPath[cCatIdx++]]:null);
                     while(cCat != null){
                         result += (result?'/':'')+cCat.name;
                         cCat = (cCat.children && cCat.children[catPath[cCatIdx]]?cCat.children[catPath[cCatIdx++]]:null);
@@ -459,14 +469,13 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 }
             };
 
-
             // inventory listing
             scope.sortables=[
                 {name:'name','show':true, type:'text', priority:1},
                 {name:'stock',show:false, type:'number', priority:5},
                 {name:'price',show:false, type:'number', priority:3},
-                {name:'category',show:false, type:'select', priority:7},
-                {name:'suppliers',show:false, type:'select', priority:10}
+                {name:'category',show:false, type:'categories', priority:7},
+                {name:'suppliers',show:false, type:'static', priority:10}
             ];
             scope.columnCount = 1;
             scope.setColumnCount = function(){
