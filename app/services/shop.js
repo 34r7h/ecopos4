@@ -1010,7 +1010,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 }
                 else{
                     firebaseRef(inventoryPath).once('value', function(snap){
-                        data.store.inventory[inventoryPath] = $filter('orderByPriority')(snap.val());
+                        data.store.inventory[inventoryPath] = snap.val();
                         defer.resolve(data.store.inventory[inventoryPath]);
                     });
 

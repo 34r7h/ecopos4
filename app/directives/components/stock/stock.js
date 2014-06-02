@@ -50,11 +50,16 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 scope.loadingInventory[shopID] = true;
                 shop.api.loadShopInventory(shopID).then(function(inventory){
                     scope.inventories[shopID] = inventory;
+                    var invPath = scope.shopConfigs[shopID].inventory;
+                    angular.forEach(scope.shopConfigs, function(cShop, cShopID){
+                        if(cShop.inventory === invPath){
+                            scope.inventories[cShopID] = inventory;
+                        }
+                    });
                     if(scope.loadingInventory[shopID]){
                         delete scope.loadingInventory[shopID];
                     }
                     scope.combineInventory();
-                    scope.filterInventory();
                 });
             };
 
@@ -62,14 +67,15 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 var invIncluded = [];
                 scope.inventory = [];
                 angular.forEach(scope.filters.selectedShops, function(shopActive, shopID){
-                    if(shopActive && scope.inventories[shopID] && scope.inventories[shopID].length){
+                    if(shopActive && scope.inventories[shopID]){
                         var cInv = scope.shopConfigs[shopID].inventory;
                         if(invIncluded.indexOf(cInv) === -1){
                             invIncluded.push(cInv);
-                            scope.inventory = scope.inventory.concat(scope.inventories[shopID]);
+                            scope.inventory = scope.inventory.concat($filter('orderByPriority')(scope.inventories[shopID]));
                         }
                     }
                 });
+                scope.filterInventory();
             };
             scope.filterInventory = function(){
                 scope.inventoryFiltered = $filter('ecoFilter')(scope.inventory, filterArgs(), scope.filters.matchAll);
@@ -92,7 +98,31 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             scope.filteredProductCount = function(){
                 return (scope.inventoryFiltered?Object.keys(scope.inventoryFiltered).length:0);
             };
+            scope.categoryProductCount = function(category,includeSubs){
+                if(angular.isUndefined(includeSubs)){includeSubs = false;}
+                var result = 0;
+                var catChildren = (category.children)?$filter('orderByPriority')(category.children):null;
+                if(catChildren){
+                    result = ($filter('isProduct')(catChildren)).length;
+                    if(includeSubs){
+                        var subs = $filter('isCategory')(catChildren);
+                        angular.forEach(subs, function(sub, subID){
+                            result += scope.categoryProductCount(sub, true);
+                        });
+                    }
+                }
+                return result;
+            };
+            scope.changedCategoryCount = function(){
+                return (scope.changedCategories?Object.keys(scope.changedCategories).length:0);
+            };
 
+            scope.saveChanges = function(){
+                console.log('saving changes to '+scope.changedCategoryCount()+' categories and '+scope.changedProductCount()+' products.');
+            };
+            scope.cancelChanges = function(){
+                console.log('cancel all changes to '+scope.changedCategoryCount()+' categories and '+scope.changedProductCount()+' products.');
+            };
 
             // shop displays
             scope.openShops = {};
@@ -137,6 +167,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
 
             // categories
             scope.openCategories = {};
+            scope.changedCategories = {};
             scope.addCategoryAt = {};
             scope.copyCategoryAt = {};
             scope.editCategoryName = {};
@@ -212,7 +243,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 if(!scope.copyCategoryAt){
                     scope.copyCategoryAt = {};
                 }
-                scope.copyCategoryAt[catPath] = {to:true,target:[]};
+                scope.copyCategoryAt[catPath] = {to:true,target:[],overwrite:false};
             };
             scope.copyCategoryClose = function(catPath) {
                 delete scope.copyCategoryAt[catPath];
@@ -228,8 +259,10 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             scope.copyCategory = function(catPath){
                 if(angular.isDefined(scope.copyCategoryAt[catPath])){
                     if(scope.copyCategoryAt[catPath].target && scope.copyCategoryAt[catPath].target.length){
-                        // TODO: copy category data
-                        console.log('copy '+catPath+' '+(scope.copyCategoryAt[catPath].to?'to':'from')+' '+scope.copyCategoryAt[catPath].target.join('/'));
+
+                        var source = scope.getCategory(scope.copyCategoryAt[catPath].to?catPath:scope.copyCategoryAt[catPath].target);
+                        var target = scope.getCategory(scope.copyCategoryAt[catPath].to?scope.copyCategoryAt[catPath].target:catPath);
+                        console.log('copy '+source.name+' to '+target.name+' ('+(Object.keys(source.children).length)+' children) -'+(scope.copyCategoryAt[catPath].overwrite?'overwriting':'appending'));
                     }
                     delete scope.copyCategoryAt[catPath];
                 }
@@ -251,13 +284,10 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             scope.editCategorySave = function(catPath){
                 if(angular.isDefined(scope.editCategoryName[catPath])){
                     if(scope.editCategoryName[catPath]){
-                        var isShop = (catPath.indexOf('/')===-1);
-                        console.log('rename '+(isShop?'shop':'category')+' \''+scope.editCategoryName[catPath]+'\' for '+catPath);
-                        if(isShop){
-                            // TODO: rename shop
-                        }
-                        else{
-                            // TODO: rename category
+                        var cCat = scope.getCategory(catPath);
+                        if(cCat && cCat.name !== scope.editCategoryName[catPath]){
+                            cCat.name = scope.editCategoryName[catPath];
+                            scope.changedCategories[catPath] = true;
                         }
                     }
                     delete scope.editCategoryName[catPath];
@@ -328,6 +358,12 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                     while(cCat != null){
                         result = cCat;
                         cCat = (cCat.children && cCat.children[catPath[cCatIdx]]?cCat.children[catPath[cCatIdx++]]:null);
+                    }
+                    if(cCatIdx < catPath.length){
+                        result = null;
+                    }
+                    if(result && result.children===true){
+                        result.children = {};
                     }
                 }
                 return result;
@@ -461,7 +497,6 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             });
             scope.$watchCollection('filters.selectedShops', function(){
                 scope.combineInventory();
-                scope.filterInventory();
             });
             scope.shopSelected = function(shopID){
                 if(shopID && scope.filters.selectedShops[shopID] && !scope.inventories[shopID]){
@@ -577,7 +612,6 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
 
             // add to category
             scope.productAddCats = {};
-            scope.productAddShop = {};
             scope.addProductToCategory = function(productID, catLevel){
                 if(!scope.productAddCats[productID][catLevel] && angular.isDefined(scope.productAddCats[productID][catLevel])){
                     scope.productAddCats[productID] = scope.productAddCats[productID].slice(0, catLevel);
@@ -595,22 +629,47 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                     }
                 }
             };
-            scope.addProductToShop = function(productID){
-                if(scope.productAddShop[productID]){
-                    console.log('add '+productID+' to '+JSON.stringify(scope.productAddShop[productID]));
-                    scope.productAddCats[productID] = [scope.productAddShop[productID]];
-                }
-                else if(angular.isDefined(scope.productAddCats[productID])){
-                    delete scope.productAddCats[productID];
+            scope.saveProductToCategory = function(product){
+                if(product && product.$id && scope.productAddCats[product.$id] && scope.productAddCats[product.$id].length){
+                    var addShop = scope.productAddCats[product.$id][0];
+
+                    if(scope.inventories[addShop]){
+                        var addCat = (scope.productAddCats[product.$id].length>1)?scope.catPathToStr(scope.productAddCats[product.$id]):'';
+                        if(addCat && scope.shops.children[addShop]){
+                            addCat = addCat.replace(scope.shops.children[addShop].name+'/', '');
+                        }
+
+                        if(!product.shops[addShop]){
+                            product.shops[addShop] = {available:'stock',categories:[]};
+                        }
+                        if(!product.shops[addShop].categories){
+                            product.shops[addShop].categories = [];
+                        }
+                        if(product.shops[addShop].categories.indexOf(addCat)===-1){
+                            product.shops[addShop].categories.push(addCat);
+                        }
+
+                        if(!scope.inventories[addShop][product.$id]){
+                            scope.inventories[addShop][product.$id] = product;
+                            scope.combineInventory();
+                        }
+
+                        //var cCat = getCategoryForPath(scope.productAddCats[product.$id]);
+                        var cCat = scope.getCategory(scope.productAddCats[product.$id]);
+                        if(cCat){
+                            if(!cCat.children){
+                                cCat.children = {};
+                            }
+                            if(!cCat.children[product.$id]){
+                                cCat.children[product.$id] = product;
+                                scope.changedCategories[scope.productAddCats[product.$id].join('/')] = true;
+                            }
+                        }
+
+                        scope.productChanged(product.$id, 'categories');
+                    }
                 }
             };
-
-
-
-
-
-
-
         }
     };
 });
