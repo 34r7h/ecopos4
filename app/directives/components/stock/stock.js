@@ -120,13 +120,6 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 return (scope.changedCategories?Object.keys(scope.changedCategories).length:0);
             };
 
-            scope.saveChanges = function(){
-                console.log('saving changes to '+scope.changedCategoryCount()+' categories and '+scope.changedProductCount()+' products.');
-            };
-            scope.cancelChanges = function(){
-                console.log('cancel all changes to '+scope.changedCategoryCount()+' categories and '+scope.changedProductCount()+' products.');
-            };
-
             // shop displays
             scope.openShops = {};
             scope.openShop = function(shopID){
@@ -671,13 +664,57 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                     scope.changedProducts[productID].push(changedField);
                 }
             };
-            scope.productFocus = function(productID, focusField){
-                scope.focusProduct = productID;
+            scope.productFocus = function(product, focusField){
+                scope.focusProduct = product.$id;
                 scope.focusField = focusField;
             };
-            scope.productBlur = function(productID, blurField){
-                if(scope.focusProduct === productID){
+            scope.productBlur = function(product, blurField){
+                if(scope.focusProduct === product.$id){
+                    if(scope.changedProducts[product.$id] && scope.changedProducts[product.$id].indexOf(blurField) !== -1){
+                        scope.saveProductChanges(product, blurField);
+                    }
                     scope.focusProduct = '';
+                }
+            };
+            scope.saveProductChanges = function(product, field){
+                var updateFields = {$id: product.$id, shops: product.shops};
+                var updateAllChanges = false;
+                if(angular.isUndefined(field) && scope.changedProducts[product.$id] && scope.changedProducts[product.$id].length){
+                    field = scope.changedProducts[product.$id];
+                    updateAllChanges = true;
+                }
+                if(angular.isString(field)){
+                    field = [field];
+                }
+                if(angular.isArray(field)){
+                    angular.forEach(field, function(cField, cFieldIdx){
+                        if(cField === 'categories'){
+                            // that means it was a shops update, which are always updating
+                        }
+                        else{
+                            updateFields[cField] = product[cField];
+                        }
+                    });
+
+                    // do the update
+                    shop.api.saveProduct(updateFields);
+
+                    // clear out the changedProducts tracking
+                    if(scope.changedProducts[product.$id]){
+                        if(updateAllChanges){
+                            delete scope.changedProducts[product.$id];
+                        }
+                        else{
+                            angular.forEach(field, function(cField, cFieldIdx){
+                                if(scope.changedProducts[product.$id].indexOf(cField) !== -1){
+                                    scope.changedProducts[product.$id].splice(scope.changedProducts[product.$id].indexOf(cField),1);
+                                }
+                            });
+                            if(!scope.changedProducts[product.$id].length){
+                                delete scope.changedProducts[product.$id];
+                            }
+                        }
+                    }
                 }
             };
 
@@ -738,6 +775,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                         }
 
                         scope.productChanged(product.$id, 'categories');
+                        scope.saveProductChanges(product, 'categories');
                     }
                 }
             };

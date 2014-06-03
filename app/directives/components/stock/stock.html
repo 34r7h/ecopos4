@@ -92,7 +92,6 @@
                 <li ng-repeat="(cProdID,cProdChanges) in changedProducts">{{cProdID}}:{{cProdChanges}}</li>
             </ul>
         </div>
-        <button class="btn btn-primary" ng-click="saveChanges()"><i class="fa fa-fw fa-check"></i>Save Changes</button><button class="btn btn-danger" ng-click="cancelChanges()"><i class="fa fa-fw fa-times"></i>Cancel Changes</button>
     </div>
 
     <div class="row filters" ng-show="totalProductCount()">
@@ -169,7 +168,7 @@
                             </ul>
                         </span>
                         <span ng-switch-default>
-                            <input type="{{sort.type}}" ng-model="product[sort.name]" ng-change="productChanged(product.$id, sort.name)" ng-focus="productFocus(product.$id, sort.name)" ng-blur="productBlur(product.$id, sort.name)" />
+                            <input type="{{sort.type}}" ng-model="product[sort.name]" ng-change="productChanged(product.$id, sort.name)" ng-focus="productFocus(product, sort.name)" ng-blur="productBlur(product, sort.name)" />
                         </span>
                     </td>
                 </tr>
