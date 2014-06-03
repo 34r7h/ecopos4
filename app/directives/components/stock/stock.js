@@ -243,7 +243,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 if(!scope.copyCategoryAt){
                     scope.copyCategoryAt = {};
                 }
-                scope.copyCategoryAt[catPath] = {to:true,target:[],overwrite:false,tree:true};
+                scope.copyCategoryAt[catPath] = {to:true,target:[],overwrite:false,ancestorTree:true};
             };
             scope.copyCategoryClose = function(catPath) {
                 delete scope.copyCategoryAt[catPath];
@@ -259,10 +259,59 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             scope.copyCategory = function(catPath){
                 if(angular.isDefined(scope.copyCategoryAt[catPath])){
                     if(scope.copyCategoryAt[catPath].target && scope.copyCategoryAt[catPath].target.length){
-                        var source = scope.getCategory(scope.copyCategoryAt[catPath].to?catPath:scope.copyCategoryAt[catPath].target);
-                        var target = scope.getCategory(scope.copyCategoryAt[catPath].to?scope.copyCategoryAt[catPath].target:catPath);
+                        var sourcePath = scope.copyCategoryAt[catPath].to?catPath:scope.copyCategoryAt[catPath].target;
+                        var targetPath = scope.copyCategoryAt[catPath].to?scope.copyCategoryAt[catPath].target:catPath;
+
+                        var source = scope.getCategory(sourcePath);
+                        var target = scope.getCategory(targetPath);
                         if(source && target && source.children){
-                            console.log('copy '+source.name+' to '+target.name+' ('+(Object.keys(source.children).length)+' children) -'+(scope.copyCategoryAt[catPath].overwrite?'overwriting':'appending')+' '+(scope.copyCategoryAt[catPath].tree?'tree':'contents only'));
+                            var targetCat = target;
+
+                            if(scope.copyCategoryAt[catPath].ancestorTree){
+                                var sourceAncPath = angular.isString(sourcePath)?sourcePath.split('/'):sourcePath;
+                                if(sourceAncPath.length){
+                                    var sourceAncTree = scope.getCategory(sourceAncPath[0]);
+                                    angular.forEach(sourceAncPath, function(cAncestorID, cAncestorIdx){
+                                        console.log('where is '+cAncestorIdx+'?'+sourceAncTree.name);
+                                        if(cAncestorIdx > 0){ // don't mimic the shop name
+                                            if(sourceAncTree.children && sourceAncTree.children[cAncestorID]){
+                                                sourceAncTree = sourceAncTree.children[cAncestorID];
+                                                console.log('then:'+sourceAncTree.name);
+                                            }
+                                            if(!targetCat.children){
+                                                targetCat.children = {};
+                                            }
+                                            if(!targetCat.children[cAncestorID]){
+                                                targetCat.children[cAncestorID] = {name: sourceAncTree.name, children: {}};
+                                                console.log('add '+sourceAncTree.name+' ('+cAncestorID+') under '+targetCat.name);
+                                            }
+
+                                            targetCat = targetCat.children[cAncestorID];
+                                        }
+
+                                    });
+                                }
+
+                            }
+
+                            if(targetCat){
+                                console.log('targetCat be '+targetCat.name);
+                                if(scope.copyCategoryAt[catPath].overwrite){
+                                    targetCat.children = angular.copy(source.children);
+                                }
+                                else{
+                                    if(!targetCat.children){
+                                        targetCat.children = {};
+                                    }
+                                    angular.forEach(source.children, function(cChild, cChildId){
+                                        if(!targetCat.children[cChildId]){
+                                            targetCat.children[cChildId] = angular.copy(cChild);
+                                        }
+                                    });
+                                }
+                            }
+
+                            /**console.log('copy '+source.name+' to '+target.name+' ('+(Object.keys(source.children).length)+' children) -'+(scope.copyCategoryAt[catPath].overwrite?'overwriting':'appending')+' '+(scope.copyCategoryAt[catPath].tree?'tree':'contents only'));
                             if(scope.copyCategoryAt[catPath].overwrite){
                                 if(scope.copyCategoryAt[catPath].tree){
                                     target.children = {};
@@ -273,10 +322,11 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                                 }
                             }
                             else{
-                                //angular.forEach(source.children){
-                                //}
-                            }
-                            scope.changedCategories[scope.copyCategoryAt[catPath].to?scope.copyCategoryAt[catPath].target:catPath] = true;
+                                angular.forEach(source.children, function(cChild, cChildID){
+
+                                });
+                            }*/
+                            scope.changedCategories[targetPath] = true;
                         }
                     }
                     delete scope.copyCategoryAt[catPath];
