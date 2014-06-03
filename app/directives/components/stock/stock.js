@@ -46,10 +46,13 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                     delete scope.inventories[shopSnap.name];
                 }
             });
-            scope.shopLoadInventory = function(shopID){
+            scope.loadShopInventory = function(shopID){
                 scope.loadingInventory[shopID] = true;
                 shop.api.loadShopInventory(shopID).then(function(inventory){
                     scope.inventories[shopID] = inventory;
+                    scope.inventories[shopID].$on('child_changed', function(childSnapshot, prevChildName){
+                        scope.combineInventory();
+                    });
                     var invPath = scope.shopConfigs[shopID].inventory;
                     angular.forEach(scope.shopConfigs, function(cShop, cShopID){
                         if(cShop.inventory === invPath){
@@ -568,7 +571,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             });
             scope.shopSelected = function(shopID){
                 if(shopID && scope.filters.selectedShops[shopID] && !scope.inventories[shopID]){
-                    scope.shopLoadInventory(shopID);
+                    scope.loadShopInventory(shopID);
                 }
             };
 
