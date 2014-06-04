@@ -167,6 +167,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             scope.addCategoryAt = {};
             scope.copyCategoryAt = {};
             scope.editCategoryName = {};
+            scope.renamingCategory = {};
             scope.deleteCategoryAt = {};
             scope.openCategory = function(categoryID){
                 if(!scope.openCategories){
@@ -253,6 +254,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 }
             };
             scope.copyCategory = function(catPath){
+                // TODO: this needs to be completed
                 if(angular.isDefined(scope.copyCategoryAt[catPath])){
                     if(scope.copyCategoryAt[catPath].target && scope.copyCategoryAt[catPath].target.length){
                         var sourcePath = scope.copyCategoryAt[catPath].to?catPath:scope.copyCategoryAt[catPath].target;
@@ -342,16 +344,88 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                     delete scope.editCategoryName[catPath];
                 }
             };
+
+            // TODO: move this to shop.api (needs work for scope.getCategory and where it is updating the products)
+            function renameCategory(oldPath, newName, shopID, cCat){
+                var defer = $q.defer();
+                var childProms = [];
+                var oldPathStr = oldPath;
+                var newPathStr = newName;
+                if(angular.isUndefined(cCat)){
+                    cCat = scope.getCategory(oldPath);
+                    if(cCat && cCat.name !== newName){
+                        oldPathStr = scope.catPathToStr(oldPath);
+                        oldPathStr = oldPathStr.substr(oldPathStr.indexOf('/')+1); // take off the shop name
+                        newPathStr = oldPathStr.replace(cCat.name, newName);
+                    }
+                    else{
+                        oldPathStr = ''; // cancel it if it's the first category and the name is the same
+                    }
+                }
+
+                if(cCat && oldPathStr && newPathStr && cCat.children && Object.keys(cCat.children).length){
+                    if(angular.isUndefined(shopID)){
+                        shopID = (oldPath.indexOf('/') !== -1)?oldPath.substr(0, oldPath.indexOf('/')):oldPath;
+                    }
+                    var shopInv = (shopID && scope.inventories[shopID])?scope.inventories[shopID]:null;
+                    if(shopInv){
+                        cCat.name = newName;
+                        angular.forEach(cCat.children, function(cChild, cChildID){
+                            if(cChild.children){
+                                childProms.push(renameCategory(oldPathStr, newPathStr, shopID, cChild));
+                            }
+                            else{
+                                var cProduct = shopInv[cChildID]?shopInv[cChildID]:null;
+                                //console.log('rename shilly product \''+cChild.name+'\'');
+                                if(cProduct && cProduct.shops[shopID] && cProduct.shops[shopID].categories){
+                                    var prodShopMods = {};
+                                    prodShopMods[shopID] = {categories: [], removeCategories: []};
+                                    angular.forEach(cProduct.shops[shopID].categories, function(cCatEntry, cCatEntryIdx){
+                                        if(cCatEntry.indexOf(oldPathStr)===0){
+                                            cProduct.shops[shopID].categories[cCatEntryIdx] = cCatEntry.replace(oldPathStr, newPathStr);
+                                            prodShopMods[shopID].categories.push(cProduct.shops[shopID].categories[cCatEntryIdx]);
+                                            prodShopMods[shopID].removeCategories.push(cCatEntry);
+                                        }
+                                    });
+                                    if(prodShopMods[shopID].categories.length){
+                                        childProms.push(shop.api.saveProduct({$id: cChildID, shops: prodShopMods}));
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+                $q.all(childProms).then(function(){
+                    defer.resolve(true);
+                });
+                return defer.promise;
+            }
+
             scope.editCategorySave = function(catPath){
                 if(angular.isDefined(scope.editCategoryName[catPath])){
-                    if(scope.editCategoryName[catPath]){
-                        var cCat = scope.getCategory(catPath);
-                        if(cCat && cCat.name !== scope.editCategoryName[catPath]){
-                            cCat.name = scope.editCategoryName[catPath];
-                            scope.changedCategories[catPath] = true;
+                    // TODO: build shop renaming
+                    var isShop = (catPath.indexOf('/')===-1);
+
+                    if(!isShop && scope.editCategoryName[catPath]){
+                        if (!scope.renamingCategory) {
+                            scope.renamingCategory = {};
                         }
+                        scope.renamingCategory[catPath] = true;
+
+                        $timeout(function(){
+                            renameCategory(catPath, scope.editCategoryName[catPath]).then(function () {
+                                if (angular.isDefined(scope.renamingCategory[catPath])) {
+                                    delete scope.renamingCategory[catPath];
+                                }
+                                delete scope.editCategoryName[catPath];
+
+                                // TODO: the shop.api.renameCategory should handle this
+                                // ... or better yet, the shop.api.saveProduct (when removing product from categories, check if empty children)
+                                scope.deleteCategory(catPath);
+                                scope.deleteCategoryConfirm(catPath);
+                            });
+                        });
                     }
-                    delete scope.editCategoryName[catPath];
                 }
             };
             scope.deleteCategory = function(catPath){
@@ -379,6 +453,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                         if(angular.isDefined(scope.openCategories[catPath])){
                             scope.closeCategory(catPath);
                         }
+                        // TODO: going to need to update the children in this category to remove the category from their shops[*].categories
                         shop.api.deleteCategory(catPath);
                     }
                     delete scope.deleteCategoryAt[catPath];
