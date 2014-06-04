@@ -818,6 +818,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                     // compile productSets.shop and product.shops into a shopList object
                     var shopList = product.shops?product.shops:{};
                     var supplierList = product.suppliers?product.suppliers:[];
+                    var removeCats = null;
                     if(productLoad.status === 'loaded') {
                         var compiledProduct = product;
                         angular.forEach(productSets, function(data, field){
@@ -826,6 +827,14 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
                         if(productSets.shops){
                             angular.forEach(productSets.shops, function(cShop, cShopID){
+                                if(cShop.removeCategories){
+                                    if(!removeCats){
+                                        removeCats = {};
+                                    }
+                                    removeCats[cShopID] = cShop.removeCategories;
+                                    delete cShop.removeCategories;
+                                }
+
                                 if(!shopList[cShopID]){
                                     shopList[cShopID] = cShop;
                                 }
@@ -867,6 +876,36 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                         }
                     }
 
+                    // remove any categories given in any of shops[*].removeCategories[] lists
+                    if(removeCats){
+                        angular.forEach(removeCats, function(cShopRemCats, cShopID){
+                            var shopCatalog = (data.shops[cShopID] && data.shops[cShopID].catalog)?firebaseRef(data.shops[cShopID].catalog):null;
+                            angular.forEach(cShopRemCats, function(cShopRemCat, cRemIdx){
+                                // remove from catalog
+                                var cRemCatParts = cShopRemCat.split('/');
+                                var cRemCatPath = '';
+                                angular.forEach(cRemCatParts, function(cRemCatName, cRemCatPartIdx){
+                                    cRemCatParts[cRemCatPartIdx] = system.api.fbSafeKey(cRemCatName);
+                                    cRemCatPath += '/children/'+cRemCatParts[cRemCatPartIdx];
+                                });
+                                cRemCatPath += '/children/'+productID;
+                                shopCatalog.child(cRemCatPath).remove();
+
+                                // update compiledProduct
+                                if(compiledProduct.shops && compiledProduct.shops[cShopID] && compiledProduct.shops[cShopID].categories){
+                                    var catIdx = compiledProduct.shops[cShopID].categories.indexOf(cShopRemCat);
+                                    if(catIdx !== -1){
+                                        compiledProduct.shops[cShopID].categories.splice(catIdx, 1);
+                                    }
+                                }
+                            });
+                        });
+                    }
+
+                    // TODO: should we also delete it from CACHE and INVENTORY if there are no more categories?
+                    // we could handle that in the next phase ... ex. if(cShop.categories.length === 0){ cInventory.child(productID).remove(); } and same for cache
+
+                    // UPDATE INVENTORY
                     // loop through each shop and save into the inventory and each shop
                     var updatedInventories = [];
                     angular.forEach(shopList, function(cShop, cShopID){
@@ -881,6 +920,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                             }
                         }
                         else if(productLoad.status === 'loaded'){
+                            // update in inventories that have not yet been updated
                             if(updatedInventories.indexOf(cInventoryPath)===-1){
                                 var prodChild = cInventory.child(productLoad.prodID);
 
@@ -888,7 +928,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
                                 // update() does not update children recursively, so if there are new shops
                                 if(productSets.shops){
-                                    prodChild.child('shops').set(shopList);
+                                    prodChild.child('shops').set(compiledProduct.shops);
                                 }
                                 if(productSets.suppliers){
                                     prodChild.child('suppliers').set(supplierList);
@@ -898,7 +938,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                             }
                         }
 
-                        // add it to the cache
+                        // UPDATE CACHE
                         var cachedProduct = firebaseRef(cShopConfig.cache+'/products/'+productID);
                         if (cShop.available === true || (cShop.available === 'stock' && (compiledProduct.stock && compiledProduct.stock > 0) )) {
                             cachedProduct.set(compiledProduct);
@@ -907,7 +947,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                             cachedProduct.remove();
                         }
 
-                        // add it to the catalog
+                        // UPDATE CATALOG
                         if(cShop.categories.length){
                             var shopCatalog = firebaseRef(cShopConfig.catalog);
                             angular.forEach(cShop.categories, function(catPath, catIdx){
@@ -927,7 +967,6 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                                 shopCatalog.child(cCatPath).update({name: compiledProduct.name, url: system.api.fbSafeKey(compiledProduct.name)});
                             });
                         }
-
                     });
                     defer.resolve('Product '+((productLoad.status==='created')?'Created':'Updated')+'!');
                 });
