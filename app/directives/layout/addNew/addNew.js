@@ -1,3 +1,4 @@
+/*jshint multistr: true */
 angular.module('ecoposApp').directive('addNew', function(system) {
 	return {
 		restrict: 'EA',
@@ -54,7 +55,7 @@ angular.module('ecoposApp').directive('addNew', function(system) {
 					user:{ // TODO: set roles and temp password
 						options:{
 							id:{model:'id', name:'',type:'text',valid:{required:true, pattern:"/^[a-zA-Z0-9]{4,60}$/"}},
-							name:{model:'name', name:'',type:'text',valid:{required:true,pattern:"/^[-_. \a-zA-Z]{4,60}$/"}},
+							name:{model:'name', name:'',type:'text',valid:{required:true,pattern:"/^[-_. a-zA-Z]{4,60}$/"}},
 							email:{model:'email', name:'',type:'email',valid:{required:true,maxLength:60,minLength:5}},
 							roles:{model:'roles', name:'',type:'select',options:['admin','manager','employee','supplier','customer'],valid:{required:true,minLength:1}}
 					},
@@ -106,7 +107,7 @@ angular.module('ecoposApp').directive('addNew', function(system) {
 					user:{ // TODO: set roles and temp password
 						options:{
 							id:{model:'id', name:'',type:'text',valid:{required:true, pattern:"/^[a-zA-Z0-9]{4,60}$/"}},
-							name:{model:'name', name:'',type:'text',valid:{required:true,pattern:"/^[-_. \a-zA-Z]{4,60}$/"}},
+							name:{model:'name', name:'',type:'text',valid:{required:true,pattern:"/^[-_. a-zA-Z]{4,60}$/"}},
 							email:{model:'email', name:'',type:'email',valid:{required:true,maxLength:60,minLength:5}},
 							roles:{model:'roles', name:'',type:'select',options:['employee','supplier','customer'],valid:{required:true,minLength:1}}
 						},
@@ -152,7 +153,7 @@ angular.module('ecoposApp').directive('addNew', function(system) {
 					user:{ // TODO: set roles and temp password
 						options:{
 							id:{model:'id', name:'',type:'text',valid:{required:true, pattern:"/^[a-zA-Z0-9]{4,60}$/"}},
-							name:{model:'name', name:'',type:'text',valid:{required:true,pattern:"/^[-_. \a-zA-Z]{4,60}$/"}},
+							name:{model:'name', name:'',type:'text',valid:{required:true,pattern:"/^[-_. a-zA-Z]{4,60}$/"}},
 							email:{model:'email', name:'',type:'email',valid:{required:true,maxLength:60,minLength:5}},
 							roles:{model:'roles', name:'',type:'select',options:['customer'],valid:{required:true,minLength:1}}
 						},

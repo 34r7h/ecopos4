@@ -301,7 +301,7 @@ angular.module('ecoposApp')
 					}
 
 					function createAttrConcat(previousAttrs, attr) {
-						return previousAttrs + createAttr.apply(null, attr)
+						return previousAttrs + createAttr.apply(null, attr);
 					}
 					var tmpl = "<div class=\"datetimepicker-wrapper\">" +
 						"<input type=\"text\" ng-model=\"ngModel\" " + [
@@ -341,7 +341,7 @@ angular.module('ecoposApp')
 							if (angular.isDefined($scope.ngModel) && angular.isDefined($scope.time)) {
 								$scope.ngModel.setHours($scope.time.getHours(), $scope.time.getMinutes());
 							}
-						}
+						};
 					}
 				],
 				link: function(scope, element, $scope) {
@@ -353,11 +353,11 @@ angular.module('ecoposApp')
 					scope.$watch(function() {
 						return scope.showMinutes;
 					}, function(showMinutes) {
-						var tds = element.find('td').slice(1);
-						alert(tds);
+						// var tds = element.find('td').slice(1);
+						// console.log(tds);
 
 					});
 				}
-			}
+			};
 		}
 	]);
