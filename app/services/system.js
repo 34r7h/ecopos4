@@ -1,4 +1,4 @@
-angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q, $filter, $http) {
+angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q, $filter, $http, Firebase, $firebase, simpleLogin) {
 
     var data = {
         user: {id: null, anonID: '', profile: null, activeRole: 'anonymous', activeOrder: '', geoIP: {}, messages: {}, events: {}, orders: {}, calendar: {}, session: {anonCheckTime: 0, firstActiveRole: true, calendarEvents: {}}},
@@ -494,6 +494,14 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
 
         // User API
 
+	    addNewUser: function(id,displayName,email,roles) {
+		    var password = "temp";
+		    simpleLogin.createAccount(email, password, function(){
+	            console.log("im a callback!");
+		    });
+		    // this is for creating an email/password account
+
+	    },
         setUser: function(userProfile){
             if(userProfile && userProfile.$id){
                 data.user.id = userProfile.$id;

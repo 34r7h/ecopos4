@@ -1,15 +1,56 @@
 <div>
     <i ng-click="addNewMenu=!addNewMenu" class="fa fa-2x fa-plus"></i>
     <div class="col-xs-12 add-new" ng-show="addNewMenu">
-        <h4 class="fa fa-plus"> Add New..</h4>
         <div ng-repeat="(newID,newOne) in addNewThings"  >
-            <h5 ng-click="addNewThing=!addNewThing"><i class="fa-fw fa fa-{{newOne.icon}}"></i> {{newID | uppercase}}</h5>
-            <div ng-show="addNewThing">
-                <div ng-repeat="option in newOne.options">
-                    <input ng-if="option.type!=='select'" type="{{option.type}}" placeholder="{{option.name}}">
-                    <select ng-if="option.type==='select'"><option value="">Choose {{option.name}}</option><option ng-repeat="option in option.options" value="{{option}}">{{option}}</option></select>
-                </div>
-                <button ng-click="$parent.addNewMenu=false;addNewThing=false;">Save {{newID}} </button>
+            <h4 ng-click="addNewThing=!addNewThing"><i class="fa-fw fa fa-{{newOne.icon}}"></i> {{newID | uppercase}}</h4>
+            <div ng-show="addNewThing" class="add-new-thing">
+                <div class="pull-left col-xs-10"><div class="well">NEW {{newID | uppercase}}</div></div><div class="pull-right col-xs-2" ng-click="addNewThing=false">X</div>
+                <form name="theform" ng-submit="addNew[newID](theform.$valid);">
+                    <div ng-repeat="option in newOne.options">
+                        <label>{{option.model}}</label>
+                        <input
+                            ng-if="option.type === 'text' || option.type === 'email'"
+                            name="$parent.option.model"
+                            type="{{$parent.option.type}}"
+                            ng-model="$parent.option.name"
+                            placeholder="{{$parent.option.model}}"
+                            ng-minlength="{{$parent.option.valid.minLength}}"
+                            ng-maxlength="{{$parent.option.valid.maxLength}}"
+                            ng-pattern="{{$parent.option.valid.pattern}}"
+                            ng-required="{{$parent.option.valid.required}}"
+                        >
+                        <textarea
+                            ng-if="option.type==='textarea'"
+                            name="$parent.option.model"
+                            ng-model="$parent.option.name"
+                            placeholder="{{$parent.option.model}}"
+                            ng-minlength="{{$parent.option.valid.minLength}}"
+                            ng-maxlength="{{$parent.option.valid.maxLength}}"
+                            ng-pattern="{{$parent.option.valid.pattern}}"
+                            ng-required="{{$parent.option.valid.required}}"
+                            ></textarea>
+                        <select
+                            ng-if="option.type==='select'"
+                            ng-model="$parent.option.name"
+                            ng-options="user as user for user in $parent.option.options"
+                            multiple="multiple"
+                            ><option value="">Choose {{$parent.option.model}}</option></select>
+                        <div ng-if="option.type==='datetimepicker'">
+                            <datetimepicker
+                                ng-model="$parent.option.name"
+                                date-options="dateOptions"
+                                date-disabled="disabled(date, mode)"
+                                showMinutes="true"
+                            ></datetimepicker>
+
+                        </div>
+                    </div>
+
+                        <button ng-disabled="theform.$invalid || theform.$pristine" type="submit">
+                            Save {{newID}}
+                        </button>
+
+                </form>
             </div>
         </div>
     </div>

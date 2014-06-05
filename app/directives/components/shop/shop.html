@@ -1,67 +1,76 @@
-<div class="col-xs-12 shop">
-    <h1 data-fittext="1" data-fittext-min="16" data-fittext-max="56">Shop</h1>
-
-    <div ng-if="product|| $parent.product">{{product}}</div>
-    <div ng-if="!product && !$parent.product">
-        <div class="col-xs-12 category">
-        <h4>Sub-Categories</h4>
-        <div class="category-browser" ng-repeat="(childPrio,child) in (shop.category.children || $parent.shop.category.children) | orderByPriority | isCategory">
-            <div ng-mouseover="catalogDrop=true" ng-mouseleave="catalogDrop=false">
-                <i class="fa fa-angle-right"></i> <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)" >{{child.name}}</a>
-
-                <div ng-show="catalogDrop">
-                    <ul>
-                        <li ng-repeat="subChild in child.children | orderByPriority | isCategory">
-                            <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)+'/'+(subChild.url?subChild.url:subChild.$id)">{{subChild.name}}</a>
-                        </li>
-
-                        <li ng-repeat="subChild in child.children | orderByPriority | isProduct">
-                            <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)+'/'+(subChild.url?subChild.url:subChild.$id)">{{subChild.name}}</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xs-3">Filters</div>
-    <div class="col-xs-3"><h3>{{shop.category.name}}</h3>
-        <h4>Products</h4>
-        <ul>
-            <li ng-repeat="(childPrio,child) in shop.category.children | orderByPriority | isProduct">
-                <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)">
-                    <span ng-if="!inventory[child.$id]">{{child.name}}</span>
-                    <span ng-if="inventory[child.$id]">{{inventory[child.$id].brand}} {{inventory[child.$id].name}} {{inventory[child.$id].size}}</span>
-                </a>
-            </li>
-        </ul></div>
-        <div class="col-xs-6">
+<div class="shop">
+    <div ng-if="$parent.shop.product || shop.product">
+        <div class="col-xs-12 well">
             <div ng-show="shop.product">
-                <h3>{{shop.product.name}}</h3>
-                <div>
-                    <div class="price">{{shop.product.price | currency}}</div>
-                    <div class="stock"><strong>{{shop.product.stock}}</strong> in stock</div>
+                <div class="col-xs-7 product-image">
+                    <div ng-if="shop.product.img">
+                        <img ng-src="shop.product.img[0]">
+                    </div>
+                    <div ng-if="!shop.product.img">
+                        <img src="app/images/eco-placeholder.png">
+                    </div>
                 </div>
-                <div>
-                    <input type="number" ng-model="qty" />
-                    <button ng-click="addProduct(shop.product, qty)">Add to Cart</button>
+                <div class="col-xs-5 product-info">
+                    <h3>{{shop.product.name}}</h3>
+                    <div>
+                        <div class="price">{{shop.product.price | currency}}</div>
+                        <div class="stock"><strong>{{shop.product.stock}}</strong> in stock</div>
+                    </div>
+                    <div>
+                        <input type="number" ng-model="qty" />
+                        <button ng-click="addProduct(shop.product, qty)">Add to Cart</button>
+                    </div>
                 </div>
-
-                {{shop.product.$id}}
-
             </div>
             <div ng-show="shop.productURI && !shop.product">
                 <p>Could not find requested product '{{shop.productURI}}'</p>
                 <p>Return to category <a eco-ref="shop.pathStr"><span ng-show="shop.category">{{shop.category.name}}</span><span ng-hide="shop.category">parent</span></a>.</p>
             </div>
         </div>
+    </div>
+
+    <div ng-if="!product && !$parent.product && !shop.product">
+        <div class="col-xs-3 category">
+            <div class="category-browser" ng-repeat="(childPrio,child) in (shop.category.children || $parent.shop.category.children) | orderByPriority | isCategory">
+                <div ng-mouseover="catalogDrop=true" ng-mouseleave="catalogDrop=false">
+                    <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)" >{{child.name}} <i ng-hide="catalogSelect" class="fa fa-chevron-right"></i><i ng-show="catalogSelect" class="fa fa-chevron-down"></i></a>
+
+                    <div ng-show="catalogDrop" ng-mouseover="catalogSelect=true" ng-mouseleave="catalogSelect=false" >
+                        <ul>
+                            <li ng-mouseover="categorySelect=true" ng-mouseleave="categorySelect=false" ng-repeat="subChild in child.children | orderByPriority | isCategory">
+                                <i ng-show="categorySelect" class="fa fa-angle-double-right"></i><i ng-show="!categorySelect" class="fa fa-angle-right"></i> <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)+'/'+(subChild.url?subChild.url:subChild.$id)">{{subChild.name}}</a>
+                            </li>
+
+                            <li ng-mouseover="productSelect=true" ng-mouseleave="productSelect=false" ng-repeat="subChild in child.children | orderByPriority | isProduct">
+                                <i ng-show="productSelect" class="fa fa-dot-circle-o"></i><i ng-show="!productSelect" class="fa fa-circle"></i> <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)+'/'+(subChild.url?subChild.url:subChild.$id)">{{subChild.name}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="product-filters">
+        Filters
+    </div>
+
+    <div class="products">
+        <ul>
+            <li class="col-xs-3" ng-repeat="(childPrio,child) in shop.category.children | orderByPriority | isProduct">
+                <div class="well">
+                    <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)">
+                        <span ng-if="!inventory[child.$id]">{{child.name}}</span>
+                        <span ng-if="inventory[child.$id]">{{inventory[child.$id].brand}} {{inventory[child.$id].name}} {{inventory[child.$id].size}}</span>
+                    </a>
+                </div>
+            </li>
+        </ul>
+    </div>
+
 
     <div ng-hide="shop">
         Shop is not initialized.
     </div>
-        <ul ng-repeat="thing in shop.product" style="overflow-x:hidden;">
-            <li>
-                {{thing}}
-            </li>
-        </ul>
-</div>
+
 </div>
