@@ -695,7 +695,8 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             return defer.promise;
         },
 
-        setProduct: function(product){
+        saveProduct: function(product, inventoryPath){
+            var defer = $q.defer();
             /**
              missing data strategy?
                 1. require all data and save the whole product every time
@@ -720,121 +721,268 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 };
              */
 
-            var productID = product.$id;
-            if(product.$id){
-                // take it out for when we store product object in DB (we don't want to save $id as a child)
-                delete product.$id;
+            if(angular.isUndefined(inventoryPath)){
+                var shopKeys = product.shops?Object.keys(product.shops):null;
+                if(shopKeys && shopKeys.length && data.shops[shopKeys[0]].inventory){
+                    inventoryPath = data.shops[shopKeys[0]].inventory;
+                }
             }
 
-            var upcDefer = $q.defer();
-            api.upcLookup(product.upc).then(function(upcProdID){
-                if(upcProdID){
-                    if(upcProdID === productID){
-                        upcDefer.resolve('match');
-                    }
-                    else if(!productID){
-                        productID = upcProdID;
-                        upcDefer.resolve('found');
-                    }
-                    else{
-                        upcDefer.resolve('duplicates');
-                    }
-                }
-                else{
-                    upcDefer.resolve('new');
-                }
-            },function(error){
-                upcDefer.resolve('invalid');
-            });
+            if(inventoryPath) {
+                var inventory = firebaseRef(inventoryPath);
+                var upcLookup = $q.defer();
+                var loadProduct = $q.defer();
 
-            upcDefer.promise.then(function(upcStatus){
-                if(!productID){
-                    product.new = true;
+                // alias the product.$id and delete it from product object for when we save (we don't want to write an $id field)
+                var productID = product.$id?product.$id:'';
+                if(product.$id){
+                    delete product.$id;
                 }
 
-                var invSetting = { defer: $q.defer(), addingTo: '', invQueue: {} };
-                angular.forEach(product.shops, function(shopProduct, shopID) {
-                    var shopConfig = data.shops[shopID];
-                    if(shopConfig) {
-                        var inventory = firebaseRef(shopConfig.inventory);
-                        if(!productID){
-                            // this bit of invSetting does the push on only the first inventory table
-                            // and saves a list of additional inventories to add the product into
-                            // this allows for the same fb-generated procuctID to be shared in multiple inventory tables
-                            if(!invSetting.addingTo){
-                                invSetting.addingTo = shopConfig.inventory;
-                                var newProdRef = inventory.push(product, function(error){
-                                    if(error){ /* error handling */ }
-                                    productID = newProdRef.name();
-                                    invSetting.defer.resolve();
-                                });
+                // lookup upc
+                if(product.upc){
+                    api.upcLookup(product.upc).then(function(upcProdID){
+                        if(upcProdID){
+                            if(!productID || upcProdID === productID){
+                                upcLookup.resolve({status: 'found', prodID: upcProdID, upc: product.upc});
                             }
-                            else if(shopConfig.inventory !== invSetting.addingTo && !invSetting.invQueue[shopConfig.inventory]){
-                                invSetting.invQueue[shopConfig.inventory] = true;
+                            else{
+                                upcLookup.resolve({status: 'duplicate', prodID: upcProdID, upc: product.upc});
                             }
                         }
                         else{
-                            // update "shared inventory" at inventory.child(product.id)
-                            inventory.child(productID).update(product, function(error){
-                                if(error){ /* error handling */ }
-                                invSetting.defer.resolve();
+                            upcLookup.resolve({status: 'not found', prodID: null, upc: product.upc});
+                        }
+                    });
+                }
+                else{
+                    upcLookup.resolve({status: 'not set', prodID: null, upc: null});
+                }
+
+                // lookup product
+                if(productID){
+                    inventory.child(productID).once('value', function(loadedProduct){
+                        loadProduct.resolve({status: 'loaded', prodID: loadedProduct.name(), product: loadedProduct.val()});
+                    });
+                }
+                else{
+                    // no productID set, let's see if an $id was resolved from the upcLookup
+                    upcLookup.promise.then(function(upc){
+                        if(upc.status==='found'){
+                            inventory.child(upc.prodID).once('value', function(loadedProduct){
+                                loadProduct.resolve({status: 'loaded', prodID: loadedProduct.name(), product: loadedProduct.val()});
                             });
                         }
-
-                        invSetting.defer.promise.then(function(){
-                            angular.forEach(invSetting.invQueue, function(addTo, inventoryPath){
-                                var cInventory = firebaseRef(inventoryPath);
-                                cInventory.child(productID).update(product);
+                        else{
+                            // create new product
+                            var createdProduct = inventory.push(product, function(error){
+                                if(!error){
+                                    loadProduct.resolve({status: 'created', prodID: createdProduct.name(), product: createdProduct});
+                                }
                             });
+                        }
+                    });
+                }
 
-                            // handle flat-list caching for searching
-                            var cachedProduct = firebaseRef(shopConfig.cache+'/products/'+productID);
-                            if (shopProduct.available === true || (shopProduct.available === 'stock' && product.stock > 0)) {
-                                cachedProduct.set(product);
+                // once product & upc lookup have completed...
+                $q.all({productLoad: loadProduct.promise, upcLoad: upcLookup.promise}).then(function(results){
+                    var productLoad = results.productLoad;
+                    var upcLoad = results.upcLoad;
+
+                    var productSets = product;
+                    product = productLoad.product;
+                    productID = productLoad.prodID;
+
+                    if(productSets.upc){
+                        var upcRoot = firebaseRef(FBSHOPSROOT+'/upc');
+                        if(upcLoad.status !== 'found'){
+                            if(upcLoad.status === 'duplicate'){
+                                // -save to 'upc/duplicates/'+upcLoad.upc as [productID, upcLoad.prodID]
+                                upcRoot.child('duplicates/'+system.api.fbSafeKey(upcLoad.upc)).set([productID,upcLoad.prodID]);
                             }
                             else{
-                                cachedProduct.remove();
+                                // create the new upc entry
+                                upcRoot.child(system.api.fbSafeKey(productSets.upc)).set(productID);
                             }
+                        }
+                        else{
+                            // upcLoad.status === 'found'
+                            if(product.upc !== productSets.upc){
+                                // upc has changed, update the upc entry
+                                upcRoot.child(system.api.fbSafeKey(productSets.upc)).remove();
+                                upcRoot.child(system.api.fbSafeKey(productSets.upc)).set(productID);
+                            }
+                        }
+                    }
 
-                            if(shopProduct.categories.length){
-                                var catalog = firebaseRef(shopConfig.catalog);
-                                angular.forEach(shopProduct.categories, function(catPath, catIdx){
-                                    // insert product into catalog at catPath
-                                    if(catPath.charAt(catPath.length-1) !== '/'){ catPath += '/'; } // ensure trailing /children/
-                                    if(catPath.charAt(0) !== '/'){ catPath = '/'+catPath; } // ensure leading /children/
+                    // compile productSets.shop and product.shops into a shopList object
+                    var shopList = product.shops?product.shops:{};
+                    var supplierList = product.suppliers?product.suppliers:[];
+                    var removeCats = null;
+                    if(productLoad.status === 'loaded') {
+                        var compiledProduct = product;
+                        angular.forEach(productSets, function(data, field){
+                            compiledProduct[field] = data;
+                        });
 
-                                    var catParts = catPath.split('/');
-                                    var cCatPath = '';
-                                    angular.forEach(catParts, function(cCatPiece, catIdx){
-                                        if(cCatPiece){
-                                            cCatPath += '/children/'+system.api.fbSafeKey(cCatPiece);
-                                            catalog.child(cCatPath).update({name: cCatPiece});
+                        if(productSets.shops){
+                            angular.forEach(productSets.shops, function(cShop, cShopID){
+                                if(cShop.removeCategories){
+                                    if(!removeCats){
+                                        removeCats = {};
+                                    }
+                                    removeCats[cShopID] = cShop.removeCategories;
+                                    delete cShop.removeCategories;
+                                }
+
+                                if(!shopList[cShopID]){
+                                    shopList[cShopID] = cShop;
+                                }
+                                else{
+                                    angular.forEach(cShop.categories, function(cCat, cCatIdx){
+                                        if(!shopList[cShopID].categories){
+                                            shopList[cShopID].categories = [cCat];
+                                        }
+                                        else if(shopList[cShopID].categories.indexOf(cCat)===-1){
+                                            shopList[cShopID].categories.push(cCat);
                                         }
                                     });
-                                    cCatPath += '/children/'+productID;
-                                    catalog.child(cCatPath).update({name: product.name, url: system.api.fbSafeKey(product.name)});
+                                }
+                            });
+
+                            compiledProduct.shops = shopList;
+                        }
+
+                        if(productSets.suppliers){
+                            angular.forEach(productSets.suppliers, function(cSup, cSupIdx){
+                                var cSupFound = false;
+                                angular.forEach(supplierList, function(cSupCheck, cSupCheckIdx){
+                                    if(cSupCheck.name === cSup.name){
+                                        cSupFound = true;
+                                        if(cSup.cost){
+                                            supplierList[cSupCheckIdx].cost = cSup.cost;
+                                        }
+                                        if(cSup.item){
+                                            supplierList[cSupCheckIdx].item = cSup.item;
+                                        }
+                                    }
                                 });
-                            }
+                                if(!cSupFound){
+                                    supplierList.push(cSup);
+                                }
+                            });
+
+                            compiledProduct.suppliers = supplierList;
+                        }
+                    }
+
+                    // remove any categories given in any of shops[*].removeCategories[] lists
+                    if(removeCats){
+                        angular.forEach(removeCats, function(cShopRemCats, cShopID){
+                            var shopCatalog = (data.shops[cShopID] && data.shops[cShopID].catalog)?firebaseRef(data.shops[cShopID].catalog):null;
+                            angular.forEach(cShopRemCats, function(cShopRemCat, cRemIdx){
+                                // remove from catalog
+                                var cRemCatParts = cShopRemCat.split('/');
+                                var cRemCatPath = '';
+                                angular.forEach(cRemCatParts, function(cRemCatName, cRemCatPartIdx){
+                                    cRemCatParts[cRemCatPartIdx] = system.api.fbSafeKey(cRemCatName);
+                                    cRemCatPath += '/children/'+cRemCatParts[cRemCatPartIdx];
+                                });
+                                cRemCatPath += '/children/'+productID;
+                                shopCatalog.child(cRemCatPath).remove();
+
+                                // update compiledProduct
+                                if(compiledProduct.shops && compiledProduct.shops[cShopID] && compiledProduct.shops[cShopID].categories){
+                                    var catIdx = compiledProduct.shops[cShopID].categories.indexOf(cShopRemCat);
+                                    if(catIdx !== -1){
+                                        compiledProduct.shops[cShopID].categories.splice(catIdx, 1);
+                                    }
+                                }
+                            });
                         });
                     }
-                });
 
-                invSetting.defer.promise.then(function(){
-                    var upcRoot = firebaseRef(FBSHOPSROOT+'/upc');
-                    if(upcStatus === 'new'){
-                        upcRoot.child(system.api.fbSafeKey(product.upc)).set(productID);
-                    }
-                    else if(upcStatus === 'duplicates' || upcStatus === 'invalid'){
-                        upcRoot.child(upcStatus+'/'+system.api.fbSafeKey(product.upc?product.upc:'?')+'/'+productID).set(product.upc);
-                    }
+                    // TODO: should we also delete it from CACHE and INVENTORY if there are no more categories?
+                    // we could handle that in the next phase ... ex. if(cShop.categories.length === 0){ cInventory.child(productID).remove(); } and same for cache
+
+                    // UPDATE INVENTORY
+                    // loop through each shop and save into the inventory and each shop
+                    var updatedInventories = [];
+                    angular.forEach(shopList, function(cShop, cShopID){
+                        var cShopConfig = data.shops[cShopID];
+                        var cInventoryPath = cShopConfig.inventory;
+                        var cInventory = firebaseRef(cInventoryPath);
+
+                        if(productLoad.status === 'created'){
+                            // it was created in inventoryPath already
+                            if(cInventoryPath !== inventoryPath){
+                                cInventory.child(productLoad.prodID).set(product);
+                            }
+                        }
+                        else if(productLoad.status === 'loaded'){
+                            // update in inventories that have not yet been updated
+                            if(updatedInventories.indexOf(cInventoryPath)===-1){
+                                var prodChild = cInventory.child(productLoad.prodID);
+
+                                prodChild.update(productSets);
+
+                                // update() does not update children recursively, so if there are new shops
+                                if(productSets.shops){
+                                    prodChild.child('shops').set(compiledProduct.shops);
+                                }
+                                if(productSets.suppliers){
+                                    prodChild.child('suppliers').set(supplierList);
+                                }
+
+                                updatedInventories.push(cInventoryPath);
+                            }
+                        }
+
+                        // UPDATE CACHE
+                        var cachedProduct = firebaseRef(cShopConfig.cache+'/products/'+productID);
+                        if (cShop.available === true || (cShop.available === 'stock' && (compiledProduct.stock && compiledProduct.stock > 0) )) {
+                            cachedProduct.set(compiledProduct);
+                        }
+                        else{
+                            cachedProduct.remove();
+                        }
+
+                        // UPDATE CATALOG
+                        if(cShop.categories.length){
+                            var shopCatalog = firebaseRef(cShopConfig.catalog);
+                            angular.forEach(cShop.categories, function(catPath, catIdx){
+                                // insert product into catalog at catPath
+                                if(catPath.charAt(catPath.length-1) !== '/'){ catPath += '/'; } // ensure trailing /children/
+                                if(catPath.charAt(0) !== '/'){ catPath = '/'+catPath; } // ensure leading /children/
+
+                                var catParts = catPath.split('/');
+                                var cCatPath = '';
+                                angular.forEach(catParts, function(cCatPiece, catIdx){
+                                    if(cCatPiece){
+                                        cCatPath += '/children/'+system.api.fbSafeKey(cCatPiece);
+                                        shopCatalog.child(cCatPath).update({name: cCatPiece});
+                                    }
+                                });
+                                cCatPath += '/children/'+productID;
+                                shopCatalog.child(cCatPath).update({name: compiledProduct.name, url: system.api.fbSafeKey(compiledProduct.name)});
+                            });
+                        }
+                    });
+                    defer.resolve('Product '+((productLoad.status==='created')?'Created':'Updated')+'!');
                 });
-            });
+            }
+            else{
+                defer.reject('No inventory to set product in.');
+            }
+
 
             // TODO: maybe add supplier to "suppliers" table if it doens't exist already?
             /**
             angular.forEach(product.suppliers, function(supplier, supplierID){
             });
              */
+
+            return defer.promise;
         },
 
         shopCategoryPath: function(path){
@@ -1009,16 +1157,18 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                     defer.resolve(data.store.inventory[inventoryPath]);
                 }
                 else{
+                    /**
                     firebaseRef(inventoryPath).once('value', function(snap){
-                        data.store.inventory[inventoryPath] = $filter('orderByPriority')(snap.val());
+                        data.store.inventory[inventoryPath] = snap.val();
                         defer.resolve(data.store.inventory[inventoryPath]);
                     });
+                     */
 
-                    /**var inventorySheet = syncData(inventoryPath);
+                    var inventorySheet = syncData(inventoryPath);
                     inventorySheet.$on('loaded', function(){
-                        data.store.inventory[inventoryPath] = $filter('orderByPriority')(inventorySheet);
+                        data.store.inventory[inventoryPath] = inventorySheet;
                         defer.resolve(data.store.inventory[inventoryPath]);
-                    });*/
+                    });
                 }
             }
             else{

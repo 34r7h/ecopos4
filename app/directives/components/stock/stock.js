@@ -5,46 +5,64 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
         scope: '@',
         templateUrl: 'app/directives/components/stock/stock.html',
         link: function (scope, element, attrs, fn) {
+            scope.shops = {
+                name: 'Shops',
+                children: {}
+            };
 
             // shop catalogs and inventory
-            scope.catalogs = {};
+            scope.shopConfigs = {};
             scope.inventories = {};
             scope.loadingInventory = {};
 
             shop.data.shops.$on('loaded', function(){
-                scope.shops = shop.data.shops;
-                angular.forEach(scope.shops, function(cShop, shopID){
+                scope.shopConfigs = shop.data.shops;
+                angular.forEach(scope.shopConfigs, function(cShop, shopID){
                     shop.api.loadShopCatalog(shopID).then(function(catalog){
-                        scope.catalogs[shopID] = catalog;
+                        scope.shops.children[shopID] = catalog;
+                        if(!scope.shops.children[shopID].children){
+                            scope.shops.children[shopID].children = {};
+                        }
                     });
                 });
             });
             shop.data.shops.$on('child_added', function(newChild){
                 var shopSnap = newChild.snapshot;
-                if(!scope.catalogs[shopSnap.name]){
+                if(!scope.shops.children[shopSnap.name]){
                     shop.api.loadShopCatalog(shopSnap.name).then(function(catalog){
-                        scope.catalogs[shopSnap.name] = catalog;
+                        scope.shops.children[shopSnap.name] = catalog;
+                        if(!scope.shops.children[shopSnap.name].children){
+                            scope.shops.children[shopSnap.name].children = {};
+                        }
                     });
                 }
             });
             shop.data.shops.$on('child_removed', function(oldChild) {
                 var shopSnap = oldChild.snapshot;
-                if(scope.catalogs[shopSnap.name]){
-                    delete scope.catalogs[shopSnap.name];
+                if(scope.shops.children[shopSnap.name]){
+                    delete scope.shops.children[shopSnap.name];
                 }
                 if(scope.inventories[shopSnap.name]){
                     delete scope.inventories[shopSnap.name];
                 }
             });
-            scope.shopLoadInventory = function(shopID){
+            scope.loadShopInventory = function(shopID){
                 scope.loadingInventory[shopID] = true;
                 shop.api.loadShopInventory(shopID).then(function(inventory){
                     scope.inventories[shopID] = inventory;
+                    scope.inventories[shopID].$on('child_changed', function(childSnapshot, prevChildName){
+                        scope.combineInventory();
+                    });
+                    var invPath = scope.shopConfigs[shopID].inventory;
+                    angular.forEach(scope.shopConfigs, function(cShop, cShopID){
+                        if(cShop.inventory === invPath){
+                            scope.inventories[cShopID] = inventory;
+                        }
+                    });
                     if(scope.loadingInventory[shopID]){
                         delete scope.loadingInventory[shopID];
                     }
                     scope.combineInventory();
-                    scope.filterInventory();
                 });
             };
 
@@ -52,14 +70,15 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 var invIncluded = [];
                 scope.inventory = [];
                 angular.forEach(scope.filters.selectedShops, function(shopActive, shopID){
-                    if(shopActive && scope.inventories[shopID] && scope.inventories[shopID].length){
-                        var cInv = scope.shops[shopID].inventory;
+                    if(shopActive && scope.inventories[shopID]){
+                        var cInv = scope.shopConfigs[shopID].inventory;
                         if(invIncluded.indexOf(cInv) === -1){
                             invIncluded.push(cInv);
-                            scope.inventory = scope.inventory.concat(scope.inventories[shopID]);
+                            scope.inventory = scope.inventory.concat($filter('orderByPriority')(scope.inventories[shopID]));
                         }
                     }
                 });
+                scope.filterInventory();
             };
             scope.filterInventory = function(){
                 scope.inventoryFiltered = $filter('ecoFilter')(scope.inventory, filterArgs(), scope.filters.matchAll);
@@ -71,7 +90,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             };
 
             scope.shopCount = function(){
-                return (scope.shops?scope.shops.$getIndex().length:0);
+                return (scope.shops.children?scope.shops.children.$getIndex().length:0);
             };
             scope.shopProductCount = function(shopID){
                 return ((shopID && scope.inventories[shopID])?Object.keys(scope.inventories[shopID]).length:0);
@@ -82,7 +101,24 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             scope.filteredProductCount = function(){
                 return (scope.inventoryFiltered?Object.keys(scope.inventoryFiltered).length:0);
             };
-
+            scope.categoryProductCount = function(category,includeSubs){
+                if(angular.isUndefined(includeSubs)){includeSubs = false;}
+                var result = 0;
+                var catChildren = (category.children)?$filter('orderByPriority')(category.children):null;
+                if(catChildren){
+                    result = ($filter('isProduct')(catChildren)).length;
+                    if(includeSubs){
+                        var subs = $filter('isCategory')(catChildren);
+                        angular.forEach(subs, function(sub, subID){
+                            result += scope.categoryProductCount(sub, true);
+                        });
+                    }
+                }
+                return result;
+            };
+            scope.changedCategoryCount = function(){
+                return (scope.changedCategories?Object.keys(scope.changedCategories).length:0);
+            };
 
             // shop displays
             scope.openShops = {};
@@ -127,9 +163,11 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
 
             // categories
             scope.openCategories = {};
+            scope.changedCategories = {};
             scope.addCategoryAt = {};
             scope.copyCategoryAt = {};
             scope.editCategoryName = {};
+            scope.renamingCategory = {};
             scope.deleteCategoryAt = {};
             scope.openCategory = function(categoryID){
                 if(!scope.openCategories){
@@ -202,7 +240,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 if(!scope.copyCategoryAt){
                     scope.copyCategoryAt = {};
                 }
-                scope.copyCategoryAt[catPath] = {to:true,target:[]};
+                scope.copyCategoryAt[catPath] = {to:true,target:[],overwrite:false,ancestorTree:true};
             };
             scope.copyCategoryClose = function(catPath) {
                 delete scope.copyCategoryAt[catPath];
@@ -216,10 +254,78 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 }
             };
             scope.copyCategory = function(catPath){
+                // TODO: this needs to be completed
                 if(angular.isDefined(scope.copyCategoryAt[catPath])){
                     if(scope.copyCategoryAt[catPath].target && scope.copyCategoryAt[catPath].target.length){
-                        // TODO: copy category data
-                        console.log('copy '+catPath+' '+(scope.copyCategoryAt[catPath].to?'to':'from')+' '+scope.copyCategoryAt[catPath].target.join('/'));
+                        var sourcePath = scope.copyCategoryAt[catPath].to?catPath:scope.copyCategoryAt[catPath].target;
+                        var targetPath = scope.copyCategoryAt[catPath].to?scope.copyCategoryAt[catPath].target:catPath;
+
+                        var source = scope.getCategory(sourcePath);
+                        var target = scope.getCategory(targetPath);
+                        if(source && target && source.children){
+                            var targetCat = target;
+
+                            if(scope.copyCategoryAt[catPath].ancestorTree){
+                                var sourceAncPath = angular.isString(sourcePath)?sourcePath.split('/'):sourcePath;
+                                if(sourceAncPath.length){
+                                    var sourceAncTree = scope.getCategory(sourceAncPath[0]);
+                                    angular.forEach(sourceAncPath, function(cAncestorID, cAncestorIdx){
+                                        console.log('where is '+cAncestorIdx+'?'+sourceAncTree.name);
+                                        if(cAncestorIdx > 0){ // don't mimic the shop name
+                                            if(sourceAncTree.children && sourceAncTree.children[cAncestorID]){
+                                                sourceAncTree = sourceAncTree.children[cAncestorID];
+                                                console.log('then:'+sourceAncTree.name);
+                                            }
+                                            if(!targetCat.children){
+                                                targetCat.children = {};
+                                            }
+                                            if(!targetCat.children[cAncestorID]){
+                                                targetCat.children[cAncestorID] = {name: sourceAncTree.name, children: {}};
+                                                console.log('add '+sourceAncTree.name+' ('+cAncestorID+') under '+targetCat.name);
+                                            }
+
+                                            targetCat = targetCat.children[cAncestorID];
+                                        }
+
+                                    });
+                                }
+
+                            }
+
+                            if(targetCat){
+                                console.log('targetCat be '+targetCat.name);
+                                if(scope.copyCategoryAt[catPath].overwrite){
+                                    targetCat.children = angular.copy(source.children);
+                                }
+                                else{
+                                    if(!targetCat.children){
+                                        targetCat.children = {};
+                                    }
+                                    angular.forEach(source.children, function(cChild, cChildId){
+                                        if(!targetCat.children[cChildId]){
+                                            targetCat.children[cChildId] = angular.copy(cChild);
+                                        }
+                                    });
+                                }
+                            }
+
+                            /**console.log('copy '+source.name+' to '+target.name+' ('+(Object.keys(source.children).length)+' children) -'+(scope.copyCategoryAt[catPath].overwrite?'overwriting':'appending')+' '+(scope.copyCategoryAt[catPath].tree?'tree':'contents only'));
+                            if(scope.copyCategoryAt[catPath].overwrite){
+                                if(scope.copyCategoryAt[catPath].tree){
+                                    target.children = {};
+                                    target.children[source.$id] = {name: source.name, children: angular.copy(source.children)};
+                                }
+                                else{
+                                    target.children = angular.copy(source.children);
+                                }
+                            }
+                            else{
+                                angular.forEach(source.children, function(cChild, cChildID){
+
+                                });
+                            }*/
+                            scope.changedCategories[targetPath] = true;
+                        }
                     }
                     delete scope.copyCategoryAt[catPath];
                 }
@@ -238,19 +344,88 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                     delete scope.editCategoryName[catPath];
                 }
             };
+
+            // TODO: move this to shop.api (needs work for scope.getCategory and where it is updating the products)
+            function renameCategory(oldPath, newName, shopID, cCat){
+                var defer = $q.defer();
+                var childProms = [];
+                var oldPathStr = oldPath;
+                var newPathStr = newName;
+                if(angular.isUndefined(cCat)){
+                    cCat = scope.getCategory(oldPath);
+                    if(cCat && cCat.name !== newName){
+                        oldPathStr = scope.catPathToStr(oldPath);
+                        oldPathStr = oldPathStr.substr(oldPathStr.indexOf('/')+1); // take off the shop name
+                        newPathStr = oldPathStr.replace(cCat.name, newName);
+                    }
+                    else{
+                        oldPathStr = ''; // cancel it if it's the first category and the name is the same
+                    }
+                }
+
+                if(cCat && oldPathStr && newPathStr && cCat.children && Object.keys(cCat.children).length){
+                    if(angular.isUndefined(shopID)){
+                        shopID = (oldPath.indexOf('/') !== -1)?oldPath.substr(0, oldPath.indexOf('/')):oldPath;
+                    }
+                    var shopInv = (shopID && scope.inventories[shopID])?scope.inventories[shopID]:null;
+                    if(shopInv){
+                        cCat.name = newName;
+                        angular.forEach(cCat.children, function(cChild, cChildID){
+                            if(cChild.children){
+                                childProms.push(renameCategory(oldPathStr, newPathStr, shopID, cChild));
+                            }
+                            else{
+                                var cProduct = shopInv[cChildID]?shopInv[cChildID]:null;
+                                //console.log('rename shilly product \''+cChild.name+'\'');
+                                if(cProduct && cProduct.shops[shopID] && cProduct.shops[shopID].categories){
+                                    var prodShopMods = {};
+                                    prodShopMods[shopID] = {categories: [], removeCategories: []};
+                                    angular.forEach(cProduct.shops[shopID].categories, function(cCatEntry, cCatEntryIdx){
+                                        if(cCatEntry.indexOf(oldPathStr)===0){
+                                            cProduct.shops[shopID].categories[cCatEntryIdx] = cCatEntry.replace(oldPathStr, newPathStr);
+                                            prodShopMods[shopID].categories.push(cProduct.shops[shopID].categories[cCatEntryIdx]);
+                                            prodShopMods[shopID].removeCategories.push(cCatEntry);
+                                        }
+                                    });
+                                    if(prodShopMods[shopID].categories.length){
+                                        childProms.push(shop.api.saveProduct({$id: cChildID, shops: prodShopMods}));
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+                $q.all(childProms).then(function(){
+                    defer.resolve(true);
+                });
+                return defer.promise;
+            }
+
             scope.editCategorySave = function(catPath){
                 if(angular.isDefined(scope.editCategoryName[catPath])){
-                    if(scope.editCategoryName[catPath]){
-                        var isShop = (catPath.indexOf('/')===-1);
-                        console.log('rename '+(isShop?'shop':'category')+' \''+scope.editCategoryName[catPath]+'\' for '+catPath);
-                        if(isShop){
-                            // TODO: rename shop
+                    // TODO: build shop renaming
+                    var isShop = (catPath.indexOf('/')===-1);
+
+                    if(!isShop && scope.editCategoryName[catPath]){
+                        if (!scope.renamingCategory) {
+                            scope.renamingCategory = {};
                         }
-                        else{
-                            // TODO: rename category
-                        }
+                        scope.renamingCategory[catPath] = true;
+
+                        $timeout(function(){
+                            renameCategory(catPath, scope.editCategoryName[catPath]).then(function () {
+                                if (angular.isDefined(scope.renamingCategory[catPath])) {
+                                    delete scope.renamingCategory[catPath];
+                                }
+                                delete scope.editCategoryName[catPath];
+
+                                // TODO: the shop.api.renameCategory should handle this
+                                // ... or better yet, the shop.api.saveProduct (when removing product from categories, check if empty children)
+                                scope.deleteCategory(catPath);
+                                scope.deleteCategoryConfirm(catPath);
+                            });
+                        });
                     }
-                    delete scope.editCategoryName[catPath];
                 }
             };
             scope.deleteCategory = function(catPath){
@@ -278,6 +453,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                         if(angular.isDefined(scope.openCategories[catPath])){
                             scope.closeCategory(catPath);
                         }
+                        // TODO: going to need to update the children in this category to remove the category from their shops[*].categories
                         shop.api.deleteCategory(catPath);
                     }
                     delete scope.deleteCategoryAt[catPath];
@@ -314,10 +490,19 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 }
                 if(angular.isArray(catPath)){
                     var cCatIdx = 0;
-                    var cCat = (scope.catalogs[catPath[cCatIdx]]?scope.catalogs[catPath[cCatIdx++]]:null);
+                    var cCat = (scope.shops.children[catPath[cCatIdx]]?scope.shops.children[catPath[cCatIdx++]]:null);
                     while(cCat != null){
                         result = cCat;
                         cCat = (cCat.children && cCat.children[catPath[cCatIdx]]?cCat.children[catPath[cCatIdx++]]:null);
+                    }
+                    if(cCatIdx < catPath.length){
+                        result = null;
+                    }
+                    if(result && !result.$id){
+                        result.$id = catPath[catPath.length-1];
+                    }
+                    if(result && result.children===true){
+                        result.children = {};
                     }
                 }
                 return result;
@@ -330,7 +515,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 if(angular.isArray(catPath)){
                     result = '';
                     var cCatIdx = 0;
-                    var cCat = (scope.catalogs[catPath[cCatIdx]]?scope.catalogs[catPath[cCatIdx++]]:null);
+                    var cCat = (scope.shops.children[catPath[cCatIdx]]?scope.shops.children[catPath[cCatIdx++]]:null);
                     while(cCat != null){
                         result += (result?'/':'')+cCat.name;
                         cCat = (cCat.children && cCat.children[catPath[cCatIdx]]?cCat.children[catPath[cCatIdx++]]:null);
@@ -451,22 +636,20 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             });
             scope.$watchCollection('filters.selectedShops', function(){
                 scope.combineInventory();
-                scope.filterInventory();
             });
             scope.shopSelected = function(shopID){
                 if(shopID && scope.filters.selectedShops[shopID] && !scope.inventories[shopID]){
-                    scope.shopLoadInventory(shopID);
+                    scope.loadShopInventory(shopID);
                 }
             };
-
 
             // inventory listing
             scope.sortables=[
                 {name:'name','show':true, type:'text', priority:1},
                 {name:'stock',show:false, type:'number', priority:5},
                 {name:'price',show:false, type:'number', priority:3},
-                {name:'category',show:false, type:'select', priority:7},
-                {name:'suppliers',show:false, type:'select', priority:10}
+                {name:'category',show:false, type:'categories', priority:7},
+                {name:'suppliers',show:false, type:'static', priority:10}
             ];
             scope.columnCount = 1;
             scope.setColumnCount = function(){
@@ -556,19 +739,62 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                     scope.changedProducts[productID].push(changedField);
                 }
             };
-            scope.productFocus = function(productID, focusField){
-                scope.focusProduct = productID;
+            scope.productFocus = function(product, focusField){
+                scope.focusProduct = product.$id;
                 scope.focusField = focusField;
             };
-            scope.productBlur = function(productID, blurField){
-                if(scope.focusProduct === productID){
+            scope.productBlur = function(product, blurField){
+                if(scope.focusProduct === product.$id){
+                    if(scope.changedProducts[product.$id] && scope.changedProducts[product.$id].indexOf(blurField) !== -1){
+                        scope.saveProductChanges(product, blurField);
+                    }
                     scope.focusProduct = '';
+                }
+            };
+            scope.saveProductChanges = function(product, field){
+                var updateFields = {$id: product.$id, shops: product.shops};
+                var updateAllChanges = false;
+                if(angular.isUndefined(field) && scope.changedProducts[product.$id] && scope.changedProducts[product.$id].length){
+                    field = scope.changedProducts[product.$id];
+                    updateAllChanges = true;
+                }
+                if(angular.isString(field)){
+                    field = [field];
+                }
+                if(angular.isArray(field)){
+                    angular.forEach(field, function(cField, cFieldIdx){
+                        if(cField === 'categories'){
+                            // that means it was a shops update, which are always updating
+                        }
+                        else{
+                            updateFields[cField] = product[cField];
+                        }
+                    });
+
+                    // do the update
+                    shop.api.saveProduct(updateFields);
+
+                    // clear out the changedProducts tracking
+                    if(scope.changedProducts[product.$id]){
+                        if(updateAllChanges){
+                            delete scope.changedProducts[product.$id];
+                        }
+                        else{
+                            angular.forEach(field, function(cField, cFieldIdx){
+                                if(scope.changedProducts[product.$id].indexOf(cField) !== -1){
+                                    scope.changedProducts[product.$id].splice(scope.changedProducts[product.$id].indexOf(cField),1);
+                                }
+                            });
+                            if(!scope.changedProducts[product.$id].length){
+                                delete scope.changedProducts[product.$id];
+                            }
+                        }
+                    }
                 }
             };
 
             // add to category
             scope.productAddCats = {};
-            scope.productAddShop = {};
             scope.addProductToCategory = function(productID, catLevel){
                 if(!scope.productAddCats[productID][catLevel] && angular.isDefined(scope.productAddCats[productID][catLevel])){
                     scope.productAddCats[productID] = scope.productAddCats[productID].slice(0, catLevel);
@@ -586,22 +812,48 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                     }
                 }
             };
-            scope.addProductToShop = function(productID){
-                if(scope.productAddShop[productID]){
-                    console.log('add '+productID+' to '+JSON.stringify(scope.productAddShop[productID]));
-                    scope.productAddCats[productID] = [scope.productAddShop[productID]];
-                }
-                else if(angular.isDefined(scope.productAddCats[productID])){
-                    delete scope.productAddCats[productID];
+            scope.saveProductToCategory = function(product){
+                if(product && product.$id && scope.productAddCats[product.$id] && scope.productAddCats[product.$id].length){
+                    var addShop = scope.productAddCats[product.$id][0];
+
+                    if(scope.inventories[addShop]){
+                        var addCat = (scope.productAddCats[product.$id].length>1)?scope.catPathToStr(scope.productAddCats[product.$id]):'';
+                        if(addCat && scope.shops.children[addShop]){
+                            addCat = addCat.replace(scope.shops.children[addShop].name+'/', '');
+                        }
+
+                        if(!product.shops[addShop]){
+                            product.shops[addShop] = {available:'stock',categories:[]};
+                        }
+                        if(!product.shops[addShop].categories){
+                            product.shops[addShop].categories = [];
+                        }
+                        if(product.shops[addShop].categories.indexOf(addCat)===-1){
+                            product.shops[addShop].categories.push(addCat);
+                        }
+
+                        if(!scope.inventories[addShop][product.$id]){
+                            scope.inventories[addShop][product.$id] = product;
+                            scope.combineInventory();
+                        }
+
+                        //var cCat = getCategoryForPath(scope.productAddCats[product.$id]);
+                        var cCat = scope.getCategory(scope.productAddCats[product.$id]);
+                        if(cCat){
+                            if(!cCat.children){
+                                cCat.children = {};
+                            }
+                            if(!cCat.children[product.$id]){
+                                cCat.children[product.$id] = product;
+                                scope.changedCategories[scope.productAddCats[product.$id].join('/')] = true;
+                            }
+                        }
+
+                        scope.productChanged(product.$id, 'categories');
+                        scope.saveProductChanges(product, 'categories');
+                    }
                 }
             };
-
-
-
-
-
-
-
         }
     };
 });

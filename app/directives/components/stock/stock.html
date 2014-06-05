@@ -1,20 +1,31 @@
 <div class="stock col-xs-12">
     <h1 data-fittext="1" data-fittext-min="16" data-fittext-max="56">Stock</h1>
-
     <div class="row shops">
         <script type="text/ng-template" id="category_list_recur.html">
             <div ng-switch="hasChildCategories(childCat)">
-                <a ng-switch-when="true" ng-click="toggleCategory(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw" ng-class="{'fa-plus-square':!openCategories[shopID+'/'+parentID+'/'+childCat.$id], 'fa-minus-square':openCategories[shopID+'/'+parentID+(parentID?'/':'')+childCat.$id]}"></i></a><i ng-switch-when="false" class="fa fa-fw"> </i><input type="checkbox" ng-model="filters.selectedCats[parentName+(parentName?'/':'')+childCat.name]" ng-change="selectedCatToggle(parentName+(parentName?'/':'')+childCat.name)" id="select-cat-{{shopID}}/{{parentName}}/{{childCat.name}}" />
-                <span ng-show="!isDefined(editCategoryName[shopID+'/'+parentID+(parentID?'/':'')+childCat.$id])"><label for="select-cat-{{shopID}}/{{parentName}}/{{childCat.name}}"><strong>{{childCat.name}}</strong></label><a ng-click="editCategory(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw fa-pencil"></i></a></span><span ng-show="isDefined(editCategoryName[shopID+'/'+parentID+(parentID?'/':'')+childCat.$id])"><input type="text" ng-model="editCategoryName[shopID+'/'+parentID+(parentID?'/':'')+childCat.$id]" /><a ng-click="editCategorySave(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw fa-check-circle"></i></a><a ng-click="editCategoryCancel(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw fa-times-circle"></i></a></span><a ng-click="deleteCategory(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw fa-ban"></i></a><a ng-click="copyCategoryToggle(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw fa-exchange"></i></a><a ng-click="addCategory(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw fa-plus"></i></a>
+                <a ng-switch-when="true" ng-click="toggleCategory(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw" ng-class="{'fa-plus-square':!openCategories[shopID+'/'+parentID+'/'+childCat.$id], 'fa-minus-square':openCategories[shopID+'/'+parentID+(parentID?'/':'')+childCat.$id]}"></i></a><i ng-switch-when="false" class="fa fa-fw"> </i><input type="checkbox" ng-model="filters.selectedCats[shopID+'/'+parentName+(parentName?'/':'')+childCat.name]" ng-change="selectedCatToggle(parentName+(parentName?'/':'')+childCat.name)" id="select-cat-{{shopID}}/{{parentName+(parentName?'/':'')}}{{childCat.name}}" />
+                <span ng-show="!isDefined(editCategoryName[shopID+'/'+parentID+(parentID?'/':'')+childCat.$id])"><label for="select-cat-{{shopID}}/{{parentName+(parentName?'/':'')}}{{childCat.name}}"><strong>{{childCat.name}}</strong></label><span ng-show="changedCategories[shopID+'/'+parentID+(parentID?'/':'')+childCat.$id]">*</span> ({{categoryProductCount(childCat)}})<a ng-click="editCategory(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw fa-pencil"></i></a></span><span ng-show="isDefined(editCategoryName[shopID+'/'+parentID+(parentID?'/':'')+childCat.$id])"><input type="text" ng-model="editCategoryName[shopID+'/'+parentID+(parentID?'/':'')+childCat.$id]" ng-disabled="renamingCategory[shopID+'/'+parentID+(parentID?'/':'')+childCat.$id]" /><i class="fa fa-fw fa-spin fa-spinner" ng-show="renamingCategory[shopID+'/'+parentID+(parentID?'/':'')+childCat.$id]"></i><span ng-show="!renamingCategory[shopID+'/'+parentID+(parentID?'/':'')+childCat.$id]"><a ng-click="editCategorySave(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw fa-check-circle"></i></a><a ng-click="editCategoryCancel(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw fa-times-circle"></i></a></span></span><a ng-click="deleteCategory(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw fa-ban"></i></a><a ng-click="copyCategoryToggle(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw fa-exchange"></i></a><a ng-click="addCategory(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw fa-plus"></i></a>
 
                 <div ng-show="isDefined(deleteCategoryAt[(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)])">
-                    Really delete category '{{childCat.name}}'?<br/>
+                    Really delete category '{{catPathToStr(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)}}'?<br/>
                     <button class="btn btn-xs btn-success" ng-click="deleteCategoryConfirm(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw fa-check"></i>Yes</button>
                     <button class="btn btn-xs btn-danger" ng-click="deleteCategoryCancel(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw fa-times"></i>No</button>
                 </div>
 
-                <div ng-show="isDefined(copyCategoryAt[(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)])">
-                    Copy <strong>{{childCat.$id}}</strong> <a ng-click="copyCategoryAt[(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)].to=!copyCategoryAt[(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)].to"><i class="fa fa-fw" ng-class="{'fa-arrow-right': copyCategoryAt[(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)].to, 'fa-arrow-left': !copyCategoryAt[(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)].to}"></i></a>
+                <div ng-if="isDefined(copyCategoryAt[(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)])">
+                    Copy <strong ng-show="copyCategoryAt[(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)].to">{{catPathToStr(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)}}</strong><strong ng-show="!copyCategoryAt[(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)].to">{{catPathToStr(copyCategoryAt[(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)].target)}}</strong> <a ng-click="copyCategoryAt[(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)].to=!copyCategoryAt[(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)].to"><i class="fa fa-fw fa-arrow-right"></i></a><strong ng-show="copyCategoryAt[(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)].to">{{catPathToStr(copyCategoryAt[(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)].target)}}</strong><strong ng-show="!copyCategoryAt[(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)].to">{{childCat.name}}</strong>
+                    <select-tree source="shops" ng-model="copyCategoryAt[(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)].target" id="copy-cat-{{shopID}}-{{(parentID?parentID+'-':'')}}{{childCat.$id}}" max-size="7"></select-tree><br style="clear:both;"/>
+                    <div>
+                        <strong>Copy ancestor tree?</strong><br/>
+                        <input type="radio" id="copy-cat-tree-yes-{{shopID}}/{{parentID}}/{{childCat.$id}}" ng-model="copyCategoryAt[shopID+'/'+parentID+(parentID?'/':'')+childCat.$id].ancestorTree" ng-value="true" /> <label for="copy-cat-tree-yes-{{shopID}}/{{parentID}}/{{childCat.$id}}">Trace Hierarchy</label> (ancestral path of the source will be created under target)<br/>
+                        <input type="radio" id="copy-cat-tree-no-{{shopID}}/{{parentID}}/{{childCat.$id}}" ng-model="copyCategoryAt[shopID+'/'+parentID+(parentID?'/':'')+childCat.$id].ancestorTree" ng-value="false" /> <label for="copy-cat-tree-no-{{shopID}}/{{parentID}}/{{childCat.$id}}">Contents Only</label> (children of the source will be created directly under target)
+                    </div>
+                    <div>
+                        <strong>Overwrite Current Children?</strong><br/>
+                        <input type="radio" id="copy-cat-overwrite-yes-{{shopID}}/{{parentID}}/{{childCat.$id}}" ng-model="copyCategoryAt[(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)].overwrite" ng-value="true" /> <label for="copy-cat-overwrite-yes-{{shopID}}/{{parentID}}/{{childCat.$id}}">Yes</label> (target's existing children will be removed)<br/>
+                        <input type="radio" id="copy-cat-overwrite-no-{{shopID}}/{{parentID}}/{{childCat.$id}}" ng-model="copyCategoryAt[(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)].overwrite" ng-value="false" /> <label for="copy-cat-overwrite-no-{{shopID}}/{{parentID}}/{{childCat.$id}}">No</label> (new children will be added under target)
+                    </div>
+                    <button class="btn btn-sm btn-primary" ng-click="copyCategory(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw fa-check"></i>Copy Category</button>
                 </div>
                 <div ng-show="isDefined(addCategoryAt[shopID+'/'+parentID+(parentID?'/':'')+childCat.$id])">
                     <input type="text" ng-model="addCategoryAt[shopID+'/'+parentID+(parentID?'/':'')+childCat.$id]" placeholder="New Category" /><a ng-click="addCategorySave(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw fa-check-circle"></i></a><a ng-click="addCategoryCancel(shopID+'/'+parentID+(parentID?'/':'')+childCat.$id)"><i class="fa fa-fw fa-times-circle"></i></a>
@@ -26,23 +37,35 @@
             </div>
         </script>
 
-        <div ng-repeat="(shopID, shop) in shops" class="shop-catalog col-xs-6">
-            <a ng-show="catalogs[shopID]" ng-click="toggleShop(shopID)"><i class="fa fa-fw" ng-class="{'fa-plus-square':!openShops[shopID], 'fa-minus-square':openShops[shopID]}"></i></a><input type="checkbox" ng-model="filters.selectedShops[shopID]" ng-change="shopSelected(shopID)" id="select-shop-{{shopID}}" />
-            <span ng-show="!isDefined(editCategoryName[shopID])"><label for="select-shop-{{shopID}}"><strong>{{shop.name}}</strong> ({{shopProductCount(shopID)}})<a ng-click="shopLoadInventory(shopID)" ng-show="!loadingInventory[shopID]"><i class="fa fa-fw fa-refresh"></i></a><i ng-show="loadingInventory[shopID]" class="fa fa-fw fa-spin fa-spinner"></i><a ng-click="editCategory(shopID)"><i class="fa fa-fw fa-pencil"></i></a></label></span><span ng-show="isDefined(editCategoryName[shopID])"><input type="text" ng-model="editCategoryName[shopID]"/><a ng-click="editCategorySave(shopID)"><i class="fa fa-fw fa-check-circle"></i></a><a ng-click="editCategoryCancel(shopID)"><i class="fa fa-fw fa-times-circle"></i></a></span><a ng-click="deleteCategory(shopID)"><i class="fa fa-fw fa-ban"></i></a><a ng-click="copyCategoryToggle(shopID)"><i class="fa fa-fw fa-exchange"></i></a><a ng-click="addCategory(shopID)"><i class="fa fa-fw fa-plus"></i></a>
+        <div ng-repeat="(shopID, shop) in shops.children" class="shop-catalog col-xs-6">
+            <a ng-click="toggleShop(shopID)"><i class="fa fa-fw" ng-class="{'fa-plus-square':!openShops[shopID], 'fa-minus-square':openShops[shopID]}"></i></a><input type="checkbox" ng-model="filters.selectedShops[shopID]" ng-change="shopSelected(shopID)" id="select-shop-{{shopID}}" />
+            <span ng-show="!isDefined(editCategoryName[shopID])"><label for="select-shop-{{shopID}}"><strong>{{shop.name}}</strong></label><span ng-show="changedCategories[shopID]">*</span> ({{categoryProductCount(shop)}}/{{shopProductCount(shopID)}})<a ng-click="loadShopInventory(shopID)" ng-show="!loadingInventory[shopID]"><i class="fa fa-fw fa-refresh"></i></a><i ng-show="loadingInventory[shopID]" class="fa fa-fw fa-spin fa-spinner"></i><a ng-click="editCategory(shopID)"><i class="fa fa-fw fa-pencil"></i></a></span><span ng-show="isDefined(editCategoryName[shopID])"><input type="text" ng-model="editCategoryName[shopID]"/><a ng-click="editCategorySave(shopID)"><i class="fa fa-fw fa-check-circle"></i></a><a ng-click="editCategoryCancel(shopID)"><i class="fa fa-fw fa-times-circle"></i></a></span><a ng-click="deleteCategory(shopID)"><i class="fa fa-fw fa-ban"></i></a><a ng-click="copyCategoryToggle(shopID)"><i class="fa fa-fw fa-exchange"></i></a><a ng-click="addCategory(shopID)"><i class="fa fa-fw fa-plus"></i></a>
 
             <div ng-show="isDefined(deleteCategoryAt[shopID])">
                 Really delete shop '{{shop.name}}'?<br/>
                 <button class="btn btn-xs btn-success" ng-click="deleteCategoryConfirm(shopID)"><i class="fa fa-fw fa-check"></i>Yes</button>
                 <button class="btn btn-xs btn-danger" ng-click="deleteCategoryCancel(shopID)"><i class="fa fa-fw fa-times"></i>No</button>
             </div>
-            <div ng-show="isDefined(copyCategoryAt[shopID])">
-                Copy <strong>{{shopID}}</strong> <a ng-click="copyCategoryAt[shopID].to=!copyCategoryAt[shopID].to"><i class="fa fa-fw" ng-class="{'fa-arrow-right': copyCategoryAt[shopID].to, 'fa-arrow-left': !copyCategoryAt[shopID].to}"></i></a>
+            <div ng-if="isDefined(copyCategoryAt[shopID])">
+                Copy <strong ng-show="copyCategoryAt[shopID].to">{{shop.name}}</strong><strong ng-show="!copyCategoryAt[shopID].to">{{catPathToStr(copyCategoryAt[shopID].target)}}</strong> <a ng-click="copyCategoryAt[shopID].to=!copyCategoryAt[shopID].to"><i class="fa fa-fw fa-arrow-right"></i></a><strong ng-show="copyCategoryAt[shopID].to">{{catPathToStr(copyCategoryAt[shopID].target)}}</strong><strong ng-show="!copyCategoryAt[shopID].to">{{shop.name}}</strong>
+                <select-tree source="shops" ng-model="copyCategoryAt[shopID].target" id="copy-cat-{{shopID}}" max-size="7"></select-tree><br style="clear:both;"/>
+                <div>
+                    <strong>Copy Tree?</strong><br/>
+                    <input type="radio" id="copy-cat-tree-yes-{{shopID}}" ng-model="copyCategoryAt[shopID].tree" ng-value="true" /> <label for="copy-cat-tree-yes-{{shopID}}">Tree</label> (the sub-category tree will be copied)<br/>
+                    <input type="radio" id="copy-cat-tree-no-{{shopID}}" ng-model="copyCategoryAt[shopID].tree" ng-value="false" /> <label for="copy-cat-tree-no-{{shopID}}">Contents Only</label> (the contents of the category will be copied)
+                </div>
+                <div>
+                    <strong>Overwrite Current Children?</strong><br/>
+                    <input type="radio" id="copy-cat-overwrite-yes-{{shopID}}" ng-model="copyCategoryAt[shopID].overwrite" ng-value="true" /> <label for="copy-cat-overwrite-yes-{{shopID}}">Yes</label> (existing children will be removed)<br/>
+                    <input type="radio" id="copy-cat-overwrite-no-{{shopID}}" ng-model="copyCategoryAt[shopID].overwrite" ng-value="false" /> <label for="copy-cat-overwrite-no-{{shopID}}">No</label> (only new children will be added)
+                </div>
+                <button class="btn btn-sm btn-primary" ng-click="copyCategory(shopID)"><i class="fa fa-fw fa-check"></i>Copy Shop</button>
             </div>
             <div ng-show="isDefined(addCategoryAt[shopID])">
                 <input type="text" ng-model="addCategoryAt[shopID]" placeholder="New Category" /><a ng-click="addCategorySave(shopID)"><i class="fa fa-fw fa-check-circle"></i></a><a ng-click="addCategoryCancel(shopID)"><i class="fa fa-fw fa-times-circle"></i></a>
             </div>
-            <div ng-show="openShops[shopID] && catalogs[shopID] && catalogs[shopID].children">
-                <span ng-repeat="childCat in catalogs[shopID].children | orderByPriority | isCategory | orderBy:'name'" ng-include="'category_list_recur.html'" onload="shopID=shopID;parentID='';parentName=''"></span>
+            <div ng-show="openShops[shopID] && shops.children[shopID].children">
+                <span ng-repeat="childCat in shops.children[shopID].children | orderByPriority | isCategory | orderBy:'name'" ng-include="'category_list_recur.html'" onload="shopID=shopID;parentID='';parentName=''"></span>
             </div>
         </div>
         <div class="shop-catalog col-xs-6">
@@ -55,6 +78,18 @@
                     <button class="btn btn-xs btn-danger" ng-click="addShopCancel()"><i class="fa fa-fw fa-times"></i>Cancel</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="row change-summary" ng-show="changedCategoryCount() || changedProductCount()">
+        <div class="categories-changed" ng-show="changedCategoryCount()">
+            <strong>{{changedCategoryCount()}} categories changed</strong>
+        </div>
+        <div class="products-changed" ng-show="changedProductCount()">
+            <strong>{{changedProductCount()}} products changed</strong>
+            <ul>
+                <li ng-repeat="(cProdID,cProdChanges) in changedProducts">{{cProdID}}:{{cProdChanges}}</li>
+            </ul>
         </div>
     </div>
 
@@ -97,22 +132,6 @@
             </div>
         </div>
 
-        <div class="products-changed" ng-show="changedProductCount()">
-            <strong>{{changedProductCount()}} products changed</strong>
-            <ul>
-                <li ng-repeat="(cProdID,cProdChanges) in changedProducts">{{cProdID}}:{{cProdChanges}}</li>
-            </ul>
-        </div>
-
-        <script type="text/ng-template" id="category_select_recur.html">
-            <select ng-if="cCat" ng-attr-size="{{shopCount()}}" ng-change="addProductToCategory(prodID,level)" ng-model="productAddCats[prodID][level]">
-                <option value="">-- {{cCat.name}} --</option>
-                <option ng-repeat="(subCatIdx,subCat) in cCat.children | orderByPriority | isCategory | orderBy:'name'" ng-value="subCat.$id">{{subCat.name}}</option>
-            </select>
-            <div id="pac-{{prodID}}-{{level}}" ng-if="level < productAddCats[prodID].length && productAddCats[prodID][level] && cCat.children[productAddCats[prodID][level]] && cCat.children[productAddCats[prodID][level]].children" ng-include="'category_select_recur.html'" onload="cCat=cCat.children[productAddCats[prodID][level]];level=level+1;">
-            </div>
-        </script>
-
         <div class="row">
             <div>
                 Show: <span ng-repeat="sort in sortables | orderBy:'priority'">
@@ -136,20 +155,19 @@
                         <input type="checkbox" ng-model="productBatch[product.$id]" ng-change="productBatchToggle(product.$id)" />
                         <a ng-click="toggleProduct(product.$id)"><i class="fa fa-fw" ng-class="{'fa-plus-square':!openProducts[product.$id], 'fa-minus-square':openProducts[product.$id]}"></i></a>
                     </td>
-                    <td class="stock-list" ng-if="sort.show" ng-repeat="sort in sortables | orderBy:'priority'">
-                        <span ng-if="sort.type!=='select'">
-                            <input type="{{sort.type}}" ng-model="$parent.product[sort.name]" ng-change="productChanged($parent.product.$id, sort.name)" ng-focus="productFocus($parent.product.$id, sort.name)" ng-blur="productBlur($parent.product.$id, sort.name)" />
+                    <td class="stock-list" ng-if="sort.show" ng-repeat="sort in sortables | orderBy:'priority'" ng-switch="sort.type">
+                        <span ng-switch-when="static">
+                            {{product[sort.name]}}
                         </span>
-                        <span ng-if="sort.type==='select'">
-                            <span ng-if="sort.name==='category'" ng-repeat="(catShopID,catShop) in $parent.product.shops">
-                                <strong>{{shops[catShopID].name}}</strong>
-                                <ul>
-                                    <li ng-repeat="cShopCat in catShop.categories">{{cShopCat}}</li>
-                                </ul>
-                            </span>
-                            <span ng-if="sort.name!=='category'">
-                                {{$parent.product[sort.name]}}
-                            </span>
+                        <span ng-switch-when="categories">
+                            <ul ng-repeat="(cShopID,cShop) in product.shops">
+                                <li ng-repeat="cCat in cShop.categories">
+                                    {{shops.children[cShopID].name}}/{{cCat}}
+                                </li>
+                            </ul>
+                        </span>
+                        <span ng-switch-default>
+                            <input type="{{sort.type}}" ng-model="product[sort.name]" ng-change="productChanged(product.$id, sort.name)" ng-focus="productFocus(product, sort.name)" ng-blur="productBlur(product, sort.name)" />
                         </span>
                     </td>
                 </tr>
@@ -157,15 +175,8 @@
                     <td class="col-controls">&nbsp;</td>
                     <td colspan="{{columnCount}}">
                         <div><strong>Add to:</strong> {{catPathToStr(productAddCats[product.$id])}}</div>
-                        <div class="col-xs-3">
-                            <select ng-attr-size="{{shopCount()}}" ng-change="addProductToShop(product.$id)" ng-model="productAddShop[product.$id]">
-                                <option value="">-- Choose Shop --</option>
-                                <option ng-repeat="(cShopID,cShop) in shops" ng-value="cShopID">{{cShop.name}}</option>
-                            </select>
-
-                            <div id="pac-{{product.$id}}-1" ng-if="productAddShop[product.$id] && catalogs[productAddShop[product.$id]] && productAddCats[product.$id]" ng-include="'category_select_recur.html'" onload="prodID=product.$id;level=1;cCat=catalogs[productAddShop[product.$id]]">
-                            </div>
-                        </div>
+                        <select-tree source="shops" ng-model="productAddCats[product.$id]" id="pac-{{product.$id}}" max-size="7"></select-tree>
+                        <a ng-click="saveProductToCategory(product)"><i class="fa fa-fw fa-plus"></i></a>
 
                         <div>
                             oh ya we be winning the lorem ipsum delorian time travelin' mofreakin zilla squashing building rampage
