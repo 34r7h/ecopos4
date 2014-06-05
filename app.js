@@ -16,9 +16,8 @@ angular.module('ecoposApp', [
 	'mobile-angular-ui',
 	'mobile-angular-ui.touch',
 	'mobile-angular-ui.scrollable',
-	'ngTable',
-	'xeditable',
-	'ngFitText'
+	'ngFitText',
+	'ngTable'
 ]);
 
 angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, fitTextConfigProvider) {
@@ -246,9 +245,8 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
 });
 
-angular.module('ecoposApp').run(function($rootScope, simpleLogin, $state, $stateParams,editableOptions) {
+angular.module('ecoposApp').run(function($rootScope, simpleLogin, $state, $stateParams) {
 	       // if there is a user authenticated with firebase, this will trigger the rest of the login sequence for them
-	editableOptions.theme = 'bs3';
 	simpleLogin.activateCurrent();
     $rootScope.safeApply = function(fn) {
         var phase = $rootScope.$$phase;

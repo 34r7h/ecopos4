@@ -8,7 +8,9 @@ angular.module('ecoposApp').factory('style',function() {
 		'max-height': maxHeight + "px",
 		'panelBodyHeight': maxHeight - 74 + "px",
 		'panelBodyMinHeight': "100%",
-		'border-radius': '0 0 3px 3px'
+		'border-radius': '0 0 3px 3px',
+		'windowWidth': viewWidth,
+		'windowHeight': viewHeight
 	};
 
 	return style;

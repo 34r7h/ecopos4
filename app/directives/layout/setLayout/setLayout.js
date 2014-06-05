@@ -25,6 +25,7 @@ angular.module('ecoposApp').directive('setLayout', function($rootScope) {
 					if(scope.rightlg){
 						scope.rightlg = false;
 					}
+					scope.ecoOverlay=false;
 				}
 				if(name==="leftmd"){
 					scope.leftsm = false;
@@ -34,6 +35,7 @@ angular.module('ecoposApp').directive('setLayout', function($rootScope) {
 						scope.rightmd = false;
 						scope.rightlg = false;
 					}
+					scope.ecoOverlay=false;
 				}
 				if(name==="leftlg"){
 					scope.leftsm = false;
@@ -42,6 +44,7 @@ angular.module('ecoposApp').directive('setLayout', function($rootScope) {
 					scope.rightsm = false;
 					scope.rightmd = false;
 					scope.rightlg = false;
+					scope.ecoOverlay=false;
 
 				}
 				if(name==="rightsm"){
@@ -51,6 +54,7 @@ angular.module('ecoposApp').directive('setLayout', function($rootScope) {
 					if(scope.leftlg){
 						scope.leftlg = false;
 					}
+					scope.ecoOverlay=false;
 				}
 				if(name==="rightmd"){
 					scope.rightsm = false;
@@ -60,6 +64,7 @@ angular.module('ecoposApp').directive('setLayout', function($rootScope) {
 						scope.leftmd = false;
 						scope.leftlg = false;
 					}
+					scope.ecoOverlay=false;
 				}
 				if(name==="rightlg"){
 					scope.rightsm = false;
@@ -68,6 +73,7 @@ angular.module('ecoposApp').directive('setLayout', function($rootScope) {
 					scope.leftsm = false;
 					scope.leftmd = false;
 					scope.leftlg = false;
+					scope.ecoOverlay=false;
 
 				}
 				if(name==="main"){
@@ -77,7 +83,7 @@ angular.module('ecoposApp').directive('setLayout', function($rootScope) {
 					scope.leftsm = false;
 					scope.leftmd = false;
 					scope.leftlg = false;
-					$rootScope.toggle('overlay', 'off');
+					scope.ecoOverlay=false;
 				}
 				// TODO REFACTOR from $rootScope
 				if(name==="overlay"){
@@ -87,7 +93,7 @@ angular.module('ecoposApp').directive('setLayout', function($rootScope) {
 					scope.leftsm = false;
 					scope.leftmd = false;
 					scope.leftlg = false;
-					$rootScope.toggle('overlay');
+					scope.ecoOverlay=!scope.ecoOverlay;
 				}
 			};
 

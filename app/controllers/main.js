@@ -68,6 +68,11 @@ angular.module('ecoposApp')
 			'panelBodyMinHeight': style.panelBodyMinHeight,
 			'border-radius': style['border-radius']
 		};
+		$scope.overlayDimensions = {
+			'width':'100%',
+			'height':(style.windowHeight - 144) + "px",
+			'padding': '0 1em'
+		};
 
         $scope.breadcrumb = system.data.breadcrumb;
         //$scope.search = system.data.search; // allow the search directive to scope its own value
