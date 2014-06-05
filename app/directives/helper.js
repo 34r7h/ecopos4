@@ -130,7 +130,8 @@ angular.module('ecoposApp').directive('comp', function($compile,$timeout) {
                     });
 
                     element.attr('href', refPath+(refQuery?'?'+refQuery:''));
-                    element.off('click');
+	                // TODO refactor/fix these on/off click events
+                    // element.off('click');
                     element.on('click', function(){
                         var freshQuery = '';
                         if(!scope.reset){

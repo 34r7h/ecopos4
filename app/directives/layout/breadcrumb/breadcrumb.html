@@ -2,23 +2,28 @@
 
     <div ng-if="$parent.main" class="row breadcrumb">
         <h5 data-fittext="1" data-fittext-min="16" data-fittext-max="56">{{$parent.$parent.main}}</h5>
-
-        <h5></h5>
     </div>
 
         <div ng-if="!$parent.main" class="row breadcrumb"
              ng-repeat="cPath in $parent.breadcrumb.path"
-            ng-click="dropdowns=true"
-            ng-mouseover="dropdowns=true;dropIcon='fa-rotate-90';"
-            ng-mouseleave="dropdowns=false;dropIcon='';"
+             ng-click="dropdowns=true"
+             ng-mouseover="dropdowns=true;dropIcon='fa-rotate-90';"
+             ng-mouseleave="dropdowns=false;dropIcon='';"
         >
-            <h5 ng-if="!$last" eco-ref="cPath.path"><a href>{{cPath.name.$value}} <i class="fa fa-chevron-right" ng-class="dropIcon"></i> </a></h5>
-            <h5 ng-if="$last" eco-ref="cPath.path">{{cPath.name.$value}}</h5>
-                <ul ng-show="dropdowns && !$last" >
-                    <li ng-repeat="cChild in cPath.children">
-                        <i ng-init="dropBread='fa fa-angle-right'" ng-class="dropBread"> <a ng-mouseover="dropBread='fa fa-angle-double-right'" ng-mouseleave="dropBread='fa fa-angle-right'" eco-ref="cChild.url">{{cChild.name}}</a></i>
-                    </li>
-                </ul>
+            <h5 ng-if="!$last" eco-ref="cPath.path">
+                <span ng-init="shortBread='short-bread-sml'" ng-class="shortBread" ng-mouseenter="shortBread='short-bread-lg'" ng-mouseleave="shortBread='short-bread-sml'">
+                    <a href>{{cPath.name.$value}}</a>
+                </span>
+                <i class="fa fa-chevron-right" ng-class="dropIcon"></i>
+            </h5>
+            <h5 ng-if="$last" eco-ref="cPath.path">
+                {{cPath.name.$value}}
+            </h5>
+            <ul ng-show="dropdowns && !$last" >
+                <li ng-repeat="cChild in cPath.children">
+                    <i ng-init="dropBread='fa fa-angle-right'" ng-class="dropBread"> <a ng-mouseover="dropBread='fa fa-angle-double-right'" ng-mouseleave="dropBread='fa fa-angle-right'" eco-ref="cChild.url">{{cChild.name}}</a></i>
+                </li>
+            </ul>
 
         </div>
 
