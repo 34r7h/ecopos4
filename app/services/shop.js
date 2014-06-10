@@ -377,7 +377,8 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             var defer = $q.defer();
             var newOrder = {
                 createdTime: system.api.currentTime(),
-                status: 0
+                status: 0,
+	            delivered:false
             };
             newOrder.name = $filter('date')(newOrder.createdTime, 'EEE, MMM d')+' @ '+$filter('date')(newOrder.createdTime, 'shortTime');
             if(!data.invoice.orderRef){
@@ -414,6 +415,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                         data.invoice.order = $firebase(data.invoice.orderRef);
                         system.api.activateUserOrder(orderSnap.name());
                         api.emptyCart();
+	                    console.log(orderSnap.val());
                         angular.forEach(orderSnap.val().items, function(item, itemID){
                             data.invoice.items[itemID] = item;
                         });

@@ -5,6 +5,7 @@ angular.module('ecoposApp').directive('cart', function(shop, system, $filter) {
 
 		templateUrl: 'app/directives/components/cart/cart.html',
 		link: function($scope, element, attrs, fn) {
+			$scope.paymentMethods=[{name:'cash',type:'cash'},{name:'debit', type:'debit'},{name:'visa',type:'credit'},{name:'mastercard',type:'credit'},{name: 'gift certificate', type:'gift certificate'}];
             $scope.orders = system.data.user.orders;
             $scope.user = system.data.user; // needed for user.activeOrder binding
             $scope.activateOrder = function(){
@@ -23,11 +24,11 @@ angular.module('ecoposApp').directive('cart', function(shop, system, $filter) {
             $scope.productQty = shop.api.changeProductQty;
 			$scope.total = shop.api.cartTotal;
             $scope.checkout = shop.api.orderCheckout;
-
             $scope.payAmt = 0.00;
+			$scope.paymentMethod = '';
             $scope.makePayment = function(){
                 // TODO: are we going to handle payAmt > total here?
-                shop.api.orderPayment($scope.order.$id, {type: 'cash', amount: $scope.payAmt});
+                shop.api.orderPayment($scope.orders.$id, {type: $scope.paymentMethod, amount: $scope.payAmt});
             };
 
             $scope.order = shop.data.invoice.order;
