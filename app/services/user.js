@@ -1,7 +1,8 @@
 angular.module('ecoposApp').factory('user',function($log, $q, $firebaseSimpleLogin, firebaseRef, syncData, md5){
     var data = {
         profile: null,
-        errors: []
+        errors: [],
+        messages: []
     };
 
     var api = {
@@ -203,6 +204,31 @@ angular.module('ecoposApp').factory('user',function($log, $q, $firebaseSimpleLog
             }
             else{
                 data.errors = ['No profile data set.'];
+            }
+        },
+
+        recoverPassword: function(){
+            api.resetErrors();
+            if(!data.profile.email){
+                data.errors.push('Please enter an email address to recover your password');
+            }
+            if(!data.errors.length){
+                var auth = private.assertAuth();
+                    auth.$sendPasswordResetEmail(data.profile.email).then(function(){
+                            data.messages = ['A new password has been sent to your email'];
+                            data.profile = null;
+                        },
+                        function(err){
+                            if(err && err.code){
+                                switch(err.code){
+                                    case 'INVALID_EMAIL':
+                                    case 'INVALID_USER':
+                                        data.errors = ['Invalid email address'];
+                                        break;
+                                }
+                            }
+                        }
+                    );
             }
         },
 

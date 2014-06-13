@@ -8,8 +8,7 @@ angular.module('ecoposApp').directive('login', function(user) {
             scope.login = user.api.login;
             scope.logout = user.api.logout;
             scope.register = user.api.register;
-
-            // ecodocs: add forgotPassword
+            scope.recoverPassword = user.api.recoverPassword;
         }
 	};
 });

@@ -1,5 +1,10 @@
 <div class="login col-xs-12">
     <h1 data-fittext="1" data-fittext-min="16" data-fittext-max="56">User</h1>
+    <div ng-show="user.messages">
+        <ul class="messages">
+            <li ng-repeat="message in user.messages">{{message}}</li>
+        </ul>
+    </div>
     <div ng-show="user.errors">
         <ul class="errors">
             <li ng-repeat="error in user.errors">{{error}}</li>
@@ -7,7 +12,7 @@
     </div>
     <div ng-show="user.profile">
 
-        <div ng-show="!user.profile.new">
+        <div ng-show="user.profile.$id">
             Hello, {{user.profile.displayName}}<br/>
             <strong>email: </strong> {{user.profile.email}}<br/>
             <strong>username: </strong> {{user.profile.$id}}<br/>
@@ -39,6 +44,15 @@
             <button class="btn btn-success" ng-click="register()">Create Account</button>
             <button class="btn btn-danger" ng-click="logout();">Cancel</button>
         </div>
+
+        <div ng-show="user.profile.recover">
+            <h2 data-fittext="1" data-fittext-min="16" data-fittext-max="56">Recover Password</h2>
+            <div class="form-group">
+                <label for="login-recover-password-email">Email</label>
+                <input class="form-control" type="text" ng-model="user.profile.email" placeholder="email" id="login-recover-password-email"/>
+            </div>
+            <button class="btn btn-success" ng-click="recoverPassword()">Send New Password</button>
+        </div>
     </div>
 
     <div ng-show="!user.profile">
@@ -52,6 +66,7 @@
         </div>
         <button class="btn btn-primary" ng-click="login('password')">Login</button><br/>
         <a href="#" ng-click="user.errors=[];user.profile={new:true,email:user.login.email};">Register</a>
+        <a href="#" ng-click="user.errors=[];user.profile={recover:true,email:user.login.email};">Forgot Password?</a>
 
         <p>- OR -</p>
 
