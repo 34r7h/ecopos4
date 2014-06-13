@@ -245,9 +245,10 @@ angular.module('ecoposApp').config(function($stateProvider, $urlRouterProvider, 
 
 });
 
-angular.module('ecoposApp').run(function($rootScope, simpleLogin, $state, $stateParams) {
+angular.module('ecoposApp').run(function($rootScope, user, $state, $stateParams) {
 	       // if there is a user authenticated with firebase, this will trigger the rest of the login sequence for them
-	simpleLogin.activateCurrent();
+	//simpleLogin.activateCurrent();
+    user.api.init();
     $rootScope.safeApply = function(fn) {
         var phase = $rootScope.$$phase;
         if (phase === '$apply' || phase === '$digest') {
