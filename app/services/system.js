@@ -12,8 +12,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
     };
 
     var api = {
-        // Utility API
-
+        //ecosection Utility API
         currentTime: function(){
             return new Date().getTime();
         },
@@ -127,7 +126,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
             return safeKey;
         },
 
-        // search api
+        //ecosection search api
         search: function(query, triggerID){
             if(angular.isUndefined(query)){
                 query = {
@@ -261,53 +260,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
             }
         },
 
-        // user api
-
-        userGeoIP: function(){
-            var defer = $q.defer();
-            if(data.user.geoIP && data.user.geoIP.ip){
-                defer.resolve(data.user.geoIP);
-            }
-            else{
-                $http.get('https://freegeoip.net/json/').
-                    success(function(res) {
-                        data.user.geoIP = res;
-                        defer.resolve(data.user.geoIP);
-                    }).
-                    error(function(res, status){
-                        defer.resolve(data.user.geoIP);
-                    });
-            }
-            return defer.promise;
-        },
-
-        // gets a flattened user list with no duplicates
-        getUsersFlat: function(fromRoles){
-            var defer = $q.defer();
-            if(typeof fromRoles === 'undefined'){ fromRoles = ['manager']; }
-            else if(!(fromRoles instanceof Array)){ fromRoles = fromRoles.split(','); }
-
-            var users = [];
-            firebaseRef('role').on('value', function(snap){
-                var roleTree = snap.val();
-                users.splice(0, users.length); // reset the users array in case some were removed
-                angular.forEach(roleTree, function(role, rolename){
-                    if(role.users && fromRoles.indexOf(rolename) !== -1){
-                        angular.forEach(role.users, function(user, username){
-                            if(users.indexOf(username) === -1){
-                                users.push(username);
-                            }
-                        });
-                    }
-                });
-                defer.resolve(users);
-            });
-            //return users;
-            return defer.promise;
-        },
-
-        // Events API
-
+        //ecosection Events API
         createEvent: function(title, description, users, type, attachments, date, end, notification){
             console.log('creating event:'+title+':'+description+':'+JSON.stringify(users)+':'+JSON.stringify(type)+':'+date);
 
@@ -333,7 +286,6 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
             });
 
         },
-
         completeEvent: function(eventID){
             if(data.user.events[eventID]){
                 if(!data.user.events[eventID].completeFlag){
@@ -345,8 +297,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
             }
         },
 
-        // Messages API
-
+        //ecosection Messages API
         createConversation: function(subject, fromUser, toUsers, text){
             toUsers = (toUsers instanceof Array)?toUsers:[toUsers];
 
@@ -372,7 +323,6 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 });
             });
         },
-
         sendMessage: function(message, fromUser, text){
             if(message !== null){
                 var newID = api.currentTime();
@@ -381,7 +331,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
             }
         },
 
-        // Notification API
+        //ecosection Notification API
         sendNotification: function(sendTo, type, content, time, attachments){
             /** TODO:
              if(toUsers is object)
@@ -453,7 +403,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
  */
         },
 
-        // Calendar API
+        //ecosection Calendar API
         setCalendarEvent: function(event){
             if(event.$id && event.date){
                 var cDate = new Date(event.date);
@@ -492,8 +442,48 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
             }
         },
 
-        // User API
+        //ecosection User API
+	    userGeoIP: function(){
+		    var defer = $q.defer();
+		    if(data.user.geoIP && data.user.geoIP.ip){
+			    defer.resolve(data.user.geoIP);
+		    }
+		    else{
+			    $http.get('https://freegeoip.net/json/').
+				    success(function(res) {
+					    data.user.geoIP = res;
+					    defer.resolve(data.user.geoIP);
+				    }).
+				    error(function(res, status){
+					    defer.resolve(data.user.geoIP);
+				    });
+		    }
+		    return defer.promise;
+	    },
+	    //ecodocs gets a flattened user list with no duplicates
+	    getUsersFlat: function(fromRoles){
+		    var defer = $q.defer();
+		    if(typeof fromRoles === 'undefined'){ fromRoles = ['manager']; }
+		    else if(!(fromRoles instanceof Array)){ fromRoles = fromRoles.split(','); }
 
+		    var users = [];
+		    firebaseRef('role').on('value', function(snap){
+			    var roleTree = snap.val();
+			    users.splice(0, users.length); // reset the users array in case some were removed
+			    angular.forEach(roleTree, function(role, rolename){
+				    if(role.users && fromRoles.indexOf(rolename) !== -1){
+					    angular.forEach(role.users, function(user, username){
+						    if(users.indexOf(username) === -1){
+							    users.push(username);
+						    }
+					    });
+				    }
+			    });
+			    defer.resolve(users);
+		    });
+		    //return users;
+		    return defer.promise;
+	    },
 	    addNewUser: function(id,displayName,email,roles) {
 		    var password = "temp";
 		    simpleLogin.createAccount(email, password, function(){
@@ -529,7 +519,6 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 data.manager.orders = {};
             }
         },
-
         setUserActiveRole: function(){
             data.user.activeRole = 'anonymous';
             if(data.user.profile && data.user.profile.roles){
@@ -550,7 +539,6 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 }
             }
         },
-
         activateUserOrder: function(orderID){
             data.user.activeOrder = orderID;
 
@@ -571,7 +559,6 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 }
             }
         },
-
         startUserSession: function(){
             if(data.user.id){
                 data.user.session.loginTime = api.currentTime();
@@ -579,14 +566,12 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 data.user.session.bind.$set({ start: data.user.session.loginTime });
             }
         },
-
         endUserSession: function(){
             if(data.user.session.bind){
                 data.user.session.bind.$update({end: api.currentTime()});
             }
 
         },
-
         loadUserData: function(){
 //            api.loadUserNotifications();
             api.loadUserEvents();
@@ -669,7 +654,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 });
             }
         },
-/**        loadUserNotifications: function(){
+/**     loadUserNotifications: function(){
             if(data.user.id) {
                 data.user.notifications = {};
                 if(data.user.id){
@@ -698,12 +683,10 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 });
             }
         },
-
         loadEmployeeData: function(){
             data.employee.orders = {};
             // TODO: we should load all the orders that this employee is associated with
         },
-
         loadManagerData: function(){
             data.manager.orders = {};
             if(data.user && data.user.profile && data.user.profile.roles && (data.user.profile.roles.admin || data.user.profile.roles.manager)) {
@@ -717,7 +700,8 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                     delete data.manager.orders[oldChildSnapshot.name()];
                 });
             }
-        }
+        },
+
     };
 
 	var ui = {

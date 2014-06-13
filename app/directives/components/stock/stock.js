@@ -9,12 +9,10 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 name: 'Shops',
                 children: {}
             };
-
-            // shop catalogs and inventory
+            //ecosection shop catalogs and inventory
             scope.shopConfigs = {};
             scope.inventories = {};
             scope.loadingInventory = {};
-
             shop.data.shops.$on('loaded', function(){
                 scope.shopConfigs = shop.data.shops;
                 angular.forEach(scope.shopConfigs, function(cShop, shopID){
@@ -65,7 +63,6 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                     scope.combineInventory();
                 });
             };
-
             scope.combineInventory = function(){
                 var invIncluded = [];
                 scope.inventory = [];
@@ -88,7 +85,6 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                     }
                 }
             };
-
             scope.shopCount = function(){
                 return (scope.shops.children?scope.shops.children.$getIndex().length:0);
             };
@@ -120,7 +116,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 return (scope.changedCategories?Object.keys(scope.changedCategories).length:0);
             };
 
-            // shop displays
+            //ecosection shop displays
             scope.openShops = {};
             scope.openShop = function(shopID){
                 if(!scope.openShops){
@@ -161,7 +157,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             };
             scope.isDefined = angular.isDefined;
 
-            // categories
+            //ecosection categories
             scope.openCategories = {};
             scope.changedCategories = {};
             scope.addCategoryAt = {};
@@ -344,7 +340,6 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                     delete scope.editCategoryName[catPath];
                 }
             };
-
             // TODO: move this to shop.api (needs work for scope.getCategory and where it is updating the products)
             function renameCategory(oldPath, newName, shopID, cCat){
                 var defer = $q.defer();
@@ -400,7 +395,6 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 });
                 return defer.promise;
             }
-
             scope.editCategorySave = function(catPath){
                 if(angular.isDefined(scope.editCategoryName[catPath])){
                     // TODO: build shop renaming
@@ -524,7 +518,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 return result;
             };
 
-            // inventory filtering
+            //ecosection inventory filtering
             scope.showFilters = true;
             scope.filters = {
                 matchAll: true,
@@ -626,7 +620,6 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 }
                 return args;
             }
-
             // if we watch our own filter collections, it is more efficient than the ng-repeat watching them
             scope.$watchCollection('filters', function(){
                 scope.filterInventory();
@@ -643,7 +636,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 }
             };
 
-            // inventory listing
+            //ecosection inventory listing
             scope.sortables=[
                 {name:'name','show':true, type:'text', priority:1},
                 {name:'stock',show:false, type:'number', priority:5},
@@ -657,7 +650,6 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             };
             scope.productOrder = '';
             scope.productReverse = false;
-
             // TODO: fix this up so it can work for categories
             scope.sortBy = function(key){
                 if(key === 'category'){
@@ -671,7 +663,6 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                     scope.productReverse = false;
                 }
             };
-
             scope.showCount = 50;
             scope.showOffset = 0;
             scope.nextPage = function(){
@@ -688,8 +679,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 return (scope.showOffset >= 1);
             };
 
-
-            // product editing
+            //ecosection product editing
             scope.batch = {
                 stock: 0,
                 sale: 0
@@ -703,7 +693,6 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             scope.productBatchCount = function(){
                 return (scope.productBatch?Object.keys(scope.productBatch).length:0);
             };
-
             scope.openProducts = {};
             scope.openProduct = function(productID){
                 if(!scope.openProducts){
@@ -724,7 +713,6 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                     scope.closeProduct(productID);
                 }
             };
-
             scope.changedProducts = {};
             scope.focusProduct = '';
             scope.focusField = '';
@@ -793,7 +781,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 }
             };
 
-            // add to category
+            //ecosection add to category
             scope.productAddCats = {};
             scope.addProductToCategory = function(productID, catLevel){
                 if(!scope.productAddCats[productID][catLevel] && angular.isDefined(scope.productAddCats[productID][catLevel])){

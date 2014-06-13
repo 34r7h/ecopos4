@@ -12,6 +12,7 @@ var createFolderGlobs = function(fileTypePatterns) {
 
 	var ignore = ['node_modules','bower_components','dist','temp','www', 'hooks','merges','pg', 'platforms', 'plugins'];
   var fs = require('fs');
+
   return fs.readdirSync(process.cwd())
           .map(function(file){
             if (ignore.indexOf(file) !== -1 ||
