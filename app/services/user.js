@@ -63,12 +63,17 @@ angular.module('ecoposApp').factory('user',function($log, $q, $firebaseSimpleLog
             }
         },
 
-        logout: function(){
+        logout: function(removeUser){
+            // removeUser is used when canceling mid-way through the registration process
             api.resetErrors();
             var auth = private.assertAuth();
             if(auth.user){
                 auth.$logout();
             }
+            if(removeUser && data.profile.uid && data.profile.email && data.profile.password){
+                auth.$removeUser(data.profile.email, data.profile.password);
+            }
+            private.clearPasswords();
             data.profile = null;
         },
 
@@ -81,13 +86,7 @@ angular.module('ecoposApp').factory('user',function($log, $q, $firebaseSimpleLog
                     data.errors.push('Please enter an email address');
                 }
 
-                if(data.profile.uid){
-                    // registering from a 3rd party
-                    if(!data.profile.username){
-                        data.errors.push('Please enter a username');
-                    }
-                }
-                else{
+                if(!data.profile.uid){
                     // registering new email/password account
                     // ecodocs: need to fix this for 2-step: 1. create account. 2. create profile
                     if(!data.profile.password){
@@ -99,107 +98,113 @@ angular.module('ecoposApp').factory('user',function($log, $q, $firebaseSimpleLog
                     else if(data.profile.passConfirm !== data.profile.password){
                         data.errors.push('Passwords do not match');
                     }
-                }
 
-                if(!data.errors.length){
-                    // no errors, do the registration
-                    if(!data.profile.username){
-                        data.profile.username = data.profile.email.split('@', 2)[0];
-                    }
-
-                    var defer = $q.defer();
-
-                    var hashCore = {UN:{key: data.profile.username, value: data.profile.email}, UE: {key: data.profile.email, value: data.profile.uid}};
-                    // first check if the UN (username) and UE (email) hashes are available
-                    private.reserveHash(hashCore).then(
-                        function(success){
-                            var accountExists = $q.defer();
-
-                            // create the account if needed
-                            if(!data.profile.uid){
+                    if(!data.errors.length){
+                        private.reserveHash({UE: {key: data.profile.email, value: 'checking...'}}).then(function(){
+                                // ok, email available
                                 var auth = private.assertAuth();
                                 auth.$createUser(data.profile.email, data.profile.password).then(function(account){
                                         data.profile.uid = account.uid;
-                                        hashCore['UE'].value = data.profile.uid;
+                                        data.profile.username = data.profile.email.split('@', 2)[0];
                                         auth.$login('password', {
                                             email: data.profile.email,
                                             password: data.profile.password,
                                             rememberMe: true
                                         }).then(function(user){
-                                                accountExists.resolve(user.uid);
                                             },
                                             function(err){
                                                 // created, but failed login
-                                                accountExists.reject(err);
+                                                data.errors = [err];
                                             }
                                         );
-                                },
-                                function(err){
-                                    // failed creation
-                                    accountExists.reject(err);
-                                });
-                            }
-                            else{
-                                // already authenticated
-                                accountExists.resolve(data.profile.uid);
-                            }
-
-                            accountExists.promise.then(function(uid){
-                                    // username and email hash available and currently un-claimed
-                                    // add the uid hash and claim them all!  hash <3!
-                                    hashCore.UP = {key: data.profile.uid, value: data.profile.username};
-                                    private.reserveHash(hashCore, true).then(
-                                        function(success){
-                                            // all hashes are claimed, build the user
-                                            var userProfile = syncData('user/'+data.profile.username);
-                                            var linkAccounts = {};
-                                            linkAccounts[data.profile.uid] = true;
-                                            var roles = {admin: false, customer: true, employee: false, manager: false, supplier: false};
-                                            userProfile.$set({
-                                                email: data.profile.email,
-                                                displayName: data.profile.displayName?data.profile.displayName:data.profile.username,
-                                                linkedAccount: linkAccounts,
-                                                roles: roles
-                                            }).then(function(){
-                                                    // user profile saved
-                                                    defer.resolve(userProfile);
-                                                },
-                                                function(err){
-                                                    // failed saving user profile
-                                                    defer.reject([err]);
-                                                }
-                                            );
-                                        },
-                                        function(err){
-                                            // could not claim hashes
-                                            defer.reject(err);
+                                    },
+                                    function(err){
+                                        // failed creation
+                                        if(err && err.code){
+                                            switch(err.code){
+                                                case 'INVALID_EMAIL':
+                                                    data.errors = ['Invalid email address'];
+                                                    break;
+                                                case 'EMAIL_TAKEN':
+                                                    data.errors = ['Email address is in use'];
+                                                    break;
+                                            }
                                         }
-                                    );
-                                },
-                                function(err){
-                                    // account doesn't exist or failed creating
-                                    defer.reject([err]);
-                                }
-                            );
+                                        else{
+                                            data.errors = [err];
+                                        }
+                                    }
+                                );
+                            },
+                            function(err){
+                                // email is not available
+                                data.errors = err;
+                            }
+                        );
+                    }
 
-                        },
-                        function(err){
-                            // hashes in use
-                            defer.reject(err);
-                        }
-                    );
+                }
+                else{
+                    // registering from a 3rd party or second-step of email/password
+                    if(!data.profile.username){
+                        data.errors.push('Please enter a username');
+                    }
 
-                    // finished writing new profile
-                    defer.promise.then(function(profile){
-                            data.profile = profile;
-                            $log.debug('Profile created!');
-                            // ecodocs: write to roles table
-                        },
-                        function(err){
-                            data.errors = err;
-                        }
-                    );
+                    if(!data.errors.length){
+                        var hashCore = {UN:{key: data.profile.username, value: data.profile.email}, UE: {key: data.profile.email, value: data.profile.uid}};
+                        private.reserveHash(hashCore).then(
+                            function(success) {
+                                // username and email hash available and currently un-claimed
+                                // add the uid hash and claim them all!  hash <3!
+                                hashCore.UP = {key: data.profile.uid, value: data.profile.username};
+                                private.reserveHash(hashCore, true).then(
+                                    function(success){
+                                        var defer = $q.defer();
 
+                                        // all hashes are claimed, build the user
+                                        var userProfile = syncData('user/'+data.profile.username);
+                                        var linkAccounts = {};
+                                        linkAccounts[data.profile.uid] = true;
+                                        var roles = {admin: false, customer: true, employee: false, manager: false, supplier: false};
+                                        userProfile.$set({
+                                            email: data.profile.email,
+                                            displayName: data.profile.displayName?data.profile.displayName:data.profile.username,
+                                            linkedAccount: linkAccounts,
+                                            roles: roles
+                                        }).then(function(){
+                                                // user profile saved
+                                                private.clearPasswords();
+                                                defer.resolve(userProfile);
+                                            },
+                                            function(err){
+                                                // failed saving user profile
+                                                defer.reject([err]);
+                                            }
+                                        );
+
+                                        // finished writing new profile
+                                        defer.promise.then(function(profile){
+                                                data.profile = profile;
+                                                $log.debug('Profile created!');
+                                                // ecodocs: write to roles table
+                                            },
+                                            function(err){
+                                                data.errors = err;
+                                            }
+                                        );
+                                    },
+                                    function(err){
+                                        // could not claim hashes
+                                        data.errors = err;
+                                    }
+                                );
+                            },
+                            function(err){
+                                // hashes in use
+                                data.errors = err;
+                            }
+                        );
+                    }
                 }
             }
             else{
@@ -227,6 +232,9 @@ angular.module('ecoposApp').factory('user',function($log, $q, $firebaseSimpleLog
                                         break;
                                 }
                             }
+                            else{
+                                data.errors = [err];
+                            }
                         }
                     );
             }
@@ -248,6 +256,18 @@ angular.module('ecoposApp').factory('user',function($log, $q, $firebaseSimpleLog
                 private.data.auth = $firebaseSimpleLogin(firebaseRef());
             }
             return private.data.auth;
+        },
+
+        clearPasswords: function(){
+            if(data.profile.password){
+                delete data.profile.password;
+            }
+            if(data.profile.passConfirm){
+                delete data.profile.passConfirm;
+            }
+            if(data.login.password){
+                delete data.login.password;
+            }
         },
 
         loadProfile: function(user){
