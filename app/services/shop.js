@@ -325,7 +325,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         },
         changeProductQty: function(productID){
             if(data.invoice.items[productID] && data.invoice.order.items[productID]){
-                // TODO: ensure there is enough product in stock
+                // ecodocs: ensure there is enough product in stock
                 api.updateOrder({items: data.invoice.items});
 
                 /**api.loadInventoryProduct(productID).then(function(product) {
@@ -470,7 +470,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         orderCheckout: function(){
             api.assertOrderOnline().then(function(order){
                 if(order){
-                    /** TODO:
+                    /** ecodocs:
                      * - check each item's inventory level against database
                      * - throw an error if there is not enough of the product
                      *      (maybe someone bought it in between shop and checkout)
@@ -497,7 +497,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
         },
 
         orderPayment: function(orderID, paymentData){
-            /** TODO:
+            /** ecodocs:
              * - load the order, add payments/{paymentData}
              * - if total of order.payments >= order.total
              *      - update order.paymentStatus as 'paid' or 'partial'
@@ -507,13 +507,13 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 paymentData.time = system.api.currentTime();
                 order.$child('payments').$add(paymentData);
 
-                // TODO: maybe we want to store an order total?  we should do that when they click "checkout"
+                // ecodocs: maybe we want to store an order total?  we should do that when they click "checkout"
                 var cOrderTotal = 0;
                 angular.forEach(order.items, function(item, itemID){
                     cOrderTotal += item.qty*item.price;
                 });
 
-                // TODO: maybe we want to store an order paid amount?
+                // ecodocs: maybe we want to store an order paid amount?
                 var cOrderPaid = 0;
                 angular.forEach(order.payments, function(payment, paymentID){
                     cOrderPaid += payment.amount;
@@ -904,7 +904,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                         });
                     }
 
-                    // TODO: should we also delete it from CACHE and INVENTORY if there are no more categories?
+                    // ecodocs: should we also delete it from CACHE and INVENTORY if there are no more categories?
                     // we could handle that in the next phase ... ex. if(cShop.categories.length === 0){ cInventory.child(productID).remove(); } and same for cache
 
                     // UPDATE INVENTORY
@@ -978,7 +978,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             }
 
 
-            // TODO: maybe add supplier to "suppliers" table if it doens't exist already?
+            // ecodocs: maybe add supplier to "suppliers" table if it doens't exist already?
             /**
             angular.forEach(product.suppliers, function(supplier, supplierID){
             });

@@ -254,7 +254,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 }
             };
             scope.copyCategory = function(catPath){
-                // TODO: this needs to be completed
+                // ecodocs: this needs to be completed
                 if(angular.isDefined(scope.copyCategoryAt[catPath])){
                     if(scope.copyCategoryAt[catPath].target && scope.copyCategoryAt[catPath].target.length){
                         var sourcePath = scope.copyCategoryAt[catPath].to?catPath:scope.copyCategoryAt[catPath].target;
@@ -345,7 +345,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                 }
             };
 
-            // TODO: move this to shop.api (needs work for scope.getCategory and where it is updating the products)
+            // ecodocs: move this to shop.api (needs work for scope.getCategory and where it is updating the products)
             function renameCategory(oldPath, newName, shopID, cCat){
                 var defer = $q.defer();
                 var childProms = [];
@@ -403,7 +403,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
 
             scope.editCategorySave = function(catPath){
                 if(angular.isDefined(scope.editCategoryName[catPath])){
-                    // TODO: build shop renaming
+                    // ecodocs: build shop renaming
                     var isShop = (catPath.indexOf('/')===-1);
 
                     if(!isShop && scope.editCategoryName[catPath]){
@@ -419,7 +419,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                                 }
                                 delete scope.editCategoryName[catPath];
 
-                                // TODO: the shop.api.renameCategory should handle this
+                                // ecodocs: the shop.api.renameCategory should handle this
                                 // ... or better yet, the shop.api.saveProduct (when removing product from categories, check if empty children)
                                 scope.deleteCategory(catPath);
                                 scope.deleteCategoryConfirm(catPath);
@@ -453,7 +453,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
                         if(angular.isDefined(scope.openCategories[catPath])){
                             scope.closeCategory(catPath);
                         }
-                        // TODO: going to need to update the children in this category to remove the category from their shops[*].categories
+                        // ecodocs: going to need to update the children in this category to remove the category from their shops[*].categories
                         shop.api.deleteCategory(catPath);
                     }
                     delete scope.deleteCategoryAt[catPath];
@@ -658,7 +658,7 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
             scope.productOrder = '';
             scope.productReverse = false;
 
-            // TODO: fix this up so it can work for categories
+            // ecodocs: fix this up so it can work for categories
             scope.sortBy = function(key){
                 if(key === 'category'){
                     //key = 'shops[\''+scope.invShop+'\'].categories[0]';

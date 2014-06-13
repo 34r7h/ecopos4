@@ -52,7 +52,7 @@ angular.module('ecoposApp').directive('addNew', function(system) {
 						options:[{model:'name',name:'',type:'text'},{model:'upc',name:'',type:'text'},{model:'supplier',name:'',type:'select', options:['supplier1','supplier2']},{model:'price',name:'',type:'number'}],
 						icon:"gift"
 					},
-					user:{ // TODO: set roles and temp password
+					user:{ // ecodocs: set roles and temp password
 						options:{
 							id:{model:'id', name:'',type:'text',valid:{required:true, pattern:"/^[a-zA-Z0-9]{4,60}$/"}},
 							name:{model:'name', name:'',type:'text',valid:{required:true,pattern:"/^[-_. a-zA-Z]{4,60}$/"}},
@@ -65,7 +65,7 @@ angular.module('ecoposApp').directive('addNew', function(system) {
 						options:[{model:'title',name:'',type:'text'},{model:'content',name:'',type:'textarea'}],
 						icon:"info"
 					},
-					event:{ // TODO: datetimepicker
+					event:{ // ecodocs: datetimepicker
 						options:{
 							title:{model:'title',name:'',type:'text'},
 							description:{model:'description',name:'',type:'textarea'},
@@ -104,7 +104,7 @@ angular.module('ecoposApp').directive('addNew', function(system) {
 						options:[{name:'name',type:'text'},{name:'upc',type:'text'},{name:'supplier',type:'select', options:['supplier1','supplier2']},{name:'price',type:'number'}],
 						icon:"gift"
 					},
-					user:{ // TODO: set roles and temp password
+					user:{ // ecodocs: set roles and temp password
 						options:{
 							id:{model:'id', name:'',type:'text',valid:{required:true, pattern:"/^[a-zA-Z0-9]{4,60}$/"}},
 							name:{model:'name', name:'',type:'text',valid:{required:true,pattern:"/^[-_. a-zA-Z]{4,60}$/"}},
@@ -117,7 +117,7 @@ angular.module('ecoposApp').directive('addNew', function(system) {
 						options:[{name:'title',type:'text'},{name:'content',type:'text'}],
 						icon:"info"
 					},
-					event:{ // TODO: datetimepicker
+					event:{ // ecodocs: datetimepicker
 						options:{
 							title:{model:'title',name:'',type:'text'},
 							description:{model:'description',name:'',type:'text'},
@@ -150,7 +150,7 @@ angular.module('ecoposApp').directive('addNew', function(system) {
 						options:[{name:'name',type:'text'},{name:'upc',type:'text'},{name:'supplier',type:'select', options:['supplier1','supplier2']},{name:'price',type:'number'}],
 						icon:"gift"
 					},
-					user:{ // TODO: set roles and temp password
+					user:{ // ecodocs: set roles and temp password
 						options:{
 							id:{model:'id', name:'',type:'text',valid:{required:true, pattern:"/^[a-zA-Z0-9]{4,60}$/"}},
 							name:{model:'name', name:'',type:'text',valid:{required:true,pattern:"/^[-_. a-zA-Z]{4,60}$/"}},
@@ -163,7 +163,7 @@ angular.module('ecoposApp').directive('addNew', function(system) {
 						options:[{name:'title',type:'text'},{name:'content',type:'text'}],
 						icon:"info"
 					},
-					event:{ // TODO: datetimepicker modelling
+					event:{ // ecodocs: datetimepicker modelling
 						options:{
 							title:{model:'title',name:'',type:'text'},
 							description:{model:'description',name:'',type:'text'},

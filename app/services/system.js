@@ -22,7 +22,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
             if(!data.user.anonID){
                 if(!data.user.session.anonCheckTime){
                     data.user.session.anonCheckTime = api.currentTime();
-                    // TODO: we should put this in ngStorage
+                    // ecodocs: we should put this in ngStorage
                 }
                 var freshID = 'anon-'+data.user.session.anonCheckTime;
                 api.userGeoIP().then(function(geoIP){
@@ -383,7 +383,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
 
         // Notification API
         sendNotification: function(sendTo, type, content, time, attachments){
-            /** TODO:
+            /** ecodocs:
              if(toUsers is object)
                 - look for:
                     toUsers.users
@@ -558,7 +558,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
                 data.user.profile.$update({activeOrder: data.user.activeOrder});
             }
             else{
-                // TODO: something like this for anonymous user cart saving
+                // ecodocs: something like this for anonymous user cart saving
                 // $localstorage.activeOrder = orderID;
             }
         },
@@ -701,7 +701,7 @@ angular.module('ecoposApp').factory('system',function(syncData, firebaseRef, $q,
 
         loadEmployeeData: function(){
             data.employee.orders = {};
-            // TODO: we should load all the orders that this employee is associated with
+            // ecodocs: we should load all the orders that this employee is associated with
         },
 
         loadManagerData: function(){

@@ -46,7 +46,7 @@ angular.module('angularfire.login').factory('simpleLogin', function($rootScope, 
         assertAuth();
         auth.$login(provider, {rememberMe: true}).then(function(user) {
           if( callback ) {
-            //todo-bug https://github.com/firebase/angularFire/issues/199
+            // ecodocs: angularfire bug https://github.com/firebase/angularFire/issues/199
             $timeout(function() {
               callback(null, user);
             });
@@ -68,7 +68,7 @@ angular.module('angularfire.login').factory('simpleLogin', function($rootScope, 
           rememberMe: true
         }).then(function(user) {
             if( callback ) {
-              //todo-bug https://github.com/firebase/angularFire/issues/199
+              //ecodocs: angularfire bug https://github.com/firebase/angularFire/issues/199
               $timeout(function() {
                 callback(null, user);
               });

@@ -85,7 +85,7 @@ angular.module('ecoposApp').directive('setLayout', function($rootScope) {
 					scope.leftlg = false;
 					scope.ecoOverlay=false;
 				}
-				// TODO REFACTOR from $rootScope
+				// ecodocs: REFACTOR from $rootScope
 				if(name==="overlay"){
 					scope.rightsm = false;
 					scope.rightmd = false;

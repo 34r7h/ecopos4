@@ -27,7 +27,7 @@ angular.module('ecoposApp').directive('cart', function(shop, system, $filter) {
             $scope.payAmt = 0.00;
 			$scope.paymentMethod = '';
             $scope.makePayment = function(){
-                // TODO: are we going to handle payAmt > total here?
+                // ecodocs: are we going to handle payAmt > total here?
                 shop.api.orderPayment($scope.order.$id, {type: $scope.paymentMethod, amount: $scope.payAmt});
             };
 
