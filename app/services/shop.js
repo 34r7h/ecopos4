@@ -165,7 +165,6 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
                 var defer = $q.defer();
                 private.reqPath = path; // requested path
                 if(private.catalog){
-                    $log.debug('load catalog path \'' + path + '\' in ' + private.catalog.name);
 
                     var pathParts = [];
                     if(path.charAt(0) === '/'){
@@ -270,7 +269,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
     };
 
     var api = {
-        // Cart API
+        // ecosection Cart API
         assertProductStock: function(product){
             var defer = $q.defer();
             if(product && product.stock){
@@ -471,7 +470,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
             api.assertOrderOnline().then(function(order){
                 if(order){
                     /** TODO:
-                     * - check each item's inventory level against database
+                     * check each item's inventory level against database
                      * - throw an error if there is not enough of the product
                      *      (maybe someone bought it in between shop and checkout)
                      *      - make offer of raincheck?
@@ -502,7 +501,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
              * - if total of order.payments >= order.total
              *      - update order.paymentStatus as 'paid' or 'partial'
              */
-            var order = syncData('order/'+orderID);
+            var order = syncData('orders/'+orderID);
             order.$on('loaded', function(){
                 paymentData.time = system.api.currentTime();
                 order.$child('payments').$add(paymentData);
@@ -536,7 +535,7 @@ angular.module('ecoposApp').factory('shop',function($q, system, syncData, fireba
 
         },
 
-        // Catalog API
+        // ecosection Catalog API
         createShop: function(name, catalogBranch, cacheBranch){
             var defer = $q.defer();
 

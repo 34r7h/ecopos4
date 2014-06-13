@@ -2,17 +2,14 @@ angular.module('ecoposApp').directive('orders', function($filter, $q, ngTablePar
 	return {
 		restrict: 'E',
 		replace: true,
-
 		templateUrl: 'app/directives/components/orders/orders.html',
 		link: function(scope, element, attrs) {
 			scope.total = shop.api.cartTotal;
-
             scope.ordersFiltered = [];
             scope.orders = [];
             scope.userOrders = system.data.user.orders;
             scope.employeeOrders = system.data.employee.orders;
             scope.managerOrders = system.data.manager.orders;
-
             scope.combineOrders = function(){
                 scope.orders = [];
                 if(scope.userOrders){
@@ -29,7 +26,6 @@ angular.module('ecoposApp').directive('orders', function($filter, $q, ngTablePar
             scope.$watchCollection('userOrders', scope.combineOrders);
             scope.$watchCollection('employeeOrders', scope.combineOrders);
             scope.$watchCollection('managerOrders', scope.combineOrders);
-
             scope.filterOrders = function(){
                 scope.ordersFiltered = $filter('unique')(scope.orders);
                 // add any additional filters:
@@ -74,9 +70,6 @@ angular.module('ecoposApp').directive('orders', function($filter, $q, ngTablePar
                 }
                 return (scope.showOffset >= 1);
             };
-
-
-
             // order management interface
             scope.focusOrder = '';
             scope.changedOrders = {};
