@@ -233,6 +233,21 @@ angular.module('ecoposApp')
 );
 
 angular.module('ecoposApp')
+    .directive('ecoFiles', function($parse){
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs){
+                element.bind('change', function(){
+                    var value = (element[0].files && element[0].files.length)?(attrs.multiple?element[0].files:element[0].files[0]):null;
+                    $parse(attrs.ecoFiles).assign(scope, value);
+                    scope.$apply();
+                });
+            }
+        };
+    }
+);
+
+angular.module('ecoposApp')
 	.directive('datetimepicker', [
 		function() {
 			if (angular.version.full < '1.1.4') {
