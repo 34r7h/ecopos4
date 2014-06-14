@@ -1,4 +1,4 @@
-angular.module('ecoposApp').directive('supplierUpdate', function(system, $timeout) {
+angular.module('ecoposApp').directive('supplierUpdate', function(imports) {
 	return {
 		restrict: 'E',
 		replace: true,
