@@ -52,40 +52,49 @@ angular.module('ecoposApp').factory('imports',function(syncData){
                         var csvDataStr = event.srcElement.result;
                         if(csvDataStr){
                             var csvData = api.csvToArray(csvDataStr);
-                            console.log('loadend:'+event.loaded+'/'+event.total+':'+csvData.length+' rows');
+                            console.log('loaded '+csvData.length+' rows');
                             var columnDef = null;
                             // parse the csv data
-                            angular.forEach(csvData, function(line, lineNumber){
-                                if(!columnDef){
-                                    // no columns defined, check if this row can be used to define them
-                                    var emptyCount = 0;
-                                    angular.forEach(line, function(cCol, cColIdx){
-                                        if(cCol === ''){
-                                            emptyCount++;
+                            angular.forEach(csvData, function(lineData, lineNumber){
+                                if(columnDef){
+                                    // columns are defined, handle the row as data
+                                    var cRow = {};
+                                    angular.forEach(columnDef, function(colIdx, fieldName){
+                                        if(colIdx < lineData.length){
+                                            cRow[fieldName] = lineData[colIdx];
                                         }
                                     });
-                                    // column definition is first row with <= 2 empty fields
-                                    if(emptyCount <= 2){
-                                        columnDef = line;
-                                        console.log('COLUMNS:'+JSON.stringify(columnDef));
-
-                                        // cross reference the detected columns with the import config
-                                        //columnDef = {};
-
-
+                                    console.log('['+lineNumber+']='+JSON.stringify(cRow));
+                                }
+                                else if(lineNumber < 25){
+                                    // no columns defined, check if this row can be used to define them
+                                    // if no column definition found in first 25 lines, it is an error
+                                    var cColName;
+                                    var cColumnDef = {};
+                                    // attempt to cross-reference each field of this row with the config's field-column definitions
+                                    angular.forEach(lineData, function(cColData, cColIdx){
+                                        if(cColData){
+                                            cColName = cColData;
+                                        }
+                                        else{
+                                            // empty column headers, append _ to indicate multi-column spanning
+                                            cColName += '_';
+                                        }
+                                        // check if this column represents a field, associate the column number if it does
+                                        angular.forEach(importConfig.fields, function(cFieldCheck, cFieldID) {
+                                            if(!cColumnDef[cFieldID] && cFieldCheck.indexOf(cColName)!==-1){
+                                                cColumnDef[cFieldID] = cColIdx;
+                                            }
+                                        });
+                                    });
+                                    // did we find columns for each field of the config?
+                                    if(Object.keys(cColumnDef).length === Object.keys(importConfig.fields).length){
+                                        columnDef = cColumnDef;
                                     }
                                 }
                                 else{
-                                    // columns are defined, handle the row as data
-                                    var cRow = {};
-                                    angular.forEach(columnDef, function(colName, colNum){
-                                        if(colNum < line.length){
-                                            cRow[colName] = line[colNum];
-                                        }
-                                    });
-                                    console.log('['+lineNumber+']='+line.length+((lineNumber % 10 === 0)?':'+JSON.stringify(cRow):''));
+                                    data.errors.push('No column definition found in provided CSV');
                                 }
-
                             });
                         }
                     }
