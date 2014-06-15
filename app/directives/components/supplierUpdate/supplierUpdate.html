@@ -6,8 +6,18 @@
         </ul>
     </div>
     <div ng-show="imports.config">
-        {{imports.config}}
+        <select ng-model="imports.active.configID">
+            <option ng-repeat="(importID,import) in imports.config" ng-value="importID">{{import.name}}</option>
+        </select>
+
+        <div ng-show="imports.active.configID && imports.config[imports.active.configID]">
+            <p>{{imports.config[imports.active.configID].name}} selected.</p>
+            <p>
+                Please select a CSV file to import.<br/>
+                <input type="file" eco-files="imports.active.sourceFile" />
+            </p>
+
+            <button class="btn btn-primary" ng-show="imports.active.sourceFile" ng-click="import()">Import</button>
+        </div>
     </div>
-    <input type="file" eco-files="imports.sourceFile" />
-    <button class="btn btn-primary" ng-click="import()">Import</button>
 </div>

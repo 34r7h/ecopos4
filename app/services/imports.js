@@ -1,5 +1,5 @@
 angular.module('ecoposApp').factory('imports',function(syncData){
-    var data = {};
+    var data = {active:{}};
 
     var api = {
         loadConfigs: function(){
@@ -7,28 +7,44 @@ angular.module('ecoposApp').factory('imports',function(syncData){
         },
 
         import: function(){
-            if(data.sourceFile){
-                console.log('importing from '+JSON.stringify(data.sourceFile));
-                switch(data.sourceFile.type){
-                    case 'text/csv':
-                        if(!angular.isArray(data.sourceFile)){
-                            api.importCSV(data.sourceFile);
-                        }
-                        break;
-                    default:
-                        data.errors = ['Unrecognized source file format'];
-                        break;
-                }
+            data.errors = [];
+            if(!data.active.configID || !data.config || !data.config[data.active.configID]){
+                data.errors.push('Please select an import configuration');
             }
-            else{
-                data.errors = ['Please select a source file for import'];
+            if(!data.active.sourceFile){
+                data.errors.push('Please select a source file for import');
+            }
+
+            if(!data.errors.length){
+                var importConfig = data.config[data.active.configID];
+                console.log('importing \''+importConfig.name+'\' from '+JSON.stringify(data.active.sourceFile));
+
+                if(!angular.isArray(data.active.sourceFile)){
+                    api.importFile(importConfig, data.active.sourceFile);
+                }
+                else{
+                    angular.forEach(data.active.sourceFile, function(cFile, cFileNum){
+                        api.importFile(importConfig, cFile);
+                    });
+                }
             }
 
         },
 
-        importCSV: function(csvFile){
+        importFile: function(importConfig, fileDef){
+            switch(fileDef.type){
+                case 'text/csv':
+                    api.importCSV(importConfig, fileDef);
+                    break;
+                default:
+                    data.errors = ['Unrecognized source file format: \''+fileDef.type+'\''];
+                    break;
+            }
+        },
+
+        importCSV: function(importConfig, csvFile){
             if(angular.isDefined(window.FileReader)){
-                console.log('csv import from '+csvFile.name);
+                console.log('csv import \''+importConfig.name+'\' from \''+csvFile.name+'\'');
                 var fileReader = new FileReader();
                 fileReader.readAsText(csvFile);
                 fileReader.onloadend = function(event){
@@ -52,11 +68,22 @@ angular.module('ecoposApp').factory('imports',function(syncData){
                                     if(emptyCount <= 2){
                                         columnDef = line;
                                         console.log('COLUMNS:'+JSON.stringify(columnDef));
+
+                                        // cross reference the detected columns with the import config
+                                        //columnDef = {};
+
+
                                     }
                                 }
                                 else{
                                     // columns are defined, handle the row as data
-                                    console.log('['+lineNumber+']='+line.length+((lineNumber < 20)?':'+JSON.stringify(line):''));
+                                    var cRow = {};
+                                    angular.forEach(columnDef, function(colName, colNum){
+                                        if(colNum < line.length){
+                                            cRow[colName] = line[colNum];
+                                        }
+                                    });
+                                    console.log('['+lineNumber+']='+line.length+((lineNumber % 10 === 0)?':'+JSON.stringify(cRow):''));
                                 }
 
                             });
