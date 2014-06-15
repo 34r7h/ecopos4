@@ -36,9 +36,29 @@ angular.module('ecoposApp').factory('imports',function(syncData){
                         var csvDataStr = event.srcElement.result;
                         if(csvDataStr){
                             var csvData = api.csvToArray(csvDataStr);
-                            console.log('loadend:'+event.loaded+'/'+event.total+':'+csvData.length+' lines');
+                            console.log('loadend:'+event.loaded+'/'+event.total+':'+csvData.length+' rows');
+                            var columnDef = null;
+                            // parse the csv data
                             angular.forEach(csvData, function(line, lineNumber){
-                                console.log('['+lineNumber+']='+line.length); //+':'+JSON.stringify(line));
+                                if(!columnDef){
+                                    // no columns defined, check if this row can be used to define them
+                                    var emptyCount = 0;
+                                    angular.forEach(line, function(cCol, cColIdx){
+                                        if(cCol === ''){
+                                            emptyCount++;
+                                        }
+                                    });
+                                    // column definition is first row with <= 2 empty fields
+                                    if(emptyCount <= 2){
+                                        columnDef = line;
+                                        console.log('COLUMNS:'+JSON.stringify(columnDef));
+                                    }
+                                }
+                                else{
+                                    // columns are defined, handle the row as data
+                                    console.log('['+lineNumber+']='+line.length+((lineNumber < 20)?':'+JSON.stringify(line):''));
+                                }
+
                             });
                         }
                     }
