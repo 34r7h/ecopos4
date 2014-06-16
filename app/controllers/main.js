@@ -70,8 +70,7 @@ angular.module('ecoposApp')
 		};
 		$scope.overlayDimensions = {
 			'width':'100%',
-			'height':(style.windowHeight - 144) + "px",
-			'padding': '0 16em'
+			'height':(style.windowHeight - 144) + "px"
 		};
 
         $scope.breadcrumb = system.data.breadcrumb;

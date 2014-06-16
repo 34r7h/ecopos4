@@ -17,7 +17,13 @@
     <bottom-bar></bottom-bar>
 
 
-    <div ng-show="ecoOverlay" class="eco-overlay" ng-style="overlayDimensions">
-        <comp element="overlay"></comp>
+    <div ng-init="ecoOverlay=true" ng-show="ecoOverlay" class="eco-overlay" ng-style="overlayDimensions">
+        <div ng-if="!overlay">
+            <shop></shop>
+        </div>
+        <div ng-if="overlay">
+            <comp element="overlay"></comp>
+        </div>
+
     </div>
 </div>
