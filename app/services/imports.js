@@ -54,23 +54,48 @@ angular.module('ecoposApp').factory('imports',function(syncData){
                             var csvData = api.csvToArray(csvDataStr);
                             console.log('loaded '+csvData.length+' rows');
                             var columnDef = null;
+                            var cGroup = [];
                             // parse the csv data
                             angular.forEach(csvData, function(lineData, lineNumber){
                                 if(columnDef){
                                     // columns are defined, handle the row as data
-                                    var cRow = {};
-                                    angular.forEach(columnDef, function(colIdx, fieldName){
-                                        if(colIdx < lineData.length){
-                                            cRow[fieldName] = lineData[colIdx];
+                                    if(lineData.length){
+                                        var rowGroupCheck = lineData.slice(1).join('').trim();
+                                        if(!rowGroupCheck){
+                                            // if there is data in only the first column, treat it as a row group (ie. category)
+                                            // >= 76 characters are information/notes rows
+                                            if(lineData[0].trim() && lineData[0].length < 76){
+                                                if(lineData[0] === lineData[0].toUpperCase()){
+                                                    // if it is all-caps, treat as a sub-group
+                                                    if(cGroup && cGroup.length > 1){
+                                                        cGroup.pop(); // only allowing 1 sub-group
+                                                    }
+                                                    cGroup.push(lineData[0]);
+                                                }
+                                                else{
+                                                    cGroup = [lineData[0]];
+                                                }
+                                                console.log('Row Group: '+cGroup.join('/'));
+                                            }
                                         }
-                                    });
-                                    console.log('['+lineNumber+']='+JSON.stringify(cRow));
+                                        else{
+                                            var cRow = {};
+                                            angular.forEach(columnDef, function(colIdx, fieldName){
+                                                if(colIdx < lineData.length){
+                                                    cRow[fieldName] = lineData[colIdx];
+                                                }
+                                            });
+
+                                            // ecodocs: handle categories as column or as special ROWGROUP field def
+                                            cRow['categories'] = cGroup.join('/');
+                                        }
+                                    }
                                 }
                                 else if(lineNumber < 25){
-                                    // no columns defined, check if this row can be used to define them
+                                    // no column definitions yet, check if this row can be used to define them
                                     // if no column definition found in first 25 lines, it is an error
-                                    var cColName;
                                     var cColumnDef = {};
+                                    var cColName;
                                     // attempt to cross-reference each field of this row with the config's field-column definitions
                                     angular.forEach(lineData, function(cColData, cColIdx){
                                         if(cColData){
