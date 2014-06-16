@@ -165,7 +165,7 @@ angular.module('ecoposApp').directive('login', function(system, simpleLogin, pro
                     });
                 }
             };
-			scope.removeAccount = simpleLogin.removeAccount(email, pass);
+			scope.removeAccount = simpleLogin.removeAccount(scope.email, scope.pass);
             scope.cancelProfile = function(){
                 simpleLogin.logout();
                 if(scope.userAuth.provider === 'password'){

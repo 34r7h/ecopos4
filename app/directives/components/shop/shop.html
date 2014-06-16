@@ -1,3 +1,6 @@
+<div>
+<article class="shop container-vertical test-bg" ng-hide="showProduct">
+    <!--
 <div class="shop">
     <div ng-if="$parent.shop.product || shop.product">
         <div class="col-xs-12 well">
@@ -73,4 +76,155 @@
         Shop is not initialized.
     </div>
 
+</div>
+-->
+    <section class="col-xs-2 vertical-span12 filters">
+        <div class="vertical-span2">
+            <input type="search" class="vertical-span12 col-xs-12">
+        </div>
+        <span ng-init="catNav=true" class="vertical-span1 col-xs-12">
+            <button ng-click="shopFilter=false;catNav=true;">Category</button>
+            <button ng-click="catNav=false;shopFilter=true;">Filter</button>
+        </span>
+        <div class="vertical-span9 col-xs-12" ng-hide="!catNav">
+            Categories
+        </div>
+        <div class="vertical-span9 col-xs-12" ng-show="shopFilter">
+            Filters
+        </div>
+    </section>
+    <section class="col-xs-10 vertical-span12 shop">
+        <div class="vertical-span12 col-xs-8">
+            <div class="vertical-span3 col-xs-12">Banner</div>
+            <div class="vertical-span9 product-group">
+
+                <div class="vertical-span6 col-xs-4">
+                    <div class="vertical-span9 col-xs-12" ng-click="showProduct=true">Image</div>
+                    <div class="vertical-span3 col-xs-8" ng-click="showProduct=true"><h5>Product Name</h5></div>
+                    <button class="vertical-span3 col-xs-4 fa fa-shopping-cart"> $5</button>
+                </div>
+                <div class="vertical-span6 col-xs-4">
+                    <div class="vertical-span9 col-xs-12" ng-click="showProduct=true">Image</div>
+                    <div class="vertical-span3 col-xs-8" ng-click="showProduct=true"><h5>Product Name</h5></div>
+                    <button class="vertical-span3 col-xs-4 fa fa-shopping-cart"> $5</button>
+                </div>
+                <div class="vertical-span6 col-xs-4">
+                    <div class="vertical-span9 col-xs-12" ng-click="showProduct=true">Image</div>
+                    <div class="vertical-span3 col-xs-8" ng-click="showProduct=true"><h5>Product Name</h5></div>
+                    <button class="vertical-span3 col-xs-4 fa fa-shopping-cart"> $5</button>
+                </div>
+                <div class="vertical-span6 col-xs-4">
+                    <div class="vertical-span9 col-xs-12" ng-click="showProduct=true">Image</div>
+                    <div class="vertical-span3 col-xs-8" ng-click="showProduct=true"><h5>Product Name</h5></div>
+                    <button class="vertical-span3 col-xs-4 fa fa-shopping-cart"> $5</button>
+                </div>
+                <div class="vertical-span6 col-xs-4">
+                    <div class="vertical-span9 col-xs-12" ng-click="showProduct=true">Image</div>
+                    <div class="vertical-span3 col-xs-8" ng-click="showProduct=true"><h5>Product Name</h5></div>
+                    <button class="vertical-span3 col-xs-4 fa fa-shopping-cart"> $5</button>
+                </div>
+                <div class="vertical-span6 col-xs-4">
+                    <div class="vertical-span9 col-xs-12" ng-click="showProduct=true">Image</div>
+                    <div class="vertical-span3 col-xs-8" ng-click="showProduct=true"><h5>Product Name</h5></div>
+                    <button class="vertical-span3 col-xs-4 fa fa-shopping-cart"> $5</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="first-product vertical-span4 col-xs-4">
+            <div class="vertical-span3 col-xs-8">
+                <h4>Product Name</h4>
+            </div>
+            <button class="vertical-span3 col-xs-4 fa fa-shopping-cart"> $250</button>
+            <div class="vertical-span9 col-xs-5">
+                Image
+            </div>
+
+            <div class="vertical-span9 col-xs-7">
+                Product details...
+            </div>
+        </div>
+        <div class="first-product vertical-span4 col-xs-4">
+            <div class="vertical-span3 col-xs-8">
+                <h4>Product Name</h4>
+            </div>
+            <button class="vertical-span3 col-xs-4 fa fa-shopping-cart"> $250</button>
+            <div class="vertical-span9 col-xs-5">
+                Image
+            </div>
+
+            <div class="vertical-span9 col-xs-7">
+                Product details...
+            </div>
+        </div>
+        <div class="first-product vertical-span4 col-xs-4">
+            <div class="vertical-span3 col-xs-8">
+                <h4>Product Name</h4>
+            </div>
+            <button class="vertical-span3 col-xs-4 fa fa-shopping-cart"> $250</button>
+            <div class="vertical-span9 col-xs-5">
+                Image
+            </div>
+
+            <div class="vertical-span9 col-xs-7">
+                Product details...
+            </div>
+        </div>
+    </section>
+
+</article>
+<article class="shop container-vertical test-bg" ng-show="showProduct">
+    <span class="vertical-span12 col-xs-1 filters">
+        <button class="col-xs-12" ng-click="showProduct=!showProduct"><i class="fa-arrow-left fa"></i></button>
+    </span>
+    <div class="vertical-span12 col-xs-11">
+        <div class="vertical-span9 col-xs-5">
+            <div class="vertical-span10 col-xs-12">
+                Image
+            </div>
+            <div class="vertical-span2 col-xs-12">
+                <button class="vertical-span12 col-xs-1 fa fa-chevron-left">
+
+                </button>
+                <div class="vertical-span12 col-xs-2">
+                    Image
+                </div>
+                <div class="vertical-span12 col-xs-2">
+                    Image
+                </div>
+                <div class="vertical-span12 col-xs-2">
+                    Image
+                </div>
+                <div class="vertical-span12 col-xs-2">
+                    Image
+                </div>
+                <div class="vertical-span12 col-xs-2">
+                    Image
+                </div>
+                <button class="vertical-span12 col-xs-1 fa fa-chevron-right">
+
+                </button>
+            </div>
+        </div>
+        <div class="vertical-span2 col-xs-7">
+            <div class="vertical-span12 col-xs-9 product-heading"><h2>Heading</h2></div>
+            <button class="vertical-span12 fa fa-shopping-cart col-xs-3"> $250</button>
+
+        </div>
+        <div class="vertical-span7 col-xs-7">
+            Details
+        </div>
+        <div class="vertical-span3 col-xs-12">
+            <div class="vertical-span12 col-xs-4">
+                Related 1
+            </div>
+            <div class="vertical-span12 col-xs-4">
+                Related 2
+            </div>
+            <div class="vertical-span12 col-xs-4">
+                Related 3
+            </div>
+        </div>
+    </div>
+</article>
 </div>
