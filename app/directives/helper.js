@@ -238,7 +238,18 @@ angular.module('ecoposApp')
             restrict: 'A',
             link: function(scope, element, attrs){
                 element.bind('change', function(){
-                    var value = (element[0].files && element[0].files.length)?(attrs.multiple?element[0].files:element[0].files[0]):null;
+                    var value = null;
+                    if(element[0].files && element[0].files.length){
+                        if(attrs.multiple){
+                            value = [];
+                            angular.forEach(element[0].files, function(cFile, cFileIdx){
+                                value.push(cFile);
+                            });
+                        }
+                        else{
+                            value = element[0].files[0];
+                        }
+                    }
                     $parse(attrs.ecoFiles).assign(scope, value);
                     scope.$apply();
                 });
