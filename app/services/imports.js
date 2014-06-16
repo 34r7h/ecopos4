@@ -17,8 +17,6 @@ angular.module('ecoposApp').factory('imports',function(syncData){
 
             if(!data.errors.length){
                 var importConfig = data.config[data.active.configID];
-                console.log('importing \''+importConfig.name+'\' from '+JSON.stringify(data.active.sourceFile));
-
                 if(!angular.isArray(data.active.sourceFile)){
                     api.importFile(importConfig, data.active.sourceFile);
                 }
@@ -28,7 +26,6 @@ angular.module('ecoposApp').factory('imports',function(syncData){
                     });
                 }
             }
-
         },
 
         importFile: function(importConfig, fileDef){
@@ -52,7 +49,7 @@ angular.module('ecoposApp').factory('imports',function(syncData){
                         var csvDataStr = event.srcElement.result;
                         if(csvDataStr){
                             var csvData = api.csvToArray(csvDataStr);
-                            console.log('loaded '+csvData.length+' rows');
+                            console.log('loaded '+csvData.length+' rows in \''+csvFile.name+'\'');
                             var columnDef = null;
                             var cGroup = [];
                             // parse the csv data
@@ -62,6 +59,7 @@ angular.module('ecoposApp').factory('imports',function(syncData){
                                     if(lineData.length){
                                         var rowGroupCheck = lineData.slice(1).join('').trim();
                                         if(!rowGroupCheck){
+                                            // handle row group title
                                             // if there is data in only the first column, treat it as a row group (ie. category)
                                             // >= 76 characters are information/notes rows
                                             if(lineData[0].trim() && lineData[0].length < 76){
@@ -75,45 +73,49 @@ angular.module('ecoposApp').factory('imports',function(syncData){
                                                 else{
                                                     cGroup = [lineData[0]];
                                                 }
-                                                console.log('Row Group: '+cGroup.join('/'));
+                                                //console.log('Row Group: '+cGroup.join('/'));
                                             }
                                         }
                                         else{
+                                            // handle a data row
                                             var cRow = {};
                                             angular.forEach(columnDef, function(colIdx, fieldName){
-                                                if(colIdx < lineData.length){
+                                                if(colIdx === 'ROWGROUP'){
+                                                    cRow[fieldName] = cGroup.join('/');
+                                                }
+                                                else if(!angular.isNumber(colIdx)){
+                                                    // ecodocs: handle composite fields
+                                                    // - parse out numbers
+                                                    // - replace numbers with column data
+                                                }
+                                                else if(colIdx < lineData.length){
                                                     cRow[fieldName] = lineData[colIdx];
                                                 }
-                                            });
 
-                                            // ecodocs: handle categories as column or as special ROWGROUP field def
-                                            cRow['categories'] = cGroup.join('/');
+                                            });
                                         }
                                     }
                                 }
                                 else if(lineNumber < 25){
                                     // no column definitions yet, check if this row can be used to define them
                                     // if no column definition found in first 25 lines, it is an error
+
                                     var cColumnDef = {};
-                                    var cColName;
-                                    // attempt to cross-reference each field of this row with the config's field-column definitions
-                                    angular.forEach(lineData, function(cColData, cColIdx){
-                                        if(cColData){
-                                            cColName = cColData;
-                                        }
-                                        else{
-                                            // empty column headers, append _ to indicate multi-column spanning
-                                            cColName += '_';
-                                        }
-                                        // check if this column represents a field, associate the column number if it does
-                                        angular.forEach(importConfig.fields, function(cFieldCheck, cFieldID) {
-                                            if(!cColumnDef[cFieldID] && cFieldCheck.indexOf(cColName)!==-1){
-                                                cColumnDef[cFieldID] = cColIdx;
+                                    angular.forEach(importConfig.fields, function(cFieldCheck, cFieldID){
+                                        var cColDef = '';
+                                        angular.forEach(cFieldCheck, function(fieldMatch, fieldMatchIdx){
+                                            if(cColDef === ''){
+                                                cColDef = private.parseColumnNumber(fieldMatch, lineData);
                                             }
                                         });
+
+                                        if(cColDef !== ''){
+                                            cColumnDef[cFieldID] = cColDef;
+                                        }
                                     });
-                                    // did we find columns for each field of the config?
-                                    if(Object.keys(cColumnDef).length === Object.keys(importConfig.fields).length){
+
+                                    if(Object.keys(cColumnDef).length && angular.isDefined(cColumnDef.id)){
+                                        console.log('Columns defined:'+JSON.stringify(cColumnDef));
                                         columnDef = cColumnDef;
                                     }
                                 }
@@ -204,6 +206,73 @@ angular.module('ecoposApp').factory('imports',function(syncData){
 
             // Return the parsed data.
             return( arrData );
+        }
+    };
+
+    var private = {
+        RGSTR: 'ROWGROUP', // string to substitute with specialty ROWGROUP
+
+        parseColumnNumber: function(columnName, inLineData){
+            var result = '';
+            var compCheck = columnName.split(/\+'|'\+/);
+            if(compCheck.length > 1){
+                // composite field
+                var compRes = '';
+                var compFail = false;
+                // look for each component's column index
+                angular.forEach(compCheck, function(comp, compIdx){
+                    if(!compFail){
+                        if(compIdx % 2 === 0){
+                            // component column - look it up
+                            if(comp === private.RGSTR){
+                                compRes += comp;
+                            }
+                            else{
+                                var nextColCheck = comp.match(/_+$/);
+                                var nextColAdd = 0;
+                                if(nextColCheck && nextColCheck.length){
+                                    nextColAdd = nextColCheck[0].length;
+                                    comp = comp.substr(0, comp.length-nextColAdd);
+                                }
+
+                                var colIdx = inLineData.indexOf(comp);
+                                if(colIdx !== -1){
+                                    compRes += (colIdx+nextColAdd);
+                                }
+                                else{
+                                    compFail = true;
+                                }
+                            }
+                        }
+                        else{
+                            // separator character
+                            compRes += comp;
+                        }
+                    }
+                });
+                if(!compFail){
+                    result = compRes;
+                }
+            }
+            else{
+                // normal field - look for this column
+                if(compCheck[0] === private.RGSTR){
+                    result = compCheck[0];
+                }
+                else{
+                    var nextColCheck = compCheck[0].match(/_+$/);
+                    var nextColAdd = 0;
+                    if(nextColCheck && nextColCheck.length){
+                        nextColAdd = nextColCheck[0].length;
+                        compCheck[0] = compCheck[0].substr(0, compCheck[0].length-nextColAdd);
+                    }
+                    var colIdx = inLineData.indexOf(compCheck[0]);
+                    if(colIdx !== -1){
+                        result = colIdx+nextColAdd;
+                    }
+                }
+            }
+            return result;
         }
     };
 
