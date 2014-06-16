@@ -1,83 +1,84 @@
 <div>
-<article class="shop container-vertical test-bg" ng-hide="showProduct">
-    <!--
+<!--
 <div class="shop">
-    <div ng-if="$parent.shop.product || shop.product">
-        <div class="col-xs-12 well">
-            <div ng-show="shop.product">
-                <div class="col-xs-7 product-image">
-                    <div ng-if="shop.product.img">
-                        <img ng-src="shop.product.img[0]">
-                    </div>
-                    <div ng-if="!shop.product.img">
-                        <img src="app/images/eco-placeholder.png">
-                    </div>
+<div ng-if="$parent.shop.product || shop.product">
+    <div class="col-xs-12 well">
+        <div ng-show="shop.product">
+            <div class="col-xs-7 product-image">
+                <div ng-if="shop.product.img">
+                    <img ng-src="shop.product.img[0]">
                 </div>
-                <div class="col-xs-5 product-info">
-                    <h3>{{shop.product.name}}</h3>
-                    <div>
-                        <div class="price">{{shop.product.price | currency}}</div>
-                        <div class="stock"><strong>{{shop.product.stock}}</strong> in stock</div>
-                    </div>
-                    <div>
-                        <input type="number" ng-model="qty" />
-                        <button ng-click="addProduct(shop.product, qty)">Add to Cart</button>
-                    </div>
+                <div ng-if="!shop.product.img">
+                    <img src="app/images/eco-placeholder.png">
                 </div>
             </div>
-            <div ng-show="shop.productURI && !shop.product">
-                <p>Could not find requested product '{{shop.productURI}}'</p>
-                <p>Return to category <a eco-ref="shop.pathStr"><span ng-show="shop.category">{{shop.category.name}}</span><span ng-hide="shop.category">parent</span></a>.</p>
-            </div>
-        </div>
-    </div>
-
-    <div ng-if="!product && !$parent.product && !shop.product">
-        <div class="col-xs-3 category">
-            <div class="category-browser" ng-repeat="(childPrio,child) in (shop.category.children || $parent.shop.category.children) | orderByPriority | isCategory">
-                <div ng-mouseover="catalogDrop=true" ng-mouseleave="catalogDrop=false">
-                    <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)" >{{child.name}} <i ng-hide="catalogSelect" class="fa fa-chevron-right"></i><i ng-show="catalogSelect" class="fa fa-chevron-down"></i></a>
-
-                    <div ng-show="catalogDrop" ng-mouseover="catalogSelect=true" ng-mouseleave="catalogSelect=false" >
-                        <ul>
-                            <li ng-mouseover="categorySelect=true" ng-mouseleave="categorySelect=false" ng-repeat="subChild in child.children | orderByPriority | isCategory">
-                                <i ng-show="categorySelect" class="fa fa-angle-double-right"></i><i ng-show="!categorySelect" class="fa fa-angle-right"></i> <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)+'/'+(subChild.url?subChild.url:subChild.$id)">{{subChild.name}}</a>
-                            </li>
-
-                            <li ng-mouseover="productSelect=true" ng-mouseleave="productSelect=false" ng-repeat="subChild in child.children | orderByPriority | isProduct">
-                                <i ng-show="productSelect" class="fa fa-dot-circle-o"></i><i ng-show="!productSelect" class="fa fa-circle"></i> <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)+'/'+(subChild.url?subChild.url:subChild.$id)">{{subChild.name}}</a>
-                            </li>
-                        </ul>
-                    </div>
+            <div class="col-xs-5 product-info">
+                <h3>{{shop.product.name}}</h3>
+                <div>
+                    <div class="price">{{shop.product.price | currency}}</div>
+                    <div class="stock"><strong>{{shop.product.stock}}</strong> in stock</div>
+                </div>
+                <div>
+                    <input type="number" ng-model="qty" />
+                    <button ng-click="addProduct(shop.product, qty)">Add to Cart</button>
                 </div>
             </div>
         </div>
+        <div ng-show="shop.productURI && !shop.product">
+            <p>Could not find requested product '{{shop.productURI}}'</p>
+            <p>Return to category <a eco-ref="shop.pathStr"><span ng-show="shop.category">{{shop.category.name}}</span><span ng-hide="shop.category">parent</span></a>.</p>
+        </div>
     </div>
+</div>
 
-    <div class="product-filters">
-        Filters
-    </div>
+<div ng-if="!product && !$parent.product && !shop.product">
+    <div class="col-xs-3 category">
+        <div class="category-browser" ng-repeat="(childPrio,child) in (shop.category.children || $parent.shop.category.children) | orderByPriority | isCategory">
+            <div ng-mouseover="catalogDrop=true" ng-mouseleave="catalogDrop=false">
+                <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)" >{{child.name}} <i ng-hide="catalogSelect" class="fa fa-chevron-right"></i><i ng-show="catalogSelect" class="fa fa-chevron-down"></i></a>
 
-    <div class="products">
-        <ul>
-            <li class="col-xs-3" ng-repeat="(childPrio,child) in shop.category.children | orderByPriority | isProduct">
-                <div class="well">
-                    <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)">
-                        <span ng-if="!inventory[child.$id]">{{child.name}}</span>
-                        <span ng-if="inventory[child.$id]">{{inventory[child.$id].brand}} {{inventory[child.$id].name}} {{inventory[child.$id].size}}</span>
-                    </a>
+                <div ng-show="catalogDrop" ng-mouseover="catalogSelect=true" ng-mouseleave="catalogSelect=false" >
+                    <ul>
+                        <li ng-mouseover="categorySelect=true" ng-mouseleave="categorySelect=false" ng-repeat="subChild in child.children | orderByPriority | isCategory">
+                            <i ng-show="categorySelect" class="fa fa-angle-double-right"></i><i ng-show="!categorySelect" class="fa fa-angle-right"></i> <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)+'/'+(subChild.url?subChild.url:subChild.$id)">{{subChild.name}}</a>
+                        </li>
+
+                        <li ng-mouseover="productSelect=true" ng-mouseleave="productSelect=false" ng-repeat="subChild in child.children | orderByPriority | isProduct">
+                            <i ng-show="productSelect" class="fa fa-dot-circle-o"></i><i ng-show="!productSelect" class="fa fa-circle"></i> <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)+'/'+(subChild.url?subChild.url:subChild.$id)">{{subChild.name}}</a>
+                        </li>
+                    </ul>
                 </div>
-            </li>
-        </ul>
+            </div>
+        </div>
     </div>
+</div>
+
+<div class="product-filters">
+    Filters
+</div>
+
+<div class="products">
+    <ul>
+        <li class="col-xs-3" ng-repeat="(childPrio,child) in shop.category.children | orderByPriority | isProduct">
+            <div class="well">
+                <a eco-ref="shop.pathStr+'/'+(child.url?child.url:child.$id)">
+                    <span ng-if="!inventory[child.$id]">{{child.name}}</span>
+                    <span ng-if="inventory[child.$id]">{{inventory[child.$id].brand}} {{inventory[child.$id].name}} {{inventory[child.$id].size}}</span>
+                </a>
+            </div>
+        </li>
+    </ul>
+</div>
 
 
-    <div ng-hide="shop">
-        Shop is not initialized.
-    </div>
+<div ng-hide="shop">
+    Shop is not initialized.
+</div>
 
 </div>
 -->
+<article class="shop container-vertical" ng-hide="showProduct">
+
     <section class="col-xs-2 vertical-span12 filters">
         <div class="vertical-span2">
             <input type="search" class="vertical-span12 col-xs-12">
@@ -99,32 +100,32 @@
             <div class="vertical-span9 product-group">
 
                 <div class="vertical-span6 col-xs-4">
-                    <div class="vertical-span9 col-xs-12" ng-click="showProduct=true">Image</div>
+                    <div class="vertical-span9" ng-click="showProduct=true"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdJ4dJLlbmZ0NA9lPwcspeqSfX3eyVPqHwl_ll6s1NGGW5-Qj2Xg" height="100%" width="100%"></div>
                     <div class="vertical-span3 col-xs-8" ng-click="showProduct=true"><h5>Product Name</h5></div>
                     <button class="vertical-span3 col-xs-4 fa fa-shopping-cart"> $5</button>
                 </div>
                 <div class="vertical-span6 col-xs-4">
-                    <div class="vertical-span9 col-xs-12" ng-click="showProduct=true">Image</div>
+                    <div class="vertical-span9" ng-click="showProduct=true"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdJ4dJLlbmZ0NA9lPwcspeqSfX3eyVPqHwl_ll6s1NGGW5-Qj2Xg" height="100%" width="100%"></div>
                     <div class="vertical-span3 col-xs-8" ng-click="showProduct=true"><h5>Product Name</h5></div>
                     <button class="vertical-span3 col-xs-4 fa fa-shopping-cart"> $5</button>
                 </div>
                 <div class="vertical-span6 col-xs-4">
-                    <div class="vertical-span9 col-xs-12" ng-click="showProduct=true">Image</div>
+                    <div class="vertical-span9" ng-click="showProduct=true"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdJ4dJLlbmZ0NA9lPwcspeqSfX3eyVPqHwl_ll6s1NGGW5-Qj2Xg" height="100%" width="100%"></div>
                     <div class="vertical-span3 col-xs-8" ng-click="showProduct=true"><h5>Product Name</h5></div>
                     <button class="vertical-span3 col-xs-4 fa fa-shopping-cart"> $5</button>
                 </div>
                 <div class="vertical-span6 col-xs-4">
-                    <div class="vertical-span9 col-xs-12" ng-click="showProduct=true">Image</div>
+                    <div class="vertical-span9" ng-click="showProduct=true"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdJ4dJLlbmZ0NA9lPwcspeqSfX3eyVPqHwl_ll6s1NGGW5-Qj2Xg" height="100%" width="100%"></div>
                     <div class="vertical-span3 col-xs-8" ng-click="showProduct=true"><h5>Product Name</h5></div>
                     <button class="vertical-span3 col-xs-4 fa fa-shopping-cart"> $5</button>
                 </div>
                 <div class="vertical-span6 col-xs-4">
-                    <div class="vertical-span9 col-xs-12" ng-click="showProduct=true">Image</div>
+                    <div class="vertical-span9" ng-click="showProduct=true"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdJ4dJLlbmZ0NA9lPwcspeqSfX3eyVPqHwl_ll6s1NGGW5-Qj2Xg" height="100%" width="100%"></div>
                     <div class="vertical-span3 col-xs-8" ng-click="showProduct=true"><h5>Product Name</h5></div>
                     <button class="vertical-span3 col-xs-4 fa fa-shopping-cart"> $5</button>
                 </div>
                 <div class="vertical-span6 col-xs-4">
-                    <div class="vertical-span9 col-xs-12" ng-click="showProduct=true">Image</div>
+                    <div class="vertical-span9" ng-click="showProduct=true"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdJ4dJLlbmZ0NA9lPwcspeqSfX3eyVPqHwl_ll6s1NGGW5-Qj2Xg" height="100%" width="100%"></div>
                     <div class="vertical-span3 col-xs-8" ng-click="showProduct=true"><h5>Product Name</h5></div>
                     <button class="vertical-span3 col-xs-4 fa fa-shopping-cart"> $5</button>
                 </div>
@@ -136,10 +137,7 @@
                 <h4>Product Name</h4>
             </div>
             <button class="vertical-span3 col-xs-4 fa fa-shopping-cart"> $250</button>
-            <div class="vertical-span9 col-xs-5">
-                Image
-            </div>
-
+            <div class="vertical-span9 col-xs-5" ng-click="showProduct=true"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdJ4dJLlbmZ0NA9lPwcspeqSfX3eyVPqHwl_ll6s1NGGW5-Qj2Xg" height="100%" width="100%"></div>
             <div class="vertical-span9 col-xs-7">
                 Product details...
             </div>
@@ -149,10 +147,7 @@
                 <h4>Product Name</h4>
             </div>
             <button class="vertical-span3 col-xs-4 fa fa-shopping-cart"> $250</button>
-            <div class="vertical-span9 col-xs-5">
-                Image
-            </div>
-
+            <div class="vertical-span9 col-xs-5" ng-click="showProduct=true"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdJ4dJLlbmZ0NA9lPwcspeqSfX3eyVPqHwl_ll6s1NGGW5-Qj2Xg" height="100%" width="100%"></div>
             <div class="vertical-span9 col-xs-7">
                 Product details...
             </div>
@@ -162,10 +157,7 @@
                 <h4>Product Name</h4>
             </div>
             <button class="vertical-span3 col-xs-4 fa fa-shopping-cart"> $250</button>
-            <div class="vertical-span9 col-xs-5">
-                Image
-            </div>
-
+            <div class="vertical-span9 col-xs-5" ng-click="showProduct=true"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdJ4dJLlbmZ0NA9lPwcspeqSfX3eyVPqHwl_ll6s1NGGW5-Qj2Xg" height="100%" width="100%"></div>
             <div class="vertical-span9 col-xs-7">
                 Product details...
             </div>
@@ -173,15 +165,13 @@
     </section>
 
 </article>
-<article class="shop container-vertical test-bg" ng-show="showProduct">
+<article class="shop container-vertical" ng-show="showProduct">
     <span class="vertical-span12 col-xs-1 filters">
         <button class="col-xs-12" ng-click="showProduct=!showProduct"><i class="fa-arrow-left fa"></i></button>
     </span>
     <div class="vertical-span12 col-xs-11">
         <div class="vertical-span9 col-xs-5">
-            <div class="vertical-span10 col-xs-12">
-                Image
-            </div>
+            <div class="vertical-span10 col-xs-12" ng-click="showProduct=true"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdJ4dJLlbmZ0NA9lPwcspeqSfX3eyVPqHwl_ll6s1NGGW5-Qj2Xg" height="100%" width="100%"></div>
             <div class="vertical-span2 col-xs-12">
                 <button class="vertical-span12 col-xs-1 fa fa-chevron-left">
 
@@ -209,7 +199,6 @@
         <div class="vertical-span2 col-xs-7">
             <div class="vertical-span12 col-xs-9 product-heading"><h2>Heading</h2></div>
             <button class="vertical-span12 fa fa-shopping-cart col-xs-3"> $250</button>
-
         </div>
         <div class="vertical-span7 col-xs-7">
             Details
