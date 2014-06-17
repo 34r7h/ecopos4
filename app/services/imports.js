@@ -80,19 +80,50 @@ angular.module('ecoposApp').factory('imports',function(syncData){
                                             // handle a data row
                                             var cRow = {};
                                             angular.forEach(columnDef, function(colIdx, fieldName){
-                                                if(colIdx === 'ROWGROUP'){
-                                                    cRow[fieldName] = cGroup.join('/');
+                                                if(colIdx === private.RGSTR){
+                                                    // handle special field ROWGROUP
+                                                    if(cGroup.length){
+                                                        cRow[fieldName] = cGroup.join('/');
+                                                    }
                                                 }
                                                 else if(!angular.isNumber(colIdx)){
-                                                    // ecodocs: handle composite fields
-                                                    // - parse out numbers
-                                                    // - replace numbers with column data
+                                                    // handle composite fields
+                                                    var compParts = colIdx.match(/ROWGROUP|\d+|\D/g);
+                                                    if(compParts && compParts.length){
+                                                        var cCompData = '';
+                                                        angular.forEach(compParts, function(partCol,partIdx){
+                                                            if(partCol === private.RGSTR){
+                                                                if(cGroup.length){
+                                                                    cCompData += cGroup.join('/');
+                                                                }
+                                                            }
+                                                            else{
+                                                                var partColNum = parseInt(partCol);
+                                                                if(angular.isNumber(partColNum) && !isNaN(partColNum) && partColNum < lineData.length){
+                                                                    cCompData += lineData[partColNum];
+                                                                }
+                                                                else{
+                                                                    cCompData += partCol;
+                                                                }
+                                                            }
+                                                        });
+                                                        if(cCompData){
+                                                            cRow[fieldName] = cCompData;
+                                                        }
+                                                    }
+
                                                 }
                                                 else if(colIdx < lineData.length){
+                                                    // normal field definition
                                                     cRow[fieldName] = lineData[colIdx];
                                                 }
-
                                             });
+                                            if(Object.keys(cRow).length){
+                                                // the row has data
+                                                if(lineNumber % 10 === 0){
+                                                    console.log('['+lineNumber+']='+JSON.stringify(cRow));
+                                                }
+                                            }
                                         }
                                     }
                                 }
