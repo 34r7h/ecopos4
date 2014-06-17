@@ -1,4 +1,4 @@
-angular.module('ecoposApp').factory('imports',function(syncData){
+angular.module('ecoposApp').factory('imports',function(syncData, system){
     var data = {active:{}};
 
     var api = {
@@ -11,20 +11,43 @@ angular.module('ecoposApp').factory('imports',function(syncData){
             if(!data.active.configID || !data.config || !data.config[data.active.configID]){
                 data.errors.push('Please select an import configuration');
             }
-            if(!data.active.sourceFile){
-                data.errors.push('Please select a source file for import');
-            }
-
-            if(!data.errors.length){
+            else{
                 var importConfig = data.config[data.active.configID];
-                if(!angular.isArray(data.active.sourceFile)){
-                    api.importFile(importConfig, data.active.sourceFile);
+                if(!data.active.sourceFile){
+                    data.errors.push('Please select a source file for import');
                 }
-                else{
-                    angular.forEach(data.active.sourceFile, function(cFile, cFileNum){
-                        api.importFile(importConfig, cFile);
-                    });
+                if(!data.active.importKey && !data.active.importKeyName){
+                    data.errors.push('Please select a '+importConfig.keyFieldName);
                 }
+
+                if(!data.errors.length){
+                    if(!angular.isArray(data.active.sourceFile)){
+                        api.importFile(importConfig, data.active.sourceFile);
+                    }
+                    else{
+                        angular.forEach(data.active.sourceFile, function(cFile, cFileNum){
+                            api.importFile(importConfig, cFile);
+                        });
+                    }
+                }
+            }
+        },
+
+        saveImportHistory: function(importConfig){
+            if(data.active.importKeyName){
+                var importKeyPath = 'imports/config/'+data.active.configID+'/keys/';
+                system.api.fbSafePath(importKeyPath+system.api.fbSafeKey(data.active.importKeyName)).then(function(safeImportKeyPath){
+                    data.active.importKey = safeImportKeyPath.replace(importKeyPath, '');
+                    if(!importConfig.keys){
+                        importConfig.keys = {};
+                    }
+                    importConfig.keys[data.active.importKey] = {name: data.active.importKeyName};
+                    data.config.$child(data.active.configID+'/keys/'+data.active.importKey).$update(importConfig.keys[data.active.importKey]);
+                    data.active.importKeyName = '';
+                });
+            }
+            if(data.active.importKey){
+                console.log('has an importKey:'+data.active.importKey);
             }
         },
 
@@ -32,6 +55,7 @@ angular.module('ecoposApp').factory('imports',function(syncData){
             switch(fileDef.type){
                 case 'text/csv':
                     api.importCSV(importConfig, fileDef);
+                    api.saveImportHistory(importConfig);
                     break;
                 default:
                     data.errors = ['Unrecognized source file format: \''+fileDef.type+'\''];
@@ -119,8 +143,9 @@ angular.module('ecoposApp').factory('imports',function(syncData){
                                             });
                                             if(Object.keys(cRow).length){
                                                 // the row has data
+                                                // ecodocs: save the row data
                                                 if(lineNumber % 10 === 0){
-                                                    console.log('['+lineNumber+']='+JSON.stringify(cRow));
+//                                                    console.log('['+lineNumber+']='+JSON.stringify(cRow));
                                                 }
                                             }
                                         }
