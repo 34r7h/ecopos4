@@ -3,7 +3,7 @@ angular.module('ecoposApp').factory('imports',function($q, syncData, system){
 
     var api = {
         loadConfigs: function(){
-            data.config = syncData('imports/config');
+            data.config = syncData('import/config');
         },
 
         import: function(){
@@ -16,7 +16,7 @@ angular.module('ecoposApp').factory('imports',function($q, syncData, system){
                 if(!data.active.sourceFile){
                     data.errors.push('Please select a source file for import');
                 }
-                if(!data.active.importKey && !data.active.importKeyValue){
+                if((!data.active.importKey || !importConfig.keys || !importConfig.keys[data.active.importKey]) && !data.active.importKeyValue){
                     data.errors.push('Please select a '+importConfig.keyFieldName);
                 }
 
@@ -38,7 +38,7 @@ angular.module('ecoposApp').factory('imports',function($q, syncData, system){
         assertImportKey: function(importConfig){
             var defer = $q.defer();
             if(data.active.importKeyValue){
-                var importKeyPath = 'imports/config/'+data.active.configID+'/keys/';
+                var importKeyPath = 'import/config/'+data.active.configID+'/keys/';
                 system.api.fbSafePath(importKeyPath+system.api.fbSafeKey(data.active.importKeyValue)).then(function(safeImportKeyPath){
                     data.active.importKey = safeImportKeyPath.replace(importKeyPath, '');
                     if(!importConfig.keys){
@@ -53,6 +53,7 @@ angular.module('ecoposApp').factory('imports',function($q, syncData, system){
                 });
             }
             if(data.active.importKey){
+                console.log('active key:'+data.active.importKey+':');
                 defer.resolve(data.active.importKey);
             }
             return defer.promise;
