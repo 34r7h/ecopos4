@@ -68,12 +68,11 @@ angular.module('ecoposApp').factory('imports',function(syncData){
                                                     if(cGroup && cGroup.length > 1){
                                                         cGroup.pop(); // only allowing 1 sub-group
                                                     }
-                                                    cGroup.push(lineData[0]);
+                                                    cGroup.push(lineData[0].trim());
                                                 }
                                                 else{
-                                                    cGroup = [lineData[0]];
+                                                    cGroup = [lineData[0].trim()];
                                                 }
-                                                //console.log('Row Group: '+cGroup.join('/'));
                                             }
                                         }
                                         else{
@@ -108,14 +107,14 @@ angular.module('ecoposApp').factory('imports',function(syncData){
                                                             }
                                                         });
                                                         if(cCompData){
-                                                            cRow[fieldName] = cCompData;
+                                                            cRow[fieldName] = cCompData.trim();
                                                         }
                                                     }
 
                                                 }
                                                 else if(colIdx < lineData.length){
                                                     // normal field definition
-                                                    cRow[fieldName] = lineData[colIdx];
+                                                    cRow[fieldName] = lineData[colIdx].trim();
                                                 }
                                             });
                                             if(Object.keys(cRow).length){
