@@ -23,11 +23,11 @@ angular.module('ecoposApp').factory('imports',function($q, syncData, system){
                 if(!data.errors.length){
                     api.assertImportKey(importConfig).then(function(importKey){
                         if(!angular.isArray(data.active.sourceFile)){
-                            api.importFile(importConfig, importKey, data.active.sourceFile);
+                            api.importFile(data.active.configID, importKey, data.active.sourceFile);
                         }
                         else{
                             angular.forEach(data.active.sourceFile, function(cFile, cFileNum){
-                                api.importFile(importConfig, importKey, cFile);
+                                api.importFile(data.active.configID, importKey, cFile);
                             });
                         }
                     });
@@ -53,16 +53,15 @@ angular.module('ecoposApp').factory('imports',function($q, syncData, system){
                 });
             }
             if(data.active.importKey){
-                console.log('active key:'+data.active.importKey+':');
                 defer.resolve(data.active.importKey);
             }
             return defer.promise;
         },
 
-        importFile: function(importConfig, importKey, fileDef){
+        importFile: function(importConfigID, importKey, fileDef){
             switch(fileDef.type){
                 case 'text/csv':
-                    api.importCSV(importConfig, importKey, fileDef);
+                    api.importCSV(importConfigID, importKey, fileDef);
                     break;
                 default:
                     data.errors = ['Unrecognized source file format: \''+fileDef.type+'\''];
@@ -70,9 +69,12 @@ angular.module('ecoposApp').factory('imports',function($q, syncData, system){
             }
         },
 
-        importCSV: function(importConfig, importKey, csvFile){
-            if(angular.isDefined(window.FileReader)){
-                console.log('csv import \''+importConfig.name+'\' from \''+csvFile.name+'\' to \''+importConfig.keys[importKey].value+'\' ('+importKey+')');
+        importCSV: function(importConfigID, importKey, csvFile){
+            var importConfig = importConfigID?data.config[importConfigID]:null;
+            if(importConfig && importKey && angular.isDefined(window.FileReader)){
+                console.log('csv import \''+importConfig.name+'\' ('+importConfigID+') from \''+csvFile.name+'\' to \''+importConfig.keys[importKey].value+'\' ('+importKey+')');
+                var importXref = syncData('import/data-index/'+importConfigID+'/'+importKey);
+                var importTarget = syncData(importConfig.target);
                 var fileReader = new FileReader();
                 fileReader.readAsText(csvFile);
                 fileReader.onloadend = function(event){
@@ -148,12 +150,41 @@ angular.module('ecoposApp').factory('imports',function($q, syncData, system){
                                                     cRow[fieldName] = lineData[colIdx].trim();
                                                 }
                                             });
-                                            if(Object.keys(cRow).length){
-                                                // the row has data
-                                                // ecodocs: save the row data
-                                                if(lineNumber % 10 === 0){
-//                                                    console.log('['+lineNumber+']='+JSON.stringify(cRow));
+                                            if (Object.keys(cRow).length && cRow.id) {
+                                                // the row has data, save it
+                                                var cRowID = system.api.fbSafeKey(cRow.id);
+
+                                                var newTargetRow = cRow;
+                                                delete newTargetRow.id;
+                                                // ecodocs: set up the rest of the target data...
+
+                                                var targetID = importXref[cRowID] ? importXref[cRowID] : null;
+                                                if(targetID && !importTarget[targetID]){
+                                                    console.log('line #'+lineNumber+': what is #'+cRowID+'->'+targetID);
                                                 }
+                                                if (!targetID || !importTarget[targetID]) {
+                                                    // new target
+                                                    if(lineNumber % 10 === 0){
+                                                        console.log('line #'+lineNumber+': *NEW* ' + cRowID);
+                                                    }
+
+                                                    importTarget.$add(newTargetRow).then(function (newTarget) {
+                                                        targetID = newTarget.name();
+                                                        importXref.$child(cRowID).$set(targetID);
+                                                    });
+                                                }
+                                                else {
+                                                    // updating existing target
+                                                    // ecodocs: we can compare the data here to see what is different
+                                                    if(lineNumber % 10 === 0) {
+                                                        console.log('line #' + lineNumber + ': *UPDATE* ' + cRowID + '->' + targetID);
+                                                    }
+                                                    //console.log('updating:' + cRowID + '->' + targetID + ' with line #' + lineNumber);
+                                                    importTarget.$child(targetID).$update(newTargetRow);
+                                                }
+                                            }
+                                            else {
+                                                console.log('No id found for row #' + lineNumber);
                                             }
                                         }
                                     }
