@@ -158,6 +158,11 @@ angular.module('ecoposApp').factory('imports',function($q, syncData, system){
                                                 delete newTargetRow.id;
                                                 // ecodocs: set up the rest of the target data...
 
+                                                /** ecodocs: more complex cross-referencing required (ex. upc)
+                                                        - need to add it to the import config
+                                                            crossReference:
+                                                                <fieldID>: [<lookupTables>]
+                                                 */
                                                 var targetID = importXref[cRowID] ? importXref[cRowID] : null;
                                                 if(targetID && !importTarget[targetID]){
                                                     console.log('line #'+lineNumber+': what is #'+cRowID+'->'+targetID);
