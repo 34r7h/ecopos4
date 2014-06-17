@@ -1,4 +1,4 @@
-angular.module('ecoposApp').factory('imports',function(syncData, system){
+angular.module('ecoposApp').factory('imports',function($q, syncData, system){
     var data = {active:{}};
 
     var api = {
@@ -16,46 +16,52 @@ angular.module('ecoposApp').factory('imports',function(syncData, system){
                 if(!data.active.sourceFile){
                     data.errors.push('Please select a source file for import');
                 }
-                if(!data.active.importKey && !data.active.importKeyName){
+                if(!data.active.importKey && !data.active.importKeyValue){
                     data.errors.push('Please select a '+importConfig.keyFieldName);
                 }
 
                 if(!data.errors.length){
-                    if(!angular.isArray(data.active.sourceFile)){
-                        api.importFile(importConfig, data.active.sourceFile);
-                    }
-                    else{
-                        angular.forEach(data.active.sourceFile, function(cFile, cFileNum){
-                            api.importFile(importConfig, cFile);
-                        });
-                    }
+                    api.assertImportKey(importConfig).then(function(importKey){
+                        if(!angular.isArray(data.active.sourceFile)){
+                            api.importFile(importConfig, importKey, data.active.sourceFile);
+                        }
+                        else{
+                            angular.forEach(data.active.sourceFile, function(cFile, cFileNum){
+                                api.importFile(importConfig, importKey, cFile);
+                            });
+                        }
+                    });
                 }
             }
         },
 
-        saveImportHistory: function(importConfig){
-            if(data.active.importKeyName){
+        assertImportKey: function(importConfig){
+            var defer = $q.defer();
+            if(data.active.importKeyValue){
                 var importKeyPath = 'imports/config/'+data.active.configID+'/keys/';
-                system.api.fbSafePath(importKeyPath+system.api.fbSafeKey(data.active.importKeyName)).then(function(safeImportKeyPath){
+                system.api.fbSafePath(importKeyPath+system.api.fbSafeKey(data.active.importKeyValue)).then(function(safeImportKeyPath){
                     data.active.importKey = safeImportKeyPath.replace(importKeyPath, '');
                     if(!importConfig.keys){
                         importConfig.keys = {};
                     }
-                    importConfig.keys[data.active.importKey] = {name: data.active.importKeyName};
-                    data.config.$child(data.active.configID+'/keys/'+data.active.importKey).$update(importConfig.keys[data.active.importKey]);
-                    data.active.importKeyName = '';
+                    importConfig.keys[data.active.importKey] = {value: data.active.importKeyValue};
+                    data.config.$child(data.active.configID+'/keys/'+data.active.importKey).$update(importConfig.keys[data.active.importKey]).then(function(){
+                        data.active.importKeyValue = '';
+                        defer.resolve(data.active.importKey);
+                    });
+
                 });
             }
             if(data.active.importKey){
-                console.log('has an importKey:'+data.active.importKey);
+                defer.resolve(data.active.importKey);
             }
+            return defer.promise;
         },
 
-        importFile: function(importConfig, fileDef){
+        importFile: function(importConfig, importKey, fileDef){
             switch(fileDef.type){
                 case 'text/csv':
-                    api.importCSV(importConfig, fileDef);
-                    api.saveImportHistory(importConfig);
+                    api.importCSV(importConfig, importKey, fileDef);
                     break;
                 default:
                     data.errors = ['Unrecognized source file format: \''+fileDef.type+'\''];
@@ -63,9 +69,9 @@ angular.module('ecoposApp').factory('imports',function(syncData, system){
             }
         },
 
-        importCSV: function(importConfig, csvFile){
+        importCSV: function(importConfig, importKey, csvFile){
             if(angular.isDefined(window.FileReader)){
-                console.log('csv import \''+importConfig.name+'\' from \''+csvFile.name+'\'');
+                console.log('csv import \''+importConfig.name+'\' from \''+csvFile.name+'\' to \''+importConfig.keys[importKey].value+'\' ('+importKey+')');
                 var fileReader = new FileReader();
                 fileReader.readAsText(csvFile);
                 fileReader.onloadend = function(event){

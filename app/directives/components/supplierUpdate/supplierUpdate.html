@@ -20,11 +20,11 @@
                 <label for="import-key-name">{{imports.config[imports.active.configID].keyFieldName}}</label>
                 <select id="import-key-name" ng-model="imports.active.importKey">
                     <option value="">-- New {{imports.config[imports.active.configID].keyFieldName}} --</option>
-                    <option ng-repeat="(importKey, importKeyInfo) in imports.config[imports.active.configID].keys" ng-value="importKey" ng-selected="importKey===imports.active.importKey">{{importKeyInfo.name}}</option>
+                    <option ng-repeat="(importKey, importKeyInfo) in imports.config[imports.active.configID].keys" ng-value="importKey" ng-selected="importKey===imports.active.importKey">{{importKeyInfo.value}}</option>
                 </select>
             </p>
             <p ng-show="!imports.active.importKey">
-                <input type="text" ng-model="imports.active.importKeyName" placeholder="New {{imports.config[imports.active.configID].keyFieldName}}" />
+                <input type="text" ng-model="imports.active.importKeyValue" placeholder="New {{imports.config[imports.active.configID].keyFieldName}}" />
             </p>
 
             <button class="btn btn-primary" ng-show="imports.active.sourceFile" ng-click="import()">Import</button>
