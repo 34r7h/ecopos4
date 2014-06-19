@@ -3,19 +3,15 @@ angular.module('ecoposApp').directive('comp', function($compile,$timeout) {
 		restrict:"E",
 
 		replace:true,
-		scope:{element:"=",type:"=",calendar:"@calendar"},
-		link:function(scope, iElem, iAttrs,element, $scope, attrs) {
+		scope:{element:"=",type:"=",calendar:"@calendar", filtered:"@"},
+		link:function(scope, iElem, iAttrs, element, $scope, attrs) {
 			var domElement;
             scope.$watch('element', function(newVal){
                 if(newVal && (!domElement || !domElement.nodeName || newVal.toLowerCase() !== domElement.nodeName.toLowerCase())){
-                    if(domElement){
-                        //angular.element(domElement).scope().$destroy();
-                    }
-
                     domElement = document.createElement(newVal);
-
                     iElem.empty();
                     iElem.append(domElement);
+	                console.log(scope.filtered);
                     $compile(domElement)(scope);
                 }
                 else if(!newVal && domElement){

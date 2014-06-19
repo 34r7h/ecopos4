@@ -1,4 +1,287 @@
-<div class="stock col-xs-12">
+<div xmlns="http://www.w3.org/1999/html">
+    <eco-single></eco-single>
+    <!--eco-table></eco-table>
+
+    <!--article class="container-vertical stock" ng-hide="showStockItem">
+        <section class="vertical-span12 col-xs-2 filters">
+            Filters
+        </section>
+        <section class="vertical-span12 col-xs-10">
+            <div class="vertical-span1 col-xs-12">
+                <span class="col-xs-2">
+                    <h5>Table Options:</h5>
+                </span>
+                <span class="col-xs-10">
+                    <input type="checkbox"> Product
+                    <input type="checkbox"> Categories
+                    <input type="checkbox"> Price
+                    <input type="checkbox"> Qty
+                    <input type="checkbox"> Tags
+                </span>
+            </div>
+            <div class="table-responsive col-xs-12 vertical-span9">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th><input type="checkbox"></th>
+                        <th>Product</th>
+                        <th>Categories</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Tags</th>
+                    </tr>
+                    </thead>
+                    <tr ng-mouseenter="expandOptions=true">
+                        <td><input type="checkbox"></td>
+                        <td ng-click="showStockItem=true"><a href>Giant Apples</a></td>
+                        <td>Produce, Fruits</td>
+                        <td>$3 /lb</td>
+                        <td>34 lbs</td>
+                        <td>keeps the doctor away<br>fruit tree</td>
+                    </tr>
+                    <tr ng-mouseleave="expandOptions=false" ng-show="expandOptions">
+                        <td>
+                            <div></div>
+                        </td>
+                        <td col-span="5" >
+                            <div>Some low down</div>
+                        </td>
+
+                    </tr>
+                    <tr ng-mouseenter="expandOptions1=true">
+                        <td><input type="checkbox"></td>
+                        <td ng-click="showStockItem=true"><a href>Small Skirt</a></td>
+                        <td>Clothing, Womens</td>
+                        <td>$88</td>
+                        <td>26</td>
+                        <td>hemp<br>long skirt</td>
+                    </tr>
+                    <tr ng-mouseleave="expandOptions1=false"ng-show="expandOptions1">
+                        <td>
+                            <div></div>
+                        </td>
+                        <td col-span="5" >
+                            <div>Some low down</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="vertical-span1 col-xs-12 ">
+                <hr>
+                Table Totals
+            </div>
+        </section>
+    </article>
+    <article class="container-vertical" ng-show="showStockItem">
+        <section class="vertical-span12 col-xs-1 filters">
+            <button class="col-xs-12" ng-click="showStockItem=!showStockItem"><i class="fa-arrow-left fa"></i></button>
+        </section>
+        <section class="vertical-span12 col-xs-11">
+            <div class="vertical-span2 col-xs-12">
+                <div class="vertical-span12 col-xs-3 product-heading">
+                    <h4>Dr. Bronner's</h4>
+                </div>
+                <div class="vertical-span12 fa fa-dollar col-xs-3"ng-init="productRegularPrice=25">
+                    Regular Price
+                    <h4 class="fa fa-dollar"><input class="col-xs-6" ng-model="productRegularPrice"> /L</h4>
+                </div>
+                <div class="vertical-span12 fa fa-dollar col-xs-3"ng-init="productSalePrice=20">
+                    Sale Price
+                    <h4 class="fa fa-dollar"><input class="col-xs-6" ng-model="productSalePrice"> /L</h4>
+                </div>
+                <div class="vertical-span12 fa fa-barcode col-xs-3"ng-init="productQuantity=20">
+                    Quantity
+                    <h4><input class="col-xs-6" ng-model="productQuantity"> Liters</h4>
+                </div>
+            </div>
+            <div class="vertical-span10 col-xs-7">
+                <div class="vertical-span12 col-xs-12" ng-hide="showStockItemDetails===false">
+                    <div class="vertical-span12 col-xs-3 scroll-y">
+                        <button class="vertical-span2 col-xs-12" ng-click="showBasicDetails=true;showSpecsDetails=false;showShopsDetails=false;">Basic</button>
+                        <button class="vertical-span2 col-xs-12" ng-click="showSpecsDetails=true;showBasicDetails=false;showShopsDetails=false;">Specs</button>
+                        <button class="vertical-span2 col-xs-12" ng-click="showShopsDetails=true;showSpecsDetails=false;showBasicDetails=false;">Shops</button>
+                    </div>
+                    <div class="vertical-span12 col-xs-9">
+                        <div class="" ng-hide="showBasicDetails===false">
+                            <h5>Categories</h5>
+                            Soap, Household
+                            <h5>Description</h5>
+                            <textarea ng-init="productDescription='This soap right here is so kosher, it hurts.'" ng-model="productDescription">{{productDescription}}</textarea>
+                        </div>
+                        <div class="" ng-if="showSpecsDetails">Specs Details</div>
+                        <div class="" ng-if="showShopsDetails">Shops Details</div>
+                    </div>
+
+                </div>
+                <div class="vertical-span10 col-xs-12" ng-click="showProduct=true"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdJ4dJLlbmZ0NA9lPwcspeqSfX3eyVPqHwl_ll6s1NGGW5-Qj2Xg" height="100%" width="100%"></div>
+                <div class="vertical-span2 col-xs-12">
+                    <button class="vertical-span12 col-xs-3 fa fa-chevron-left">
+
+                    </button>
+
+                    <div class="vertical-span12 col-xs-2">
+                        Image
+                    </div>
+                    <div class="vertical-span12 col-xs-2">
+                        Image
+                    </div>
+                    <div class="vertical-span12 col-xs-2">
+                        Image
+                    </div>
+
+                    <button class="vertical-span12 col-xs-3 fa fa-chevron-right">
+
+                    </button>
+                </div>
+            </div>
+            <div class="vertical-span10 col-xs-5">
+                <div class="vertical-span1 col-xs-12">
+                    <button class="col-xs-3" ng-click="showStockItemActivity=true;showStockItemMessages=false;showStockItemNotes=false;">Activity</button>
+                    <button class="col-xs-3" ng-click="showStockItemMessages=true;showStockItemNotes=false;showStockItemActivity=false;">Messages</button>
+                    <button class="col-xs-3" ng-click="showStockItemNotes=true;showStockItemMessages=false;showStockItemActivity=false;">Notes</button>
+                </div>
+                <div class="vertical-span10 col-xs-12">
+
+                    <div class="table-responsive" ng-if="showStockItemActivity">
+                        <table class="table well">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th>Date / Time</th>
+                                <th>Activity</th>
+                            </tr>
+                            </thead>
+                            <tr>
+                                <td><i class="fa fa-folder-open"></i></td>
+                                <td>May 9th, 12:30pm</td>
+                                <td><a class="blue-text">Melissa Call</a> opened this order for <a class="green-text">Patrick Longo</a> at the till.</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fa fa-dollar"></i></td>
+                                <td>May 9th, 12:30pm</td>
+                                <td><a class="green-text">Patrick Longo</a> paid <b>$210</b> with cash.</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="vertical-span12" ng-if="showStockItemMessages">
+                        <div class="vertical-span9 col-xs-2">
+                            <button class="fa fa-inbox"></button>
+                            <button class="fa fa-plus"></button>
+                        </div>
+                        <div class="vertical-span9 col-xs-10 well scroll-y">
+                            <b>Patrick Longo says,</b>
+                            <h5 class="green-text">Can I get this in red?</h5>
+                            <b>You replied,</b>
+                            <h5 class="blue-text">Of course!</h5>
+                        </div>
+                        <div class="vertical-span2 col-xs-10 pull-right">
+                            <button class="vertical-span12 col-xs-3 pull-right">Reply</button>
+                            <textarea class="vertical-span12 col-xs-9" placeholder="Enter Message"></textarea>
+                        </div>
+                    </div>
+                    <div class="vertical-span12 " ng-if="showStockItemNotes">
+                        <div class="vertical-span12 col-xs-1">
+                            <button class="fa fa-plus" ng-click="showAddNote=!showAddNote">
+                            </button>
+                        </div>
+                        <div class="vertical-span3 col-xs-10 well" ng-if="showAddNote">
+                            <textarea class="vertical-span10 col-xs-9" placeholder="Jot your thought.."></textarea>
+                            <input class="vertical-span2 col-xs-3" ng-if="showAddNote" type="text" placeholder="add tags">
+                            <button class="vertical-span8 col-xs-3">Post</button>
+                            <a class="vertical-span1 pull-right" ng-click="$parent.showAddNote=!$parent.showAddNote">Nevermind</a>
+                        </div>
+                        <div ng-init="testCopy= 'Aint guna lie, im a fckn rider but yall all wanan fux wifs me ain t guna lie, i m a fckn rider but y all all wanan fux wifs me ain t guna lie, i m a fckn rider but y all all wanan fux wifs me ain t guna lie, i m a fckn rider but y all all wanan fux wifs me ain t guna lie, i m a fckn rider but y all all wanan fux wifs me'" class="vertical-span12 col-xs-11 scroll-y">
+                            <div class="vertical-span6">
+                                <div class="vertical-span1 pull-right"><code>Nov2 8:42pm</code></div>
+                                <div class="vertical-span8 scroll-y well" ng-hide="showEditNote" ng-click="showEditNote=true">
+                                    {{testCopy}}
+                                </div>
+                                <button ng-show="showEditNote" class="vertical-span2 pull-right" ng-click="showEditNote=false">Finished</button>
+                                <textarea ng-show="showEditNote" class="vertical-span8 scroll-y" ng-model="testCopy"></textarea>
+                                <div class="vertical-span1 col-xs-12" ng-click="showEditTags=true" ng-hide="showEditTags">Tags: hip-hop, fantasia</div>
+                                <input class="vertical-span1 col-xs-10" ng-show="showEditTags" placeholder="hip-hop, fantasia">
+                                <button class="col-xs-2" ng-show="showEditTags" ng-click="showEditTags=false">Save tags</button>
+                                <div class="col-xs-12 vertical-span2">
+                                    <button class="fa fa-share"></button>
+                                    <button class="fa fa-times"></button>
+                                    <button class="fa fa-xing"></button>
+                                </div>
+                                <div class="vertical-span1"></div>
+                            </div>
+                            <div class="vertical-span6 col-xs-12">
+                                <div class="vertical-span8 scroll-y" ng-hide="showEditNote" ng-click="showEditNote=true">
+                                    {{testCopy}}
+                                </div>
+                                <button ng-show="showEditNote" class="vertical-span2 pull-right" ng-click="showEditNote=false">Finished</button>
+                                <textarea ng-show="showEditNote" class="vertical-span8 scroll-y" ng-model="testCopy"></textarea>
+                                <div class="vertical-span1 pull-right"><code>Nov2 8:42pm</code></div>
+                                <div class="vertical-span1 col-xs-12" ng-click="showEditTags=true" ng-hide="showEditTags">Tags: hip-hop, fantasia</div>
+                                <input class="vertical-span1 col-xs-10" ng-show="showEditTags" placeholder="hip-hop, fantasia">
+                                <button class="col-xs-2" ng-show="showEditTags" ng-click="showEditTags=false">Save tags</button>
+                                <div class="col-xs-12 vertical-span2">
+                                    <button class="vertical-span12 fa fa-share"></button>
+                                    <button class="vertical-span12 fa fa-times"></button>
+                                    <button class="vertical-span12 fa fa-xing"></button>
+                                </div>
+                            </div>
+                            <div class="vertical-span6 col-xs-6">
+                                <div class="vertical-span8 scroll-y" ng-hide="showEditNote" ng-click="showEditNote=true">
+                                    {{testCopy}}
+                                </div>
+                                <button ng-show="showEditNote" class="vertical-span2 pull-right" ng-click="showEditNote=false">Finished</button>
+                                <textarea ng-show="showEditNote" class="vertical-span8 scroll-y" ng-model="testCopy"></textarea>
+                                <div class="vertical-span1 pull-right"><code>Nov2 8:42pm</code></div>
+                                <div class="vertical-span1 col-xs-12" ng-click="showEditTags=true" ng-hide="showEditTags">Tags: hip-hop, fantasia</div>
+                                <input class="vertical-span1 col-xs-10" ng-show="showEditTags" placeholder="hip-hop, fantasia">
+                                <button class="col-xs-2" ng-show="showEditTags" ng-click="showEditTags=false">Save tags</button>
+                                <div class="col-xs-12 vertical-span2">
+                                    <button class="vertical-span12 fa fa-share"></button>
+                                    <button class="vertical-span12 fa fa-times"></button>
+                                    <button class="vertical-span12 fa fa-xing"></button>
+                                </div>
+                            </div>
+                            <div class="vertical-span6 col-xs-6">
+                                <div class="vertical-span8 scroll-y" ng-hide="showEditNote" ng-click="showEditNote=true">
+                                    {{testCopy}}
+                                </div>
+                                <button ng-show="showEditNote" class="vertical-span2 pull-right" ng-click="showEditNote=false">Finished</button>
+                                <textarea ng-show="showEditNote" class="vertical-span8 scroll-y" ng-model="testCopy"></textarea>
+                                <div class="vertical-span1 pull-right"><code>Nov2 8:42pm</code></div>
+                                <div class="vertical-span1 col-xs-12" ng-click="showEditTags=true" ng-hide="showEditTags">Tags: hip-hop, fantasia</div>
+                                <input class="vertical-span1 col-xs-10" ng-show="showEditTags" placeholder="hip-hop, fantasia">
+                                <button class="col-xs-2" ng-show="showEditTags" ng-click="showEditTags=false">Save tags</button>
+                                <div class="col-xs-12 vertical-span2">
+                                    <button class="vertical-span12 fa fa-share"></button>
+                                    <button class="vertical-span12 fa fa-times"></button>
+                                    <button class="vertical-span12 fa fa-xing"></button>
+                                </div>
+                            </div>
+                            <div class="vertical-span6 col-xs-6">
+                                <div class="vertical-span8 scroll-y" ng-hide="showEditNote" ng-click="showEditNote=true">
+                                    {{testCopy}}
+                                </div>
+                                <button ng-show="showEditNote" class="vertical-span2 pull-right" ng-click="showEditNote=false">Finished</button>
+                                <textarea ng-show="showEditNote" class="vertical-span8 scroll-y" ng-model="testCopy"></textarea>
+                                <div class="vertical-span1 pull-right"><code>Nov2 8:42pm</code></div>
+                                <div class="vertical-span1 col-xs-12" ng-click="showEditTags=true" ng-hide="showEditTags">Tags: hip-hop, fantasia</div>
+                                <input class="vertical-span1 col-xs-10" ng-show="showEditTags" placeholder="hip-hop, fantasia">
+                                <button class="col-xs-2" ng-show="showEditTags" ng-click="showEditTags=false">Save tags</button>
+                                <div class="col-xs-12 vertical-span2">
+                                    <button class="vertical-span12 fa fa-share"></button>
+                                    <button class="vertical-span12 fa fa-times"></button>
+                                    <button class="vertical-span12 fa fa-xing"></button>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </article>
+    <!-- div>
     <h1 data-fittext="1" data-fittext-min="16" data-fittext-max="56">Stock</h1>
     <div class="row shops">
         <script type="text/ng-template" id="category_list_recur.html">
@@ -80,7 +363,6 @@
             </div>
         </div>
     </div>
-
     <div class="row change-summary" ng-show="changedCategoryCount() || changedProductCount()">
         <div class="categories-changed" ng-show="changedCategoryCount()">
             <strong>{{changedCategoryCount()}} categories changed</strong>
@@ -92,7 +374,6 @@
             </ul>
         </div>
     </div>
-
     <div class="row filters" ng-show="totalProductCount()">
         <a ng-click="showFilters=!showFilters">Filters</a>
         <div class="filters" ng-show="showFilters">
@@ -112,7 +393,7 @@
 
         </div>
     </div>
-    <div clas="row inventory" ng-show="totalProductCount()">
+    <div class="row inventory" ng-show="totalProductCount()">
         <div class="summary">
             <strong>Showing {{filteredProductCount()}}/{{totalProductCount()}} products</strong>
         </div>
@@ -177,10 +458,6 @@
                         <div><strong>Add to:</strong> {{catPathToStr(productAddCats[product.$id])}}</div>
                         <select-tree source="shops" ng-model="productAddCats[product.$id]" id="pac-{{product.$id}}" max-size="7"></select-tree>
                         <a ng-click="saveProductToCategory(product)"><i class="fa fa-fw fa-plus"></i></a>
-
-                        <div>
-                            oh ya we be winning the lorem ipsum delorian time travelin' mofreakin zilla squashing building rampage
-                        </div>
                     </td>
                 </tr>
                 </tbody>
@@ -189,6 +466,6 @@
 
 
     </div>
-
+    </div -->
 
 </div>

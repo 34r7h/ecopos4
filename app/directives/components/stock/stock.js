@@ -5,6 +5,17 @@ angular.module('ecoposApp').directive('stock', function($q, $log, $timeout, syst
         scope: '@',
         templateUrl: 'app/directives/components/stock/stock.html',
         link: function (scope, element, attrs, fn) {
+	        scope.ecoFilters = {first:"Choose Shop", second:"Choose Categories"};
+	        scope.items = [{name:'thing'},{name:'other thing'}];
+	        scope.headerItems = [
+		        {icon:'fa fa-barcode', info:'Sum Product'},
+		        {icon:'fa fa-dollar', action:'25'}
+	        ];
+	        scope.mainArea = {img:"https://www.google.ca/logos/doodles/2014/world-cup-2014-16-5975619640754176.3-hp.gif"};
+	        scope.sections = [,{name:'activity',module:'activity',filter:'activity'},{name:'messages',module:'messages',filter:'messages'},{name:'notes',module:'notes',filter:'notes'}];
+	        scope.thisSection = 'activity';
+
+
             scope.shops = {
                 name: 'Shops',
                 children: {}
