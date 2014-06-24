@@ -75,155 +75,198 @@ angular.module('ecoposApp').factory('imports',function($q, syncData, system){
                 console.log('csv import \''+importConfig.name+'\' ('+importConfigID+') from \''+csvFile.name+'\' to \''+importConfig.keys[importKey].value+'\' ('+importKey+')');
                 var importXref = syncData('import/data-index/'+importConfigID+'/'+importKey);
                 var importTarget = syncData(importConfig.target);
-                var fileReader = new FileReader();
-                fileReader.readAsText(csvFile);
-                fileReader.onloadend = function(event){
-                    if(event.srcElement.result){
-                        var csvDataStr = event.srcElement.result;
-                        if(csvDataStr){
-                            var csvData = api.csvToArray(csvDataStr);
-                            console.log('loaded '+csvData.length+' rows in \''+csvFile.name+'\'');
-                            var columnDef = null;
-                            var cGroup = [];
-                            // parse the csv data
-                            angular.forEach(csvData, function(lineData, lineNumber){
-                                if(columnDef){
-                                    // columns are defined, handle the row as data
-                                    if(lineData.length){
-                                        var rowGroupCheck = lineData.slice(1).join('').trim();
-                                        if(!rowGroupCheck){
-                                            // handle row group title
-                                            // if there is data in only the first column, treat it as a row group (ie. category)
-                                            // >= 76 characters are information/notes rows
-                                            if(lineData[0].trim() && lineData[0].length < 76){
-                                                if(lineData[0] === lineData[0].toUpperCase()){
-                                                    // if it is all-caps, treat as a sub-group
-                                                    if(cGroup && cGroup.length > 1){
-                                                        cGroup.pop(); // only allowing 1 sub-group
+                var importHistory = syncData('import/history/'+importConfigID+'/'+importKey+'/'+system.api.currentTime());
+
+                var fbLoadProms = {};
+                var fbLoadDefers = {};
+                fbLoadDefers['xRef'] = $q.defer();
+                fbLoadProms['xRef'] = fbLoadDefers['xRef'].promise;
+                importXref.$on('loaded', function(){
+                    console.log('xref loaded');
+                    fbLoadDefers['xRef'].resolve(true);
+                });
+                fbLoadDefers['target'] = $q.defer();
+                fbLoadProms['target'] = fbLoadDefers['target'].promise;
+                importTarget.$on('loaded', function(){
+                    console.log('target loaded');
+                    fbLoadDefers['target'].resolve(true);
+                });
+                fbLoadDefers['history'] = $q.defer();
+                fbLoadProms['history'] = fbLoadDefers['history'].promise;
+                importHistory.$on('loaded', function(){
+                    console.log('history loaded');
+                    fbLoadDefers['history'].resolve(true);
+                });
+
+                $q.all(fbLoadProms).then(function(tableLoads){
+                    console.log('tables loaded:'+JSON.stringify(tableLoads));
+                    var fileReader = new FileReader();
+                    fileReader.readAsText(csvFile);
+                    fileReader.onloadend = function(event){
+                        console.log('reading csv...');
+                        if(event.srcElement.result){
+                            var csvDataStr = event.srcElement.result;
+                            if(csvDataStr){
+                                var csvData = api.csvToArray(csvDataStr);
+                                console.log('loaded '+csvData.length+' rows in \''+csvFile.name+'\'');
+                                var columnDef = null;
+                                var cGroup = [];
+                                // parse the csv data
+                                angular.forEach(csvData, function(lineData, lineNumber){
+                                    if(columnDef){
+                                        // columns are defined, handle the row as data
+                                        if(lineData.length){
+                                            var rowGroupCheck = lineData.slice(1).join('').trim();
+                                            if(!rowGroupCheck){
+                                                // handle row group title
+                                                // if there is data in only the first column, treat it as a row group (ie. category)
+                                                // >= 76 characters are information/notes rows
+                                                if(lineData[0].trim() && lineData[0].length < 76){
+                                                    if(lineData[0] === lineData[0].toUpperCase()){
+                                                        // if it is all-caps, treat as a sub-group
+                                                        if(cGroup && cGroup.length > 1){
+                                                            cGroup.pop(); // only allowing 1 sub-group
+                                                        }
+                                                        cGroup.push(lineData[0].trim());
                                                     }
-                                                    cGroup.push(lineData[0].trim());
-                                                }
-                                                else{
-                                                    cGroup = [lineData[0].trim()];
+                                                    else{
+                                                        cGroup = [lineData[0].trim()];
+                                                    }
                                                 }
                                             }
-                                        }
-                                        else{
-                                            // handle a data row
-                                            var cRow = {};
-                                            angular.forEach(columnDef, function(colIdx, fieldName){
-                                                if(colIdx === private.RGSTR){
-                                                    // handle special field ROWGROUP
-                                                    if(cGroup.length){
-                                                        cRow[fieldName] = cGroup.join('/');
-                                                    }
-                                                }
-                                                else if(!angular.isNumber(colIdx)){
-                                                    // handle composite fields
-                                                    var compParts = colIdx.match(/ROWGROUP|\d+|\D/g);
-                                                    if(compParts && compParts.length){
-                                                        var cCompData = '';
-                                                        angular.forEach(compParts, function(partCol,partIdx){
-                                                            if(partCol === private.RGSTR){
-                                                                if(cGroup.length){
-                                                                    cCompData += cGroup.join('/');
-                                                                }
-                                                            }
-                                                            else{
-                                                                var partColNum = parseInt(partCol);
-                                                                if(angular.isNumber(partColNum) && !isNaN(partColNum) && partColNum < lineData.length){
-                                                                    cCompData += lineData[partColNum];
-                                                                }
-                                                                else{
-                                                                    cCompData += partCol;
-                                                                }
-                                                            }
-                                                        });
-                                                        if(cCompData){
-                                                            cRow[fieldName] = cCompData.trim();
+                                            else{
+                                                // handle a data row
+                                                var cRow = {};
+                                                angular.forEach(columnDef, function(colIdx, fieldName){
+                                                    if(colIdx === private.RGSTR){
+                                                        // handle special field ROWGROUP
+                                                        if(cGroup.length){
+                                                            cRow[fieldName] = cGroup.join('/');
                                                         }
                                                     }
+                                                    else if(!angular.isNumber(colIdx)){
+                                                        // handle composite fields
+                                                        var compParts = colIdx.match(/ROWGROUP|\d+|\D/g);
+                                                        if(compParts && compParts.length){
+                                                            var cCompData = '';
+                                                            angular.forEach(compParts, function(partCol,partIdx){
+                                                                if(partCol === private.RGSTR){
+                                                                    if(cGroup.length){
+                                                                        cCompData += cGroup.join('/');
+                                                                    }
+                                                                }
+                                                                else{
+                                                                    var partColNum = parseInt(partCol);
+                                                                    if(angular.isNumber(partColNum) && !isNaN(partColNum) && partColNum < lineData.length){
+                                                                        cCompData += lineData[partColNum];
+                                                                    }
+                                                                    else{
+                                                                        cCompData += partCol;
+                                                                    }
+                                                                }
+                                                            });
+                                                            if(cCompData){
+                                                                cRow[fieldName] = cCompData.trim();
+                                                            }
+                                                        }
 
-                                                }
-                                                else if(colIdx < lineData.length){
-                                                    // normal field definition
-                                                    cRow[fieldName] = lineData[colIdx].trim();
-                                                }
-                                            });
-                                            if (Object.keys(cRow).length && cRow.id) {
-                                                // the row has data, save it
-                                                var cRowID = system.api.fbSafeKey(cRow.id);
-
-                                                var newTargetRow = cRow;
-                                                delete newTargetRow.id;
-                                                // ecodocs: set up the rest of the target data...
-
-                                                /** ecodocs: more complex cross-referencing required (ex. upc)
-                                                        - need to add it to the import config
-                                                            crossReference:
-                                                                <fieldID>: [<lookupTables>]
-                                                 */
-                                                var targetID = importXref[cRowID] ? importXref[cRowID] : null;
-                                                if(targetID && !importTarget[targetID]){
-                                                    console.log('line #'+lineNumber+': what is #'+cRowID+'->'+targetID);
-                                                }
-                                                if (!targetID || !importTarget[targetID]) {
-                                                    // new target
-                                                    if(lineNumber % 10 === 0){
-                                                        console.log('line #'+lineNumber+': *NEW* ' + cRowID);
                                                     }
+                                                    else if(colIdx < lineData.length){
+                                                        // normal field definition
+                                                        cRow[fieldName] = lineData[colIdx].trim();
+                                                    }
+                                                });
+                                                if (Object.keys(cRow).length && cRow.id) {
+                                                    // the row has data, save it
+                                                    var cRowID = system.api.fbSafeKey(cRow.id);
 
-                                                    importTarget.$add(newTargetRow).then(function (newTarget) {
-                                                        targetID = newTarget.name();
-                                                        importXref.$child(cRowID).$set(targetID);
-                                                    });
+                                                    var newTargetRow = cRow;
+                                                    delete newTargetRow.id;
+                                                    // ecodocs: set up the rest of the target data...
+
+                                                    /** ecodocs: more complex cross-referencing required (ex. upc)
+                                                            - need to add it to the import config
+                                                                crossReference:
+                                                                    <fieldID>: [<lookupTables>]
+                                                     */
+                                                    var targetID = importXref[cRowID] ? importXref[cRowID] : null;
+                                                    if(targetID && !importTarget[targetID]){
+                                                        console.log('line #'+lineNumber+': what is #'+cRowID+'->'+targetID);
+                                                    }
+                                                    if (!targetID || !importTarget[targetID]) {
+                                                        // new target
+                                                        if(lineNumber % 10 === 0){
+                                                            console.log('line #'+lineNumber+': *NEW* ' + cRowID);
+                                                        }
+
+                                                        importTarget.$add(newTargetRow).then(function (newTarget) {
+                                                            targetID = newTarget.name();
+                                                            importXref.$child(cRowID).$set(targetID);
+                                                        });
+                                                    }
+                                                    else {
+                                                        // updating existing target
+                                                        // ecodocs: we can compare the data here to see what is different
+                                                        var changedFields = null;
+                                                        angular.forEach(columnDef, function(colIdx, fieldName){
+                                                            if(targetID && angular.isDefined(importTarget[targetID][fieldName])){
+                                                                if(importTarget[targetID][fieldName] !== newTargetRow[fieldName]){
+                                                                    if(!changedFields){
+                                                                        changedFields = {};
+                                                                    }
+                                                                    changedFields[fieldName] = {new: newTargetRow[fieldName], old: importTarget[targetID][fieldName]};
+                                                                }
+
+                                                            }
+                                                        });
+                                                        if(changedFields){
+                                                            if(lineNumber % 10 === 0) {
+                                                                console.log('line #' + lineNumber + ': *UPDATE* ' + cRowID + '->' + targetID);
+                                                            }
+
+                                                            //console.log('updating:' + cRowID + '->' + targetID + ' with line #' + lineNumber);
+                                                            importTarget.$child(targetID).$update(newTargetRow);
+                                                            importHistory.$child(targetID).$set(changedFields);
+                                                        }
+                                                    }
                                                 }
                                                 else {
-                                                    // updating existing target
-                                                    // ecodocs: we can compare the data here to see what is different
-                                                    if(lineNumber % 10 === 0) {
-                                                        console.log('line #' + lineNumber + ': *UPDATE* ' + cRowID + '->' + targetID);
-                                                    }
-                                                    //console.log('updating:' + cRowID + '->' + targetID + ' with line #' + lineNumber);
-                                                    importTarget.$child(targetID).$update(newTargetRow);
+                                                    console.log('No id found for row #' + lineNumber);
                                                 }
-                                            }
-                                            else {
-                                                console.log('No id found for row #' + lineNumber);
                                             }
                                         }
                                     }
-                                }
-                                else if(lineNumber < 25){
-                                    // no column definitions yet, check if this row can be used to define them
-                                    // if no column definition found in first 25 lines, it is an error
+                                    else if(lineNumber < 25){
+                                        // no column definitions yet, check if this row can be used to define them
+                                        // if no column definition found in first 25 lines, it is an error
 
-                                    var cColumnDef = {};
-                                    angular.forEach(importConfig.fields, function(cFieldCheck, cFieldID){
-                                        var cColDef = '';
-                                        angular.forEach(cFieldCheck, function(fieldMatch, fieldMatchIdx){
-                                            if(cColDef === ''){
-                                                cColDef = private.parseColumnNumber(fieldMatch, lineData);
+                                        var cColumnDef = {};
+                                        angular.forEach(importConfig.fields, function(cFieldCheck, cFieldID){
+                                            var cColDef = '';
+                                            angular.forEach(cFieldCheck, function(fieldMatch, fieldMatchIdx){
+                                                if(cColDef === ''){
+                                                    cColDef = private.parseColumnNumber(fieldMatch, lineData);
+                                                }
+                                            });
+
+                                            if(cColDef !== ''){
+                                                cColumnDef[cFieldID] = cColDef;
                                             }
                                         });
 
-                                        if(cColDef !== ''){
-                                            cColumnDef[cFieldID] = cColDef;
+                                        if(Object.keys(cColumnDef).length && angular.isDefined(cColumnDef.id)){
+                                            console.log('Columns defined:'+JSON.stringify(cColumnDef));
+                                            columnDef = cColumnDef;
                                         }
-                                    });
-
-                                    if(Object.keys(cColumnDef).length && angular.isDefined(cColumnDef.id)){
-                                        console.log('Columns defined:'+JSON.stringify(cColumnDef));
-                                        columnDef = cColumnDef;
                                     }
-                                }
-                                else{
-                                    data.errors.push('No column definition found in provided CSV');
-                                }
-                            });
+                                    else{
+                                        data.errors.push('No column definition found in provided CSV');
+                                    }
+                                });
+                            }
                         }
-                    }
-                };
+                    };
+                });
 
             }
             else{
